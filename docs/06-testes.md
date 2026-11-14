@@ -184,7 +184,7 @@ Em `pytest.ini`/`pyproject.toml`, `live` e `science` ficam excluídos por padrã
 | Workflow | Quando | O que roda |
 |---|---|---|
 | `test.yml` | Todo push e PR | pytest rápido + Vitest |
-| `update-data.yml` | Semanal, manual e push na `main` | pipeline dos alvos → `pytest -m science` → **deploy só se passar** |
+| `update-data.yml` | A cada 3 dias, manual e push na `main` | pipeline dos alvos → `pytest -m science` → **deploy só se passar** |
 
 Trecho de `update-data.yml` (complementa [05-hospedagem.md](05-hospedagem.md)):
 

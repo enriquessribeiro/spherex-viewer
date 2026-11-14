@@ -254,7 +254,7 @@ Observações:
 | Épocas irregulares e detectores faltando | Agrupar por tempo dinamicamente; UI tolerante a lacunas |
 | Pixel de 6,15″ | Movimentos de poucos ″/ano são sutis; imagem de diferença e marcador de posição prevista são essenciais |
 | DR1 + QR3 atuais, QR2 obsoleto | Coleções configuráveis; nunca misturar QR2 |
-| Novos dados QR3 semanais | Backend ao vivo sempre atualizado; Action semanal para os estáticos |
+| Novos dados QR3 semanais | Backend ao vivo sempre atualizado; Action a cada 3 dias para os estáticos |
 | All-Sky Cube com HiPS | Camada de contexto colorida no Aladin Lite, sem custo de processamento |
 
 ## 7. Referências

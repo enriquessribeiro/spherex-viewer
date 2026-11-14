@@ -133,7 +133,7 @@ A especificação completa está em [04-api.md](04-api.md). Resumo: o backend pr
 
 As coleções/releases do SPHEREx (`spherex_dr1`, `spherex_qr3`, ...) ficam em **configuração**, não fixas no código. Como a consulta TAP sempre lê o estado atual do arquivo, novas semanas de dados aparecem automaticamente no backend ao vivo; um novo release é só uma linha de configuração.
 
-Hospedagem, cache e a atualização semanal dos alvos pré-processados (GitHub Pages + Render + GitHub Actions) estão em [05-hospedagem.md](05-hospedagem.md).
+Hospedagem, cache e a atualização automática (a cada 3 dias) dos alvos pré-processados (GitHub Pages + Render + GitHub Actions) estão em [05-hospedagem.md](05-hospedagem.md).
 
 ## 6. Pontos críticos
 
