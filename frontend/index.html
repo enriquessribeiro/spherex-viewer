@@ -129,6 +129,32 @@
       </aside>
     </main>
 
+    <section class="spectrum-area" id="spectrum" aria-labelledby="spectrum-title" hidden>
+      <div class="spectrum-head">
+        <div>
+          <h2 class="skymap-title spectrum-title" id="spectrum-title">Espectro</h2>
+          <div class="spectrum-notes"></div>
+        </div>
+        <p class="legend spectrum-legend">
+          <span class="sp-key sp-key-now"></span> época que está na placa
+          <span class="sp-key sp-key-other"></span> outras épocas
+          <span class="sp-key sp-key-median"></span> mediana
+          <span class="sp-key sp-key-flagged"></span> pixel com aviso
+        </p>
+      </div>
+      <div class="spectrum-chart">
+        <svg role="img" aria-labelledby="spectrum-title"></svg>
+        <div class="spectrum-tooltip" hidden></div>
+      </div>
+      <details class="spectrum-table">
+        <summary>Ver os pontos em tabela</summary>
+        <table>
+          <thead><tr><th>λ (µm)</th><th>fluxo (µJy)</th><th>erro</th><th>detector</th><th>data</th><th>aviso</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </details>
+    </section>
+
     <section class="skymap-area" aria-labelledby="skymap-title">
       <div class="skymap-head">
         <div>

@@ -77,3 +77,21 @@ def test_miniatura_evita_epoca_com_poucas_exposicoes(tmp_path):
     doc = json.loads(build_static([ALVOS[1]], _CentroArchive(exposicoes), tmp_path).read_text())
 
     assert doc["targets"][0]["thumbnail"].endswith("frames/1/D2.png")
+
+
+def test_campo_do_alvo_leva_o_espectro_medido_em_cada_exposicao(tmp_path):
+    exposicoes = [SyntheticExposure(det="D6", mjd=60800.0 + i, wavelength_um=4.4 + 0.1 * i) for i in range(3)] + [
+        SyntheticExposure(det="D1", mjd=60980.0, wavelength_um=0.9),
+        SyntheticExposure(det="D2", mjd=60980.1),  # sem tabela de comprimento de onda: fica de fora
+    ]
+    manifesto = json.loads(build_static([ALVOS[0]], _CentroArchive(exposicoes), tmp_path).read_text())
+    campo_json = tmp_path / manifesto["targets"][0]["field"]
+    campo = json.loads(campo_json.read_text())
+
+    assert campo["spectrum"] == "spectrum.json"
+    espectro = json.loads((campo_json.parent / campo["spectrum"]).read_text())
+    jsonschema.validate(espectro, json.loads((SCHEMAS / "spectrum.schema.json").read_text()))
+    assert [(p["det"], p["epoch"]) for p in espectro["points"]] == [("D1", 2), ("D6", 1), ("D6", 1), ("D6", 1)]
+    assert [round(p["wavelength"], 2) for p in espectro["points"]] == [0.9, 4.4, 4.5, 4.6]
+    assert espectro["exposures"] == {"total": 5, "measured": 4}
+    assert espectro["neighbors"] == []

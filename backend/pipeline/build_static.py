@@ -15,9 +15,10 @@ from pathlib import Path
 
 from pipeline.archive import Archive
 from pipeline.cache import CachedArchive
-from pipeline.field import build_field
+from pipeline.field import CUTOUT_FACTOR, build_field
 from pipeline.irsa import IrsaArchive
-from pipeline.output import SCHEMA_VERSION, write_field
+from pipeline.output import SCHEMA_VERSION, spectrum_doc, write_field
+from pipeline.spectrum import APERTURE_PX, measure_spectrum, neighbors_in_aperture
 from pipeline.targets import Target, load_targets
 
 log = logging.getLogger("build_static")
@@ -31,7 +32,13 @@ def build_static(targets: list[Target], archive: Archive, out: str | Path) -> Pa
         ra, dec = target.field_center()
         log.info("%s: campo de %s′ em (%.5f, %.5f)", target.id, target.fov_arcmin, ra, dec)
         field = build_field(ra, dec, target.fov_arcmin, archive)
-        field_json = write_field(field, out, target=target)
+        # Espectro: as mesmas exposições e o mesmo recorte do campo (vêm do cache).
+        exposures = [e for epoch in field.epochs for e in epoch.exposures]
+        points = measure_spectrum(archive, exposures, ra, dec, target.fov_arcmin / 60 * CUTOUT_FACTOR, target.position_at)
+        spectrum = spectrum_doc(field, points, neighbors_in_aperture(field, target.position_at),
+                                len(exposures), APERTURE_PX)
+        log.info("%s: espectro com %d de %d exposições", target.id, len(points), len(exposures))
+        field_json = write_field(field, out, target=target, spectrum=spectrum)
         doc = json.loads(field_json.read_text())
         log.info("%s: %d épocas, %d exposições indisponíveis",
                  target.id, len(doc["epochs"]), len(doc["failed_exposures"]))

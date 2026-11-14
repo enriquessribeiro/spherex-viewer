@@ -25,7 +25,7 @@ from pipeline.targets import Target
 
 SCHEMA_VERSION = 1
 # Muda quando o processamento muda: força nova data_version mesmo sem exposições novas.
-PIPELINE_VERSION = "2"
+PIPELINE_VERSION = "3"  # 3: field.json pode apontar para spectrum.json
 
 MASK_SATURATED = 1
 MASK_LOW_QUALITY = 2
@@ -52,7 +52,7 @@ def data_version(field: Field) -> str:
 
 
 def write_field(field: Field, root: str | Path, target: Target | None = None,
-                generated_at: datetime | None = None) -> Path:
+                generated_at: datetime | None = None, spectrum: dict | None = None) -> Path:
     """Grava o campo e devolve o caminho do field.json."""
     fid, version = field_id(field.ra, field.dec, field.fov_arcmin), data_version(field)
     base_url = f"fields/{fid}/{version}/"
@@ -107,6 +107,9 @@ def write_field(field: Field, root: str | Path, target: Target | None = None,
     }
     if target is not None:
         doc["target"] = _target_doc(target, epochs_doc)
+    if spectrum is not None:
+        (out / "spectrum.json").write_text(json.dumps(spectrum, indent=1))
+        doc["spectrum"] = "spectrum.json"
 
     path = out / "field.json"
     path.write_text(json.dumps(doc, indent=1))
@@ -169,3 +172,20 @@ def _target_doc(target: Target, epochs_doc: list[dict]) -> dict:
 
 def _date(mjd: float) -> str:
     return (_MJD0 + timedelta(days=mjd)).date().isoformat()
+
+
+def spectrum_doc(field: Field, points, neighbors: list[dict], total_exposures: int, aperture_px: float) -> dict:
+    """spectrum.json (schemas/spectrum.schema.json): cada ponto com a época a que pertence."""
+    epoch_of = {e.id: epoch.index for epoch in field.epochs for e in epoch.exposures}
+    return {
+        "aperture_arcsec": round(aperture_px * float(abs(field.wcs.wcs.cdelt[1])) * 3600, 2),
+        "units": {"wavelength": "um", "flux": "uJy"},
+        "exposures": {"total": total_exposures, "measured": len(points)},
+        "points": [
+            {"wavelength": round(p.wavelength_um, 5), "bandwidth": round(p.bandwidth_um, 5),
+             "flux": round(p.flux_ujy, 3), "flux_err": round(p.flux_err_ujy, 3), "det": p.detector,
+             "epoch": epoch_of[p.exposure_id], "mjd": p.mjd, "exposure_id": p.exposure_id, "flagged": p.flagged}
+            for p in points if p.exposure_id in epoch_of
+        ],
+        "neighbors": neighbors,
+    }

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spherex-viewer/schemas/spectrum.schema.json",
+  "title": "Espectro de um alvo (spectrum.json)",
+  "description": "Fotometria de abertura do alvo em cada exposição, com o comprimento de onda da tabela WCS-WAVE. Ver docs/04-api.md §4.8.",
+  "type": "object",
+  "required": ["aperture_arcsec", "units", "exposures", "points", "neighbors"],
+  "additionalProperties": false,
+  "properties": {
+    "aperture_arcsec": { "type": "number", "exclusiveMinimum": 0 },
+    "units": {
+      "type": "object", "required": ["wavelength", "flux"], "additionalProperties": false,
+      "properties": { "wavelength": { "const": "um" }, "flux": { "const": "uJy" } }
+    },
+    "exposures": {
+      "type": "object", "required": ["total", "measured"], "additionalProperties": false,
+      "properties": { "total": { "type": "integer", "minimum": 0 }, "measured": { "type": "integer", "minimum": 0 } }
+    },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["wavelength", "bandwidth", "flux", "flux_err", "det", "epoch", "mjd", "exposure_id", "flagged"],
+        "additionalProperties": false,
+        "properties": {
+          "wavelength": { "type": "number" }, "bandwidth": { "type": "number" },
+          "flux": { "type": "number" }, "flux_err": { "type": "number", "minimum": 0 },
+          "det": { "enum": ["D1", "D2", "D3", "D4", "D5", "D6"] },
+          "epoch": { "type": "integer", "minimum": 1 }, "mjd": { "type": "number" },
+          "exposure_id": { "type": "string" }, "flagged": { "type": "boolean" }
+        }
+      }
+    },
+    "neighbors": {
+      "description": "Outras fontes dentro (ou na borda) da abertura: nesses detectores o fluxo pode ser delas.",
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["detector", "distance_arcsec", "snr"], "additionalProperties": false,
+        "properties": {
+          "detector": { "enum": ["D1", "D2", "D3", "D4", "D5", "D6"] },
+          "distance_arcsec": { "type": "number" }, "snr": { "type": "number" }
+        }
+      }
+    }
+  }
+}

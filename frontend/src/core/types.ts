@@ -54,4 +54,6 @@ export interface FieldDoc {
   display: Partial<Record<Detector, { stretch: Stretch; vmin: number; vmax: number }>>;
   failed_exposures: string[];
   target?: TargetDoc;
+  /** spectrum.json do alvo, relativo à pasta do campo (schemas/spectrum.schema.json). */
+  spectrum?: "spectrum.json";
 }
