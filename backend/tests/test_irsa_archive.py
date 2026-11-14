@@ -48,3 +48,78 @@ def test_exposicao_guarda_identificador_legivel_e_caminho_do_arquivo():
     assert primeira.mjd == pytest.approx(60800.700028)
     assert primeira.collection == "spherex_dr1"
     assert primeira.uri.endswith("level2_2025W19_1B_0116_1D3_spx_l2b-v27-2026-197.fits")
+
+
+def _fits_real_com_epsf() -> bytes:
+    """Recorte real gravado + uma extensão EPSF falsa, como vem do IRSA."""
+    import io
+
+    import numpy as np
+    from astropy.io import fits
+
+    hdul = fits.open(FIXTURES / "wise0855_D1_epoca1.fits")
+    hdul.insert(5, fits.BinTableHDU.from_columns(
+        [fits.Column(name="PSF", format="E", array=np.zeros(3))], name="EPSF"
+    ))
+    buffer = io.BytesIO()
+    hdul.writeto(buffer)
+    return buffer.getvalue()
+
+
+def _exposicao_d1():
+    from pipeline.archive import Exposure
+
+    return Exposure(
+        id="2025W19_1B_0241_1D1", detector="D1", mjd=60801.514,
+        uri="ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/1/"
+            "level2_2025W19_1B_0241_1D1_spx_l2b-v27-2026-197.fits",
+        collection="spherex_dr1",
+    )
+
+
+def test_recorte_real_e_baixado_pela_url_de_cutout_e_lido_sem_a_epsf():
+    pedidos = []
+
+    def handler(request):
+        pedidos.append(request.url)
+        return httpx.Response(200, content=_fits_real_com_epsf())
+
+    hdul = IrsaArchive(client=_cliente(handler)).fetch_cutout(_exposicao_d1(), RA0, DEC0, 0.15)
+
+    url = pedidos[0]
+    assert url.path == "/" + _exposicao_d1().uri
+    assert url.params["center"] == "133.79513,-7.24515d"
+    assert url.params["size"] == "0.15"
+    nomes = [h.name for h in hdul]
+    assert {"IMAGE", "FLAGS", "VARIANCE", "ZODI"} <= set(nomes)
+    assert "EPSF" not in nomes
+    assert hdul["IMAGE"].header["BUNIT"] == "MJy / sr"
+
+
+def test_servidor_ocupado_e_tentado_de_novo_com_espera_crescente():
+    respostas = iter([503, 503, 200])
+    esperas = []
+
+    def handler(request):
+        status = next(respostas)
+        conteudo = _fits_real_com_epsf() if status == 200 else b"Server busy, retry later."
+        return httpx.Response(status, content=conteudo)
+
+    archive = IrsaArchive(client=_cliente(handler), sleep=esperas.append)
+    hdul = archive.fetch_cutout(_exposicao_d1(), RA0, DEC0, 0.15)
+
+    assert "IMAGE" in [h.name for h in hdul]
+    assert len(esperas) == 2
+    assert esperas[1] > esperas[0]
+
+
+def test_servidor_ocupado_sempre_gera_erro_de_arquivo_indisponivel():
+    from pipeline.irsa import ArchiveUnavailable
+
+    def handler(request):
+        return httpx.Response(503, content=b"Server busy, retry later.")
+
+    archive = IrsaArchive(client=_cliente(handler), sleep=lambda s: None, max_attempts=4)
+
+    with pytest.raises(ArchiveUnavailable):
+        archive.fetch_cutout(_exposicao_d1(), RA0, DEC0, 0.15)
