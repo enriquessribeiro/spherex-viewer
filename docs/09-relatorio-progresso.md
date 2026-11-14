@@ -1,4 +1,4 @@
-# Relatório de progresso — fases 0 a 2
+# Relatório de progresso — fases 0 a 3
 
 > Situação em **14/11/2026**, primeiro dia do NASA Space Apps Challenge 2026.
 > Desafio: **Planet X and SPHEREx**. Repositório: `enriquessribeiro/spherex-viewer`.
@@ -19,8 +19,9 @@ Este relatório consolida o que foi construído até agora, como foi construído
 | R Draconis | Brilho cai para 0,46× entre épocas (15σ) |
 | Estrelas de campo | Ficam paradas entre épocas com variação de 0,02–0,04 px (alinhamento ~25× melhor que um pixel) |
 
-- **Ainda não há interface.** O site (frontend), a API e a publicação são as fases 3 a 5.
-- Números: 3 PRs mergeados, 38 commits, 58 testes (42 rápidos + 16 científicos), ~1.600 linhas de Python, 10 documentos.
+- **O backend está completo para o MVP.** Os dados de cada campo são gravados num formato formal (JSON Schema), os 5 alvos já podem ser gerados como dados estáticos (5 MB no total) e há uma API que processa qualquer coordenada sob demanda.
+- **Ainda não há interface.** O site (frontend) e a publicação são as fases 4 e 5.
+- Números: 5 PRs mergeados, 47 commits, 91 testes (67 rápidos + 16 científicos + 8 de serviços reais), ~2.600 linhas de Python, 11 documentos.
 
 ## 2. Linha do tempo
 
@@ -30,6 +31,8 @@ Este relatório consolida o que foi construído até agora, como foi construído
 | Documentação inicial | 01 (projeto), 02 (dados), 03 (arquitetura), 04 (API), 05 (hospedagem), 06 (testes), 07 (plano) | **PR #1** (docs + plano) |
 | Fase 0 + Fase 1 | Estrutura do backend, CI e pipeline com dados sintéticos, em 9 fatias de TDD | **PR #2**: 16 testes |
 | Fase 2 | Adaptador do IRSA, cache, paralelismo, alvos, Marco 1 e validação científica | **PR #3**: 42 + 16 testes |
+| Relatório | Este documento (versão das fases 0 a 2) | **PR #4** |
+| Fase 3 | Contrato de dados (JSON Schema), gravação dos campos, dados estáticos dos alvos e API | **PR #5**: 67 + 16 + 8 testes |
 
 ## 3. O que foi construído
 
@@ -39,7 +42,8 @@ Este relatório consolida o que foi construído até agora, como foi construído
 spherex-viewer/
 ├── docs/                    ← documentação (este relatório incluso)
 │   └── img/                 ← imagens dos resultados (Marco 1)
-├── targets.yaml             ← os 5 alvos do desafio (SIMBAD)
+├── targets.yaml             ← os 5 alvos do desafio (SIMBAD) e o detector padrão de cada um
+├── schemas/                 ← contrato de dados: field.schema.json, manifest.schema.json
 ├── .github/workflows/
 │   └── test.yml             ← CI: testes rápidos em todo PR
 └── backend/                 ← Python 3.12, gerenciado com uv
@@ -48,10 +52,19 @@ spherex-viewer/
     │   ├── irsa.py          ← adaptador do IRSA (TAP + recortes + novas tentativas)
     │   ├── cache.py         ← cache em disco de consultas e recortes
     │   ├── field.py         ← o pipeline: build_field (épocas, alinhamento, soma)
-    │   └── targets.py       ← alvos e propagação por movimento próprio
+    │   ├── targets.py       ← alvos e propagação por movimento próprio
+    │   ├── output.py        ← write_field: field.json + quadros binários + PNG
+    │   └── build_static.py  ← dados estáticos dos alvos (manifest.json + campos)
+    ├── api/
+    │   ├── app.py           ← create_app: rotas, erros, CORS
+    │   ├── jobs.py          ← processamento assíncrono de campos, com progresso
+    │   ├── coords.py        ← coordenadas digitadas (graus ou sexagesimal)
+    │   ├── simbad.py        ← nomes de objetos → posição e movimento próprio
+    │   └── main.py          ← instância de produção (IRSA real + cache)
     └── tests/
         ├── synthetic.py     ← céu sintético no formato do SPHEREx
         ├── test_pipeline.py, test_irsa_archive.py, test_cache.py, test_targets.py
+        ├── test_output.py, test_build_static.py, test_api.py, test_simbad_live.py
         ├── fixtures/irsa/   ← respostas reais gravadas do IRSA (WISE 0855)
         └── science/         ← validação científica com dados reais
 ```
@@ -98,6 +111,33 @@ Saída (`Field`):
 
 `targets.yaml` tem os 5 alvos com posição e movimento próprio do SIMBAD (época J2000). O centro de cada campo é a posição **propagada até nov/2025** (meio do primeiro ano de dados), para objetos rápidos ficarem perto do centro em todas as épocas.
 
+### 3.5 Contrato de dados e dados estáticos (fase 3)
+
+`write_field(field, raiz, target)` grava cada campo em `fields/<field_id>/<data_version>/`:
+
+| Arquivo | Conteúdo |
+|---|---|
+| `field.json` | Manifesto do campo: grade, épocas, quadros por detector, limites de contraste, exposições, alvo e posições previstas |
+| `frames/<época>/<det>.f32` | Quadro em float32 little-endian, N × N, **norte na primeira linha** |
+| `.var.f32` | Variância |
+| `.mask.u8` | Bit 0 = saturado (pintar com o brilho máximo); bit 1 = baixa qualidade |
+| `.png` | Quadro renderizado (esticamento asinh, núcleo saturado em branco) |
+
+- `field_id` = coordenadas arredondadas em 0,0001° + campo (ex.: `133.7600-7.2422_6`); `data_version` = hash das exposições usadas + versão do pipeline. URLs com `data_version` podem ser cacheadas para sempre.
+- **JSON Schema** (`schemas/`) é a fonte da verdade do formato; os testes validam toda saída contra ele, e o frontend vai validar contra o mesmo.
+- `build_static` gera `manifest.json` + os campos dos alvos. Com dados reais: 5 alvos em ~2,5 min (cache cheio), **5 MB** no total.
+
+### 3.6 API (fase 3)
+
+| Rota | Comportamento |
+|---|---|
+| `GET /api/v1/field?ra&dec&fov` | Primeiro pedido dispara o processamento: `202` com progresso (recortes baixados / total) até ficar pronto, então `200` com o `field.json`. Pedidos do mesmo campo compartilham o trabalho |
+| `GET /api/v1/fields/...` | Arquivos do campo, com cache imutável e proteção contra *path traversal* |
+| `GET /api/v1/resolve?name` | Coordenadas (graus ou sexagesimal) sem rede; nomes via SIMBAD |
+| `GET /api/v1/health`, `/config` | Estado e limites |
+
+Erros padronizados: `400` (parâmetros), `404 NO_COVERAGE`, `429 BUSY` (+ `Retry-After`), `502 UPSTREAM_ERROR` (o próximo pedido tenta de novo). CORS liberado para embed. Medido localmente: WISE 0855 pronto em ~22 s com o cache cheio.
+
 ## 4. Processo de trabalho
 
 ### 4.1 Documentação primeiro
@@ -128,8 +168,8 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | 1. Pipeline com céu sintético (+ recortes reais gravados) | ✅ 32 testes |
 | 2. Adaptador do IRSA (respostas gravadas) + cache | ✅ 8 testes |
 | Alvos (propagação × Gaia DR3, `targets.yaml`) | ✅ 2 testes |
-| 3. API HTTP | Fase 3 |
-| 4. Contrato de dados (JSON Schema) | Fase 3 |
+| 3. API HTTP | ✅ 15 testes (+ 8 `live` do SIMBAD) |
+| 4. Contrato de dados (JSON Schema) | ✅ 10 testes (gravação + dados estáticos) |
 | 5. Núcleo do frontend | Fase 4 |
 | 6. Validação científica (dados reais) | ✅ 16 testes |
 | 7. Ponta a ponta no navegador | Opcional |
@@ -168,7 +208,23 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | Exposição indisponível é **pulada e registrada** | Um único `503` persistente derrubou um campo de 258 exposições | Primeira execução do Marco 1 |
 | Centro dos alvos = posição **propagada** | O WISE 0855 está ~3,4′ a oeste da coordenada de 2010 do desafio | Comparação com SIMBAD |
 
-### 5.3 Validação científica
+### 5.3 Contrato, dados estáticos e API (fase 3)
+
+| Decisão | Por quê |
+|---|---|
+| **JSON Schema** como fonte da verdade do formato | Backend, dados estáticos e frontend não podem divergir sem quebrar um teste |
+| Quadros com o **norte na primeira linha** | Convenção de imagem (topo = norte); a grade interna do pipeline usa a convenção FITS (linha 0 = sul) e a conversão acontece só na gravação |
+| **`mask.u8`** (saturado, baixa qualidade) no lugar de `flags.u32` | É o que o frontend precisa agora; o overlay de fantasmas/persistência fica para a fase 6 |
+| `field_id` com arredondamento padrão de ponto flutuante | Igual ao `toFixed` do JavaScript: frontend e backend concordam (−7,24515 → −7,2451) |
+| `data_version` = hash das exposições + versão do pipeline | Dado novo ou processamento novo → URL nova; o resto pode ficar em cache para sempre |
+| `default_detector` por alvo (D6 para anãs frias) | Lição do Marco 1: o WISE 0855 só aparece em D5–D6 |
+| Miniatura na época mais recente com **≥ 3 exposições** | Épocas de 1 exposição (Barnard's Star, set/2026) são ruidosas demais para a vitrine |
+| API **assíncrona com progresso** (202 → 200) | Um campo novo leva minutos (IRSA); o servidor grátis não pode prender a conexão |
+| Erros transitórios **esquecidos após reportados** | O próximo pedido tenta de novo em vez de ficar preso no erro |
+| Arquivo e resolvedor **injetáveis** em `create_app` | API testada sem rede, com o céu sintético |
+| SIMBAD pelo **espelho de Harvard** primeiro | O servidor principal do CDS esteve fora do ar |
+
+### 5.4 Validação científica
 
 | Decisão | Por quê |
 |---|---|
@@ -194,6 +250,9 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | 9 | Variáveis reprovadas | Halo do R Dra usado como comparação; desvio padrão inflado | Raio de exclusão + MAD (no teste) | 2 |
 | 10 | Controle negativo reprovado | Estrelas de campo que variam de verdade | Controle reformulado | 2 |
 | 11 | Separação ε Indi A–B escrita como 1,5′ | Erro de memória | Calculado: 6,7′; campo de 6′ centrado no B | 2 |
+| 12 | `field_id` do exemplo do contrato não batia (−7,2452 × −7,2451) | −7,24515 não é exato em binário | Exemplo corrigido; arredondamento padrão, igual ao do JavaScript | 3 |
+| 13 | Commit feito com um teste falhando | A cadeia de comandos usava `grep`, que devolve sucesso | Corrigido antes do push; commit só depois de `pytest` passar | 3 |
+| 14 | Miniatura da Barnard's Star usava uma época de 1 exposição | Regra "última época" | Época mais recente com ≥ 3 exposições | 3 |
 
 ## 7. Resultados
 
@@ -222,9 +281,8 @@ Achados com valor para a apresentação:
 
 | Fase | Entrega |
 |---|---|
-| **3 — Saídas e API** | `field.json` + quadros `.f32`/`.png` validados por JSON Schema; `build_static` (dados dos 5 alvos); API FastAPI (`/field` assíncrono, `/resolve`, erros, CORS) |
 | **4 — Frontend** | `viewer-core` com TDD; player, blink, diferença, seletor de detector; **Marco 2: site funcionando com dados estáticos** |
 | **5 — Publicação** | Action a cada 3 dias (pipeline → validação científica → Pages); API no Render |
 | **6 — Extras** | Espectro sob demanda; Aladin Lite com Gaia/WISE e posição prevista; overlay de flags; falsa cor; campo variável; embed; roteiro do pitch |
 
-Lições já registradas para o frontend: abrir em **D6** para anãs marrons frias, diferença padrão entre as épocas com **mais sinal**, núcleo saturado pintado com o **brilho máximo**, zoom e mira fixa para movimentos de ~1 px.
+Lições já registradas para o frontend: abrir no **detector padrão** do alvo (D6 para anãs frias), diferença padrão entre as épocas com **mais sinal**, núcleo saturado pintado com o **brilho máximo** (bit 0 da máscara), zoom e mira fixa para movimentos de ~1 px, e **controle de contraste**: com `vmax` = máximo, o campo em volta de alvos muito brilhantes (Barnard, R Dra) fica escuro.
