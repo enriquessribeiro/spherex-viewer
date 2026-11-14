@@ -14,22 +14,27 @@ Como o projeto será construído: fases, ordem das tarefas, marcos de entrega e 
 
 Branch: `fase-0/preparacao`
 
-- [ ] Estrutura do repositório: `backend/`, `frontend/`, `schemas/`
-- [ ] Backend: `pyproject.toml` (astropy, numpy, reproject, fastapi, httpx, pytest)
-- [ ] pytest com marcadores `live` e `science` desligados por padrão
-- [ ] Workflow `test.yml`: testes rápidos em todo push e PR
-- [ ] Confirmar no SIMBAD coordenadas, movimento próprio e época de referência dos 5 alvos
-- [ ] Criar `targets.yaml`
+- [x] Estrutura do repositório: `backend/`, `frontend/`, `schemas/`
+- [x] Backend: `pyproject.toml` (astropy, numpy, reproject, fastapi, httpx, pytest)
+- [x] pytest com marcadores `live` e `science` desligados por padrão
+- [x] Workflow `test.yml`: testes rápidos em todo push e PR
+- [ ] Confirmar no SIMBAD coordenadas, movimento próprio e época de referência dos 5 alvos (movido para a fase 2)
+- [ ] Criar `targets.yaml` (movido para a fase 2)
+
+> A fase 0 foi feita no início do branch `fase-1/pipeline`.
 
 ### Fase 1 — Pipeline científico (dados sintéticos)
 
 Branch: `fase-1/pipeline`. É a parte de maior risco, por isso vem primeiro.
 
-- [ ] `SyntheticArchive` + estrela parada em 2 épocas → estrela no pixel central do quadro
-- [ ] Apontamentos com rotação/deslocamento diferentes → estrela no mesmo pixel (alinhamento)
-- [ ] Estrela que anda 2 px → deslocamento detectado
-- [ ] Agrupamento de épocas; épocas sem algum detector
-- [ ] Subtração da luz zodiacal, máscara de flags, soma ponderada por variância, contraste comum entre épocas
+- [x] `SyntheticArchive` + estrela parada em 2 épocas → estrela no pixel central do quadro
+- [x] Apontamentos com rotação/deslocamento diferentes → estrela no mesmo pixel (alinhamento)
+- [x] Estrela que anda 2 px → deslocamento detectado
+- [x] Agrupamento de épocas; épocas sem algum detector
+- [x] Subtração da luz zodiacal, máscara de flags, soma ponderada por variância, contraste comum entre épocas
+- [x] Erro `NoCoverage` e grade no tamanho do contrato da API
+
+> O cenário de espectro sintético de [06-testes.md](06-testes.md) fica para a fase 6 (extra *espectro sob demanda*).
 
 ### Fase 2 — Dados reais
 
