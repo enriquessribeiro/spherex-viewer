@@ -11,7 +11,9 @@ import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
 import { cropAnchor, zoomCrop } from "./core/crop";
 import { fetchJson, loadApiField, loadFrame, loadManifest, loadStaticField, type FieldHandle } from "./data";
-import { propagate } from "./core/motion";
+import { FIELD_REFERENCE_MJD, propagate } from "./core/motion";
+import { parseCoordinates } from "./core/coords";
+import { nearbyTarget, type MovingTarget } from "./core/nearby";
 import { pencilArrow, pencilCircle } from "./ui/marks";
 import { SkyMap } from "./ui/skymap";
 
@@ -99,6 +101,21 @@ async function openFromState() {
   stopTimer();
   field = null;
   drawToken++; // um draw() em andamento do campo anterior não pode terminar sem campo
+  let notice: string | null = null;
+
+  // Coordenada de catálogo (ex.: a do desafio para o WISE 0855, de 2010) perto da trajetória de
+  // um alvo: abre o alvo pré-processado, onde o objeto está hoje, em vez de um campo vazio.
+  if (state.ra !== undefined && state.dec !== undefined && !state.target && manifest) {
+    const near = nearbyTarget({ ra: state.ra, dec: state.dec }, await movingTargets());
+    if (signal.aborted) return;
+    const t = near && manifest.targets.find((x) => x.id === near.id);
+    if (t && near.distanceDeg * 3600 > 1) {
+      notice = `A coordenada digitada fica a ${(near.distanceDeg * 60).toFixed(1).replace(".", ",")}′ de ${t.name}, ` +
+        "que se move rápido: mostrando o objeto onde ele está nas imagens do SPHEREx.";
+    }
+    if (t) state = { ...state, target: t.id, ra: undefined, dec: undefined, fov: t.fov_arcmin };
+    updateUrl();
+  }
 
   const source = chooseSource(state, manifest, API_BASE);
   currentTarget = source.kind === "static" ? manifest!.targets.find((t) => t.id === source.targetId) ?? null : null;
@@ -130,6 +147,7 @@ async function openFromState() {
         }, signal);
     if (signal.aborted) return;
     setupField();
+    if (notice) showNotice(notice);
   } catch (err) {
     if ((err as Error).name === "AbortError") return;
     setStatus(`Não foi possível carregar: ${(err as Error).message}. Tente de novo ou escolha um dos alvos.`, "error");
@@ -331,6 +349,39 @@ function renderTargets() {
   }
 }
 
+const fieldDocCache = new Map<string, Promise<FieldHandle>>();
+
+/** field.json de um alvo, carregado uma vez (miniaturas e busca por coordenada usam o mesmo). */
+function targetField(t: ManifestTarget): Promise<FieldHandle> {
+  let pending = fieldDocCache.get(t.id);
+  if (!pending) {
+    pending = loadStaticField("data/" + t.field);
+    pending.catch(() => fieldDocCache.delete(t.id));
+    fieldDocCache.set(t.id, pending);
+  }
+  return pending;
+}
+
+/** Alvos com o movimento próprio do field.json (o manifesto só tem o centro do campo). */
+async function movingTargets(): Promise<MovingTarget[]> {
+  const docs = await Promise.all((manifest?.targets ?? []).map((t) => targetField(t).catch(() => null)));
+  return (manifest?.targets ?? []).flatMap((t, i) => {
+    const target = docs[i]?.doc.target;
+    return [{
+      id: t.id, ra: t.ra, dec: t.dec, field_mjd: FIELD_REFERENCE_MJD,
+      pm_ra_masyr: target?.pm_ra_masyr ?? 0, pm_dec_masyr: target?.pm_dec_masyr ?? 0,
+      ref_mjd: target?.ref_mjd ?? FIELD_REFERENCE_MJD,
+    }];
+  });
+}
+
+let noticeTimer: number | undefined;
+function showNotice(message: string) {
+  setStatus(message);
+  clearTimeout(noticeTimer);
+  noticeTimer = window.setTimeout(() => { if ($("plate-status").textContent === message) setStatus(null); }, 7000);
+}
+
 const thumbCache = new Map<string, Promise<ImageData | null>>();
 
 /** Miniatura do alvo nas cores da placa (negativo), com contraste realçado para caber em 64 px. */
@@ -340,7 +391,7 @@ function drawThumbnail(t: ManifestTarget, el: HTMLCanvasElement) {
     pending = (async () => {
       const match = t.thumbnail.match(/frames\/(\d+)\/(D\d)\.png$/);
       if (!match) return null;
-      const handle = await loadStaticField("data/" + t.field);
+      const handle = await targetField(t);
       const frame = await loadFrame(handle, Number(match[1]), match[2] as Detector);
       const display = handle.doc.display[match[2] as Detector];
       if (!frame || !display) return null;
@@ -619,10 +670,10 @@ function wire() {
     const q = $<HTMLInputElement>("search-input").value.trim();
     if (!q) return;
     const known = manifest?.targets.find((t) => t.id === q.toLowerCase() || t.name.toLowerCase() === q.toLowerCase());
-    const numeric = q.match(/^\s*([+-]?\d+(?:\.\d+)?)\s*[,\s]\s*([+-]?\d+(?:\.\d+)?)\s*$/);
+    const coords = parseCoordinates(q); // graus ou sexagesimal, sem precisar da API
     const base = { ...state, target: undefined, ra: undefined, dec: undefined, name: undefined, det: undefined, a: undefined, b: undefined };
     if (known) state = { ...base, target: known.id, fov: known.fov_arcmin };
-    else if (numeric) state = { ...base, ra: Number(numeric[1]), dec: Number(numeric[2]) };
+    else if (coords) state = { ...base, ...coords };
     else state = { ...base, name: q };
     updateUrl();
     openFromState();
