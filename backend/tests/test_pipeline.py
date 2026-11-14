@@ -280,3 +280,54 @@ def test_recortes_reais_do_wise0855_passam_pelo_pipeline():
         assert frame.data.shape == (59, 59)
         assert np.isfinite(frame.data).mean() > 0.95  # quase todo o campo coberto
     assert all(np.isfinite([lim.vmin, lim.vmax]).all() for lim in field.display.values())
+
+
+class _ArquivoLento:
+    """Arquivo sintético em que cada recorte demora; mede a concorrência máxima."""
+
+    def __init__(self, n_exposicoes: int, atraso_s: float = 0.2):
+        import threading
+
+        self.inner = SyntheticArchive(
+            sources=[SyntheticSource(ra=RA0, dec=DEC0)],
+            exposures=[SyntheticExposure(det="D6", mjd=60800.0 + i * 0.1) for i in range(n_exposicoes)],
+        )
+        self.atraso_s = atraso_s
+        self._lock = threading.Lock()
+        self.ativos = 0
+        self.pico = 0
+
+    def query(self, ra, dec):
+        return self.inner.query(ra, dec)
+
+    def fetch_cutout(self, exposure, ra, dec, size_deg):
+        import time
+
+        with self._lock:
+            self.ativos += 1
+            self.pico = max(self.pico, self.ativos)
+        time.sleep(self.atraso_s)
+        with self._lock:
+            self.ativos -= 1
+        return self.inner.fetch_cutout(exposure, ra, dec, size_deg)
+
+
+def test_downloads_paralelos_dao_o_mesmo_resultado_que_sequenciais():
+    sequencial = build_field(RA0, DEC0, 6, _ArquivoLento(6, atraso_s=0), max_workers=1)
+    paralelo = build_field(RA0, DEC0, 6, _ArquivoLento(6, atraso_s=0), max_workers=4)
+
+    np.testing.assert_array_equal(
+        sequencial.epochs[0].frames["D6"].data, paralelo.epochs[0].frames["D6"].data
+    )
+
+
+def test_downloads_paralelos_respeitam_o_limite_de_conexoes_e_ganham_tempo():
+    import time
+
+    arquivo = _ArquivoLento(8, atraso_s=0.2)
+    inicio = time.perf_counter()
+    build_field(RA0, DEC0, 6, arquivo, max_workers=4)
+    duracao = time.perf_counter() - inicio
+
+    assert arquivo.pico == 4  # nunca passa do limite (o IRSA responde 503 se exagerarmos)
+    assert duracao < 1.0  # sequencial levaria 8 x 0,2 = 1,6 s

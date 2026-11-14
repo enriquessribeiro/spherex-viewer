@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 import numpy as np
@@ -21,6 +22,10 @@ EPOCH_GAP_DAYS = 10.0
 # PERSIST (17), CROSSTALK (20) e fantasmas/artefatos (22-28) viram overlay.
 BAD_PIXEL_BITS = (0, 1, 2, 6, 9, 10, 11, 15, 19)
 BAD_PIXEL_MASK = sum(1 << b for b in BAD_PIXEL_BITS)
+
+# Downloads simultâneos do arquivo. O IRSA responde 503 com poucos pedidos paralelos,
+# então o limite é baixo e o adaptador repete com espera (pipeline/irsa.py).
+DEFAULT_MAX_WORKERS = 4
 
 # Fração mínima de pixels válidos na vizinhança interpolada para aceitar o valor.
 MIN_VALID_WEIGHT = 0.5
@@ -88,7 +93,13 @@ def group_epochs(exposures: list[Exposure], gap_days: float = EPOCH_GAP_DAYS) ->
     return groups
 
 
-def build_field(ra: float, dec: float, fov_arcmin: float, archive: Archive) -> Field:
+def build_field(
+    ra: float,
+    dec: float,
+    fov_arcmin: float,
+    archive: Archive,
+    max_workers: int = DEFAULT_MAX_WORKERS,
+) -> Field:
     wcs, n = field_grid(ra, dec, fov_arcmin)
     # Recorte um pouco maior que o campo para a reprojeção não perder as bordas.
     size_deg = fov_arcmin / 60 * 1.5
@@ -97,14 +108,20 @@ def build_field(ra: float, dec: float, fov_arcmin: float, archive: Archive) -> F
     if not exposures:
         raise NoCoverage(f"nenhuma exposição SPHEREx cobre ra={ra}, dec={dec}")
 
-    epochs: list[Epoch] = []
-    for index, group in enumerate(group_epochs(exposures), start=1):
-        stacks: dict[str, list[tuple[np.ndarray, np.ndarray]]] = defaultdict(list)
-        for exp in group:
-            hdul = archive.fetch_cutout(exp, ra, dec, size_deg)
-            stacks[exp.detector].append(_reproject_exposure(hdul, wcs, n))
-        frames = {det: _coadd(layers) for det, layers in stacks.items()}
-        epochs.append(Epoch(index=index, exposures=group, frames=frames))
+    def load(exp: Exposure) -> tuple[np.ndarray, np.ndarray]:
+        return _reproject_exposure(archive.fetch_cutout(exp, ra, dec, size_deg), wcs, n)
+
+    groups = group_epochs(exposures)
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        # map preserva a ordem: o resultado não depende do paralelismo.
+        layers = iter(pool.map(load, [exp for group in groups for exp in group]))
+        epochs: list[Epoch] = []
+        for index, group in enumerate(groups, start=1):
+            stacks: dict[str, list[tuple[np.ndarray, np.ndarray]]] = defaultdict(list)
+            for exp in group:
+                stacks[exp.detector].append(next(layers))
+            frames = {det: _coadd(stack) for det, stack in stacks.items()}
+            epochs.append(Epoch(index=index, exposures=group, frames=frames))
 
     return Field(
         ra=ra, dec=dec, fov_arcmin=fov_arcmin, wcs=wcs, n=n,
