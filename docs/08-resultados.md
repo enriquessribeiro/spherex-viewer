@@ -2,6 +2,19 @@
 
 Resultados obtidos com **dados reais** do SPHEREx durante o desenvolvimento. Serve de registro científico do projeto e de material para a apresentação.
 
+## Resumo: os 5 alvos do desafio (14/11/2026)
+
+Todos validados automaticamente por `pytest -m science` (16 testes, ~2,5 min com o cache cheio).
+
+| Alvo | Exposições / épocas | Detector | Resultado |
+|---|---|---|---|
+| **WISE 0855** | 258 / 4 | D6 | Aparece só em 4–5 µm, na posição prevista (0,12–0,19 px); move 0,6 px entre nov/2025 e mai/2026 (erro 0,09 px) |
+| **Barnard's Star** | 358 / 7 | D2 | Move **1,81 px (~11″) para o norte** entre ago/2025 e set/2026 (erro ~0,02 px), apesar do núcleo saturado |
+| **Epsilon Indi B** | 457 / 6 (1 exposição indisponível, pulada) | D2 | Detectado com S/R 250–640; posição 0,07–0,17 px; movimento confere |
+| **RW Aurigae** | 335 / 3 | D2 | Brilho sobe **1,35×** entre épocas, a 12σ da dispersão das estrelas de campo |
+| **R Draconis** | 537 / 8 (2 indisponíveis) | D2 | Brilho cai para **0,46×** (~0,85 mag), a 15σ: a variação de uma Mira |
+| Estrelas de campo | 5 campos | D2 | Paradas entre épocas (0,02–0,04 px): alinhamento ~25× melhor que um pixel |
+
 ## Marco 1 — WISE 0855 real andando (14/11/2026)
 
 ### Configuração
@@ -85,3 +98,41 @@ Com a máscara antiga, o anel também era removido: a estrela aparecia como um b
 ### Estrelas de campo
 
 No campo do WISE 0855, as 5 estrelas de campo mais brilhantes variam **0,02–0,04 px** (0,1–0,25″) entre épocas: o alinhamento com dados reais é ~25× melhor que um pixel.
+
+## Estrelas variáveis: R Draconis e RW Aurigae (14/11/2026)
+
+### Método
+
+Fotometria **relativa**: em cada par de épocas, a razão de brilho do alvo é normalizada pela mediana das razões de 5 estrelas de campo (cancela diferenças de calibração entre épocas). A dispersão das estrelas de campo é medida de forma **robusta** (MAD), para uma estrela de campo que também varie não inflar o critério. Fluxo por ajuste gaussiano usando só pixels válidos (o R Dra tem ~10 pixels de núcleo sem dado).
+
+Critério de variável: mudança > 10% **e** > 5 × a dispersão das estrelas de campo.
+
+### Resultados
+
+| Alvo | Maior mudança | Significância | Estrela de campo mais variável |
+|---|---|---|---|
+| R Draconis | 0,46× | 15σ | 6,7σ |
+| RW Aurigae | 1,35× | 12σ | 6,9σ |
+
+### Erros de medida encontrados e corrigidos (no teste, não no pipeline)
+
+- No campo do R Dra, as "estrelas de campo" escolhidas estavam a 5–7 px do alvo: eram o **halo do próprio R Dra**. Agora há um raio de exclusão de 12 px e o ajuste de cada estrela de campo precisa ser válido em todas as épocas.
+- O desvio padrão da dispersão era inflado por uma única estrela de campo que oscila ±12%. Trocado por MAD.
+
+### Achado: há estrelas de campo que parecem variar
+
+Tratando cada estrela de campo como se fosse o alvo, **4 de 36** passam no critério de variável:
+
+| Campo | Estrela | Mudança | Hipótese |
+|---|---|---|---|
+| RW Aur | (18, 14) | 1,23× | A 19″ da fonte de raios X **1RXS J050754.4+302214**; em Taurus–Auriga, provavelmente uma estrela jovem ativa (variável real) |
+| Barnard | (30, 46), (23, 54) | 0,76×, 0,74× | Campo na direção do bojo galáctico, rico em gigantes vermelhas semirregulares (variáveis reais?) |
+| R Dra | (23, 42) | 1,16× | Indeterminado |
+
+Hipóteses descartadas: **fantasmas ópticos** (nenhuma exposição tem flag GHOST nessas posições) e **amostragem espectral diferente** entre épocas (o comprimento de onda médio amostrado é parecido entre épocas, 1,33–1,41 µm, e igual para estrelas vizinhas que se comportam diferente). O Gaia DR3 não tem análise de variabilidade para essas estrelas.
+
+Consequência para os testes: o controle "a estrela de campo mais brilhante não varia" estava mal formulado. Foi substituído por: (1) o alvo precisa ser o objeto **mais variável do seu campo**; (2) no máximo **20%** das estrelas de campo podem parecer variáveis. Esse limite foi escolhido **depois** de observar 11% (4/36): serve para pegar um defeito que fizesse "tudo variar", não como medida científica.
+
+Limitação: o quadro de um detector numa época soma exposições em **comprimentos de onda diferentes** (filtro de variação linear). Uma análise de variabilidade rigorosa deve comparar **espectros** em comprimentos de onda equivalentes, o que é possível com o espectro sob demanda (fase 6).
+
+Também é um bom material para a apresentação: **a ferramenta revelou candidatas a variáveis que não estão catalogadas como tal**, que é exatamente o tipo de descoberta que o desafio quer viabilizar.

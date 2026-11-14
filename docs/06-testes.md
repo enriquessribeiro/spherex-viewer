@@ -101,8 +101,8 @@ Roda o pipeline completo com **dados reais** do IRSA nos 5 alvos do desafio. Os 
 | Barnard's Star | Deslocamento do centroide entre a primeira e a última época compatível com o movimento próprio (~10,4″/ano) em módulo e direção (norte), dentro de tolerância T₁ | SIMBAD / Gaia DR3 |
 | WISE 0855 | Deslocamento compatível com ~8″/ano (direção oeste); fluxo em D6 ≫ fluxo em D1 (razão > R₁) | Luhman (2014); SIMBAD |
 | Epsilon Indi B | Deslocamento compatível com ~4,7″/ano; direção igual à de ε Indi A | SIMBAD / Gaia DR3 |
-| R Draconis | Variação de brilho entre épocas > K₁ × incerteza | Variável Mira (AAVSO) |
-| RW Aurigae | Variação de brilho entre épocas > K₂ × incerteza | T Tauri variável (AAVSO) |
+| R Draconis | Variação de brilho entre épocas > 10% e > 5σ da dispersão das estrelas de campo | Variável Mira (AAVSO) |
+| RW Aurigae | Variação de brilho entre épocas > 10% e > 5σ da dispersão das estrelas de campo | T Tauri variável (AAVSO) |
 | Estrelas de campo (todos os alvos) | As 5 estrelas mais brilhantes fora do alvo (sem pixels mascarados no núcleo) mantêm a posição entre épocas (prova de alinhamento) | Estrelas distantes não se movem |
 
 **Tolerâncias calibradas com dados reais** (14/11/2026; detalhes em [08-resultados.md](08-resultados.md)):
@@ -114,7 +114,10 @@ Roda o pipeline completo com **dados reais** do IRSA nos 5 alvos do desafio. Os 
 | Movimento mínimo para o teste ter sentido | > 2 × 0,25 px | Abaixo disso o teste não distinguiria movimento de erro |
 | Detecção para entrar na astrometria | S/R ≥ 5 na abertura | WISE 0855 em D6 na época 1 (S/R 3) fica de fora |
 | Estrelas de campo paradas | < 0,3 px | Observado: 0,02–0,04 px |
-| Variável | mudança > 10% **e** > 5 × dispersão das estrelas de campo | Fotometria relativa às estrelas de campo (cancela calibração entre épocas) |
+| Variável | mudança > 10% **e** > 5 × dispersão robusta (MAD) das estrelas de campo | Fotometria relativa às estrelas de campo (cancela calibração entre épocas). Observado: R Dra 15σ, RW Aur 12σ |
+| Controle: alvo variável × campo | alvo mais significativo que qualquer estrela de campo | R Dra 15σ × 6,7σ; RW Aur 12σ × 6,9σ |
+| Controle: estrelas de campo que parecem variáveis | ≤ 20% | Observado 4/36 (11%), algumas provavelmente variáveis reais; limite definido após a observação (ver [08-resultados.md](08-resultados.md)) |
+| Estrelas de campo | a > 12 px do alvo, sem núcleo mascarado, ajuste válido em todas as épocas | O halo de alvos brilhantes (R Dra) não pode servir de comparação |
 
 **Método de medida:** posição e fluxo por **ajuste de gaussiana 2D usando só pixels válidos** (`tests/science/measure.py`). O centroide simples tratava o núcleo saturado da Barnard's Star como zero e criava uma tendência falsa de 0,3 px/ano.
 

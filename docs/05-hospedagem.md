@@ -141,7 +141,7 @@ name: Atualizar dados SPHEREx
 
 on:
   schedule:
-    - cron: "0 6 * * 1"     # segundas, 06:00 UTC
+    - cron: "0 6 */3 * *"   # a cada 3 dias, 06:00 UTC (cache do Actions expira em 7 dias sem uso)
   workflow_dispatch:         # botão "Run workflow"
   push:
     branches: [main]         # republica quando o código muda
@@ -202,8 +202,19 @@ Configuração única no GitHub: **Settings → Pages → Source: GitHub Actions
 - Repositório público: minutos de Actions ilimitados. Cada execução deve levar ~5–15 min; o limite por job é 6 h.
 - O `cron` é em UTC e pode atrasar em horários de pico.
 - **Em repositórios públicos, agendamentos são desativados após 60 dias sem commits.** Reativar na aba *Actions* quando necessário.
+- **O GitHub apaga caches sem uso há 7 dias.** Com agendamento exatamente semanal o cache pode expirar e forçar o download completo. Por isso o agendamento será **a cada 3 dias** (`cron: "0 6 */3 * *"`).
 
-### 6.6 Como responde ao desafio
+### 6.6 Tempo de execução (medido)
+
+| Execução | O que baixa | Tempo |
+|---|---|---|
+| Primeira (cache vazio) | ~1.950 recortes dos 5 alvos (~4 MB cada no download; ~190 KB cada no cache, ~370 MB no total) | ~60 min (medido localmente: 5 a 19 min por alvo) |
+| Recorrente (cache cheio) | Consulta TAP + exposições novas | ~1–3 min |
+| Validação científica | Nada (usa o cache) | ~2,5 min |
+
+O download é lento porque o serviço de recortes do IRSA sempre inclui a extensão PSF (~4 MB), descartada depois. Rodar a primeira execução **cedo**, para o cache já estar cheio na avaliação.
+
+### 6.7 Como responde ao desafio
 
 > *"New SPHEREx data is arriving fast! Make sure to design a tool that's easy to update with the latest data releases."*
 
