@@ -51,3 +51,53 @@ export function renderDiff(sigma: Grid, low = 2, high = 5): Uint8ClampedArray {
   }
   return out;
 }
+
+/** Um canal da falsa cor: quadro e seus limites de contraste (null = detector ausente nesta época). */
+export interface ColorChannel {
+  grid: Grid | null;
+  mask: MaskGrid | null;
+  vmin: number;
+  vmax: number;
+}
+
+/**
+ * Falsa cor: três detectores nos canais R, G e B (o mais longo no vermelho, como no céu visível),
+ * céu escuro. Cada canal com o próprio contraste, já que o brilho muda muito entre detectores.
+ * Canal ausente fica apagado; núcleo saturado acende o canal inteiro.
+ */
+export function renderRgb(channels: [ColorChannel, ColorChannel, ColorChannel], stretch: Stretch, n: number): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(n * n * 4);
+  for (let i = 0; i < n * n; i++) {
+    for (let c = 0; c < 3; c++) {
+      const ch = channels[c];
+      let t = 0;
+      if (ch.grid) {
+        const saturated = ch.mask !== null && (ch.mask.values[i] & MASK_SATURATED) !== 0;
+        t = saturated ? 1 : normalize(ch.grid.values[i], ch.vmin, ch.vmax, stretch);
+        if (Number.isNaN(t)) t = 0;
+      }
+      out[i * 4 + c] = Math.round(t * 255);
+    }
+    out[i * 4 + 3] = 255;
+  }
+  return out;
+}
+
+/** Cor e opacidade das flags sobre a placa: manila, a cor de etiqueta (vermelho/azul só significam mudança). */
+export const FLAG_TINT = { rgb: [156, 143, 116] as Rgb, alpha: 0.65 };
+
+/**
+ * Pinta por cima os pixels marcados na máscara (saturado ou baixa qualidade), para o usuário ver
+ * onde o dado é menos confiável. Devolve quantos pixels foram marcados.
+ */
+export function overlayFlags(rgba: Uint8ClampedArray, mask: MaskGrid): number {
+  let marked = 0;
+  for (let i = 0; i < mask.values.length; i++) {
+    if (mask.values[i] === 0) continue;
+    marked++;
+    for (let c = 0; c < 3; c++) {
+      rgba[i * 4 + c] = Math.round(rgba[i * 4 + c] * (1 - FLAG_TINT.alpha) + FLAG_TINT.rgb[c] * FLAG_TINT.alpha);
+    }
+  }
+  return marked;
+}

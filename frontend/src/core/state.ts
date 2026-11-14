@@ -2,7 +2,7 @@
 import type { Stretch } from "./stretch";
 import { DETECTORS, type Detector } from "./types";
 
-export type Mode = "play" | "blink" | "diff";
+export type Mode = "play" | "blink" | "diff" | "sum";
 
 export interface ViewState {
   target?: string;
@@ -17,13 +17,15 @@ export interface ViewState {
   fps: number;
   stretch: Stretch;
   embed: boolean;
+  /** Falsa cor: D6, D3 e D1 nos canais R, G e B. */
+  color: boolean;
 }
 
-export const DEFAULT_STATE: ViewState = { fov: 6, mode: "play", fps: 2, stretch: "asinh", embed: false };
+export const DEFAULT_STATE: ViewState = { fov: 6, mode: "play", fps: 2, stretch: "asinh", embed: false, color: false };
 export const FOV_MIN = 1;
 export const FOV_MAX = 30;
 
-const MODES: Mode[] = ["play", "blink", "diff"];
+const MODES: Mode[] = ["play", "blink", "diff", "sum"];
 const STRETCHES: Stretch[] = ["linear", "asinh", "log", "sqrt"];
 
 export function parseState(search: string): { state: ViewState; warnings: string[] } {
@@ -76,6 +78,7 @@ export function parseState(search: string): { state: ViewState; warnings: string
   state.fps = num("fps", (v) => v > 0 && v <= 30) ?? DEFAULT_STATE.fps;
   state.stretch = choice("stretch", STRETCHES) ?? DEFAULT_STATE.stretch;
   state.embed = p.get("embed") === "1";
+  state.color = p.get("color") === "1";
   return { state, warnings };
 }
 
@@ -96,5 +99,6 @@ export function serializeState(state: ViewState): string {
   if (state.fps !== DEFAULT_STATE.fps) p.set("fps", String(state.fps));
   if (state.stretch !== DEFAULT_STATE.stretch) p.set("stretch", state.stretch);
   if (state.embed) p.set("embed", "1");
+  if (state.color) p.set("color", "1");
   return p.toString();
 }
