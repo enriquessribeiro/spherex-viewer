@@ -136,3 +136,31 @@ Consequência para os testes: o controle "a estrela de campo mais brilhante não
 Limitação: o quadro de um detector numa época soma exposições em **comprimentos de onda diferentes** (filtro de variação linear). Uma análise de variabilidade rigorosa deve comparar **espectros** em comprimentos de onda equivalentes, o que é possível com o espectro sob demanda (fase 6).
 
 Também é um bom material para a apresentação: **a ferramenta revelou candidatas a variáveis que não estão catalogadas como tal**, que é exatamente o tipo de descoberta que o desafio quer viabilizar.
+
+## Marco 2 — site funcionando com os dados estáticos (14/11/2026)
+
+O SPHEREx Viewer abre os 5 alvos do desafio a partir dos dados estáticos (~5 MB), sem servidor. Direção visual "Placas do comparador": o céu em negativo como uma placa fotográfica, com o objeto circulado em lápis vermelho na posição prevista pelo catálogo.
+
+![WISE 0855 no modo Animar, detector D6](img/marco2-wise0855.png)
+
+*WISE 0855 em D6: a mira azul fica fixa; o círculo de lápis acompanha a posição prevista em cada época. Régua do tempo com as épocas nas datas reais e o número de exposições de cada uma.*
+
+![WISE 0855 no modo Diferença](img/marco2-wise0855-diferenca.png)
+
+*Modo Diferença (abr/2026 − out/2025), em unidades de ruído: o céu parado desaparece (|Δ| < 2σ) e sobra o WISE 0855, em vermelho na posição nova.*
+
+Validação da interface:
+
+- Revisão de design independente em duas rodadas (contraste, primeiro viewport, honestidade dos estados, celular); detector automático sem achados.
+- Em 1440×900 a placa (572 px), os controles e a régua do tempo cabem no primeiro viewport.
+- No celular (390 px) a sequência é placa → controles → régua → Comparar → alvos.
+
+![Celular](img/marco2-celular.png)
+
+Lições:
+
+| Observação | Consequência |
+|---|---|
+| A diferença escalada pelo brilho máximo do campo saía em branco; escalada pelo percentil virava "confete" de ruído | Diferença em **unidades de ruído** (variância das duas épocas): só o que mudou de verdade aparece |
+| O núcleo de estrelas saturadas aparece como brilho máximo (preto no negativo) | Barnard's Star e R Draconis parecem estrelas, não buracos |
+| Movimentos de ~1 px/ano são sutis | Zoom no canto da placa (1×/2×/4×) e mira fixa tornam o deslocamento da Barnard's Star evidente |

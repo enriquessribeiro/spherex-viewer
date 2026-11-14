@@ -1,0 +1,395 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-14T16:03:12.928781+00:00",
+  "title": "Design System: SPHEREx Viewer",
+  "extensions": {
+    "colorMeta": {
+      "glass": {
+        "role": "neutral",
+        "displayName": "Vidro da Placa",
+        "canonical": "#f2efe7",
+        "tonalRamp": [
+          "#0d0b06",
+          "#27251f",
+          "#44423b",
+          "#64615a",
+          "#85827b",
+          "#a8a59d",
+          "#ccc9c1",
+          "#f1eee6"
+        ]
+      },
+      "glass-deep": {
+        "role": "neutral",
+        "displayName": "Vidro Fosco",
+        "canonical": "#e7e2d5",
+        "tonalRamp": [
+          "#0e0b04",
+          "#29251b",
+          "#464237",
+          "#656156",
+          "#878276",
+          "#a9a598",
+          "#cec9bc",
+          "#f3eee1"
+        ]
+      },
+      "glass-bright": {
+        "role": "neutral",
+        "displayName": "Vidro Polido",
+        "canonical": "#fbf9f4",
+        "tonalRamp": [
+          "#0c0b08",
+          "#262521",
+          "#43423e",
+          "#63615d",
+          "#84827e",
+          "#a7a5a0",
+          "#cbc9c4",
+          "#f0eee9"
+        ]
+      },
+      "sleeve": {
+        "role": "neutral",
+        "displayName": "Envelope",
+        "canonical": "#ddd6c4",
+        "tonalRamp": [
+          "#0d0b06",
+          "#28251d",
+          "#464236",
+          "#666152",
+          "#888273",
+          "#aaa598",
+          "#cdc9be",
+          "#f1eee6"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Tinta de Negativo",
+        "canonical": "#141414",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Tinta Média",
+        "canonical": "#3d3a34",
+        "tonalRamp": [
+          "#0d0b06",
+          "#28251f",
+          "#45423b",
+          "#64615a",
+          "#85827b",
+          "#a8a59d",
+          "#ccc9c1",
+          "#f2eee6"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Tinta Apagada",
+        "canonical": "#5e584c",
+        "tonalRamp": [
+          "#0d0b07",
+          "#28251e",
+          "#464139",
+          "#666155",
+          "#888276",
+          "#a9a49a",
+          "#cdc9c0",
+          "#f1eee8"
+        ]
+      },
+      "pencil": {
+        "role": "secondary",
+        "displayName": "Lápis de Cera Vermelho",
+        "canonical": "#c4302b",
+        "tonalRamp": [
+          "#240000",
+          "#4e0001",
+          "#7c1110",
+          "#ad2824",
+          "#d54f46",
+          "#f07f73",
+          "#ffada1",
+          "#ffdad1"
+        ]
+      },
+      "pencil-deep": {
+        "role": "secondary",
+        "displayName": "Lápis Vermelho Fundo",
+        "canonical": "#9e2420",
+        "tonalRamp": [
+          "#210000",
+          "#490807",
+          "#751f1a",
+          "#a4362f",
+          "#cb5a50",
+          "#e7867b",
+          "#ffb2a7",
+          "#ffddd5"
+        ]
+      },
+      "ink-blue": {
+        "role": "tertiary",
+        "displayName": "Azul-Tinta",
+        "canonical": "#2b4c9c",
+        "tonalRamp": [
+          "#020824",
+          "#10224c",
+          "#263e78",
+          "#3d5da8",
+          "#5c7fcd",
+          "#85a4e6",
+          "#afc9ff",
+          "#dbefff"
+        ]
+      },
+      "manila": {
+        "role": "neutral",
+        "displayName": "Manila",
+        "canonical": "#9c8f74",
+        "tonalRamp": [
+          "#0f0b04",
+          "#2b2417",
+          "#4a412f",
+          "#6b6049",
+          "#8d8169",
+          "#aea48f",
+          "#d0c8b7",
+          "#f4eee1"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Linha de Régua",
+        "canonical": "#bdb39b",
+        "tonalRamp": [
+          "#0e0b05",
+          "#292519",
+          "#484132",
+          "#69604c",
+          "#8a826d",
+          "#aca493",
+          "#cfc9ba",
+          "#f3eee3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Nome do alvo na etiqueta da placa; um por tela."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Nome do produto no cabeçalho."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Nome do alvo no cartão e do detector."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto corrido e valores, com algarismos tabulares."
+      },
+      "body-small": {
+        "displayName": "Body small",
+        "purpose": "Descrições, fatos da placa, legendas, régua."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Títulos de grupo de controles e rótulos dos fatos, em caixa alta e largura 78%."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Texto de botões e opções segmentadas."
+      }
+    },
+    "shadows": [
+      {
+        "name": "plate-rest",
+        "value": "0 1px 0 #fffdf8 inset, 0 10px 28px -14px rgb(20 20 20 / 0.45)",
+        "purpose": "Placa pousada na bancada; só no quadro da placa."
+      },
+      {
+        "name": "plate-status",
+        "value": "0 8px 22px -12px rgb(20 20 20 / 0.4)",
+        "purpose": "Aviso de carregamento/erro centrado sobre a placa."
+      },
+      {
+        "name": "selected-outline",
+        "value": "0 0 0 1px #141414 inset",
+        "purpose": "Engrossa a borda do cartão de alvo selecionado sem mexer no layout."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Hover e troca de estado de controles e traços da régua."
+      },
+      {
+        "name": "duration-state",
+        "value": "160ms",
+        "purpose": "Transições de fundo, borda e largura do traço; desligadas com prefers-reduced-motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "stack",
+        "value": "960px"
+      },
+      {
+        "name": "compact",
+        "value": "640px"
+      }
+    ],
+    "focusRing": "outline: 2px solid #2b4c9c; outline-offset: 2px; border-radius: 3px",
+    "diffRendering": {
+      "unit": "sigma",
+      "transparentBelow": 2,
+      "fullColorAt": 5,
+      "positive": "pencil",
+      "negative": "ink-blue",
+      "ground": "glass"
+    }
+  },
+  "components": [
+    {
+      "name": "Botão",
+      "kind": "button",
+      "refersTo": "button",
+      "description": "Lâmina de vidro polido com borda de tinta; ação comum (Ver, anterior/próxima).",
+      "html": "<button class=\"ds-btn\">Ver</button>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-btn{font-family:var(--font);font-variant-numeric:tabular-nums;font-size:0.9375rem;font-weight:600;font-stretch:92%;padding:0.5rem 0.9rem;color:var(--ink);background:#fbf9f4;border:1px solid var(--ink-soft);border-radius:var(--radius);cursor:pointer;transition:background 160ms var(--ease-out);}.ds-btn:hover{background:var(--glass-deep);}.ds-btn:focus-visible{outline:2px solid var(--ink-blue);outline-offset:2px;}"
+    },
+    {
+      "name": "Botão primário",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Invertido em tinta; um por área (Animar/Pausar).",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/><rect x=\"6\" y=\"4\" width=\"4\" height=\"16\" rx=\"1\"/></svg>Pausar</button>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-btn-primary{font-family:var(--font);font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;gap:0.45rem;font-size:0.9375rem;font-weight:600;font-stretch:92%;padding:0.5rem 0.9rem;color:var(--glass);background:var(--ink);border:1px solid var(--ink);border-radius:var(--radius);cursor:pointer;transition:background 160ms var(--ease-out);}.ds-btn-primary:hover{background:var(--ink-soft);}.ds-btn-primary:focus-visible{outline:2px solid var(--ink-blue);outline-offset:2px;}"
+    },
+    {
+      "name": "Controle segmentado",
+      "kind": "chip",
+      "refersTo": "segmented-option",
+      "description": "Rádio em grupo; opção marcada invertida em tinta (modo, negativo/positivo, zoom).",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\"><button role=\"radio\" aria-checked=\"false\">Animar</button><button role=\"radio\" aria-checked=\"true\">Piscar</button><button role=\"radio\" aria-checked=\"false\">Diferença</button></div>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-seg{display:inline-flex;border:1px solid var(--ink-soft);border-radius:var(--radius);overflow:hidden;}.ds-seg button{font-family:var(--font);font-variant-numeric:tabular-nums;font-size:0.9375rem;font-weight:600;font-stretch:90%;padding:0.45rem 0.85rem;color:var(--ink);background:#fbf9f4;border:0;border-left:1px solid var(--rule);cursor:pointer;transition:background 160ms var(--ease-out);}.ds-seg button:first-child{border-left:0;}.ds-seg button:hover{background:var(--glass-deep);}.ds-seg button[aria-checked=true]{background:var(--ink);color:var(--glass);}.ds-seg button:focus-visible{outline:2px solid var(--ink-blue);outline-offset:-2px;}"
+    },
+    {
+      "name": "Campo de busca",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "Busca por nome ou RA/Dec, com lupa embutida.",
+      "html": "<label class=\"ds-search\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input type=\"search\" placeholder=\"R Dra ou 133.76 -7.24\"></label>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-search{position:relative;display:flex;width:22rem;}.ds-search svg{position:absolute;left:0.65rem;top:50%;translate:0 -50%;color:var(--ink-muted);pointer-events:none;}.ds-search input{font-family:var(--font);font-variant-numeric:tabular-nums;flex:1;font-size:0.9375rem;padding:0.55rem 0.75rem 0.55rem 2.2rem;color:var(--ink);background:#fbf9f4;border:1px solid var(--rule);border-radius:var(--radius);}.ds-search input::placeholder{color:var(--ink-muted);}.ds-search input:focus-visible{outline:2px solid var(--ink-blue);outline-offset:0;border-color:var(--ink-blue);}"
+    },
+    {
+      "name": "Cartão de alvo",
+      "kind": "card",
+      "refersTo": "target-card",
+      "description": "Alvo do desafio com miniatura; selecionado ganha vidro fosco e contorno de tinta.",
+      "html": "<button class=\"ds-target\" aria-pressed=\"true\"><span class=\"ds-thumb\"></span><span class=\"ds-tt\"><b>WISE 0855-0714</b><small>A anã marrom mais fria conhecida (~285 K)</small></span></button>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-target{font-family:var(--font);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:0.8rem;width:22rem;padding:0.4rem 0.6rem 0.4rem 0.4rem;text-align:left;font-size:0.9375rem;color:var(--ink);background:#fbf9f4;border:1px solid var(--rule);border-radius:var(--radius);cursor:pointer;transition:border-color 160ms var(--ease-out),background 160ms var(--ease-out);}.ds-target:hover{border-color:var(--ink-soft);}.ds-target[aria-pressed=true]{border-color:var(--ink);background:var(--glass-deep);box-shadow:0 0 0 1px var(--ink) inset;}.ds-target:focus-visible{outline:2px solid var(--ink-blue);outline-offset:2px;}.ds-thumb{width:3.5rem;height:3.5rem;flex:none;background:var(--glass) radial-gradient(circle at 50% 50%,var(--ink) 0 3px,transparent 4px);border:1px solid var(--ink-soft);}.ds-tt{display:grid;line-height:1.25;}.ds-tt b{font-weight:700;font-stretch:105%;}.ds-tt small{font-size:0.8125rem;color:var(--ink-muted);}"
+    },
+    {
+      "name": "Botão de detector",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Detector D1–D6 com faixa em µm desenhada em escala real (0,75–5,00 µm).",
+      "html": "<div class=\"ds-dets\"><button role=\"radio\" aria-checked=\"false\"><b>D2</b><span>1,10–1,62 µm</span><i><s style=\"left:7.8%;width:12.3%\"></s></i></button><button role=\"radio\" aria-checked=\"true\"><b>D6</b><span>4,42–5,00 µm</span><i><s style=\"left:86.4%;width:13.6%\"></s></i></button></div>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-dets{display:grid;grid-template-columns:repeat(2,11rem);gap:0.4rem;}.ds-dets button{font-family:var(--font);font-variant-numeric:tabular-nums;display:grid;grid-template-columns:auto 1fr;grid-template-areas:'name range' 'band band';align-items:baseline;gap:0.3rem 0.5rem;padding:0.45rem 0.55rem 0.55rem;font-size:0.9375rem;text-align:left;color:var(--ink);background:#fbf9f4;border:1px solid var(--rule);border-radius:var(--radius);cursor:pointer;}.ds-dets button:hover{border-color:var(--ink-soft);}.ds-dets button:focus-visible{outline:2px solid var(--ink-blue);outline-offset:2px;}.ds-dets b{grid-area:name;font-weight:800;font-stretch:105%;}.ds-dets span{grid-area:range;justify-self:end;font-size:0.8125rem;}.ds-dets i{grid-area:band;position:relative;height:4px;background:var(--sleeve);border-radius:2px;}.ds-dets s{position:absolute;top:0;bottom:0;background:var(--manila);border-radius:2px;}.ds-dets button[aria-checked=true]{background:var(--ink);color:var(--glass);border-color:var(--ink);}.ds-dets button[aria-checked=true] i{background:var(--ink-soft);}.ds-dets button[aria-checked=true] s{background:var(--glass);}"
+    },
+    {
+      "name": "Etiqueta da placa",
+      "kind": "custom",
+      "refersTo": "plate-facts",
+      "description": "Legenda da placa como etiqueta de envelope: nome em display, época, faixa de fatos em sleeve com filete manila.",
+      "html": "<div class=\"ds-label\"><span class=\"ds-target-name\">WISE 0855-0714</span><span class=\"ds-epoch\">31 out 2025 → 21 abr 2026</span><dl><div><dt>Intervalo</dt><dd>176 dias</dd></div><div><dt>Detector</dt><dd>D6 · 4,42–5,00 µm</dd></div></dl></div>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-label{font-family:var(--font);font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;column-gap:1.25rem;row-gap:0.35rem;width:34rem;color:var(--ink);}.ds-target-name{font-size:2.1rem;font-weight:800;font-stretch:112%;letter-spacing:-0.02em;line-height:1.05;}.ds-epoch{font-size:0.9375rem;font-weight:600;}.ds-label dl{flex-basis:100%;display:flex;flex-wrap:wrap;gap:0.3rem 1rem;margin:0;padding:0.35rem 0.65rem;font-size:0.8125rem;background:var(--sleeve);border-top:2px solid var(--manila);border-radius:0 0 var(--radius) var(--radius);}.ds-label dl div{display:flex;gap:0.45rem;align-items:baseline;}.ds-label dt{font-stretch:78%;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-muted);}.ds-label dd{margin:0;font-weight:600;}"
+    },
+    {
+      "name": "Placa com marcas de lápis",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Placa em negativo com mira azul-tinta e círculo/seta à mão em lápis vermelho sobre halo de vidro.",
+      "html": "<div class=\"ds-plate\"><svg viewBox=\"0 0 100 100\"><circle cx=\"30\" cy=\"70\" r=\"1.6\" fill=\"#141414\"/><circle cx=\"74\" cy=\"28\" r=\"1\" fill=\"#141414\"/><circle cx=\"52\" cy=\"52\" r=\"1.3\" fill=\"#141414\"/><g class=\"r\"><path d=\"M50 34V42M50 58V66M34 50H42M58 50H66\"/></g><g><path class=\"h\" d=\"M45.5 44.9 L49.6 43.4 L54.1 44.6 L57.2 48.3 L57.6 52.9 L55.0 57.1 L50.4 58.9 L45.6 57.9 L42.6 54.0 L42.4 49.1 L44.8 45.3 L48.6 43.2\"/><path class=\"h\" d=\"M70 30 Q62 37.5 59 41\"/><path class=\"h\" d=\"M63.5 40 L59 41 L60 36.5\"/><path class=\"p\" d=\"M45.5 44.9 L49.6 43.4 L54.1 44.6 L57.2 48.3 L57.6 52.9 L55.0 57.1 L50.4 58.9 L45.6 57.9 L42.6 54.0 L42.4 49.1 L44.8 45.3 L48.6 43.2\"/><path class=\"p\" d=\"M70 30 Q62 37.5 59 41\"/><path class=\"p\" d=\"M63.5 40 L59 41 L60 36.5\"/></g></svg><span class=\"ds-insc\">D6 · 6′ × 6′</span></div>",
+      "css": ":host{--glass:#f2efe7;--glass-deep:#e7e2d5;--sleeve:#ddd6c4;--ink:#141414;--ink-soft:#3d3a34;--ink-muted:#5e584c;--pencil:#c4302b;--pencil-deep:#9e2420;--ink-blue:#2b4c9c;--manila:#9c8f74;--rule:#bdb39b;--radius:3px;--ease-out:cubic-bezier(0.16,1,0.3,1);--font:'Archivo Variable','Archivo',system-ui,sans-serif;}.ds-plate{position:relative;width:18rem;aspect-ratio:1;background:var(--glass);border:1px solid var(--ink);box-shadow:0 1px 0 #fffdf8 inset,0 10px 28px -14px rgb(20 20 20 / 0.45);}.ds-plate svg{width:100%;height:100%;display:block;}.ds-plate .r path{fill:none;stroke:var(--ink-blue);stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linecap:round;}.ds-plate .h{fill:none;stroke:var(--glass);stroke-width:6px;opacity:0.85;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;}.ds-plate .p{fill:none;stroke:var(--pencil);stroke-width:2.5px;opacity:0.92;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;}.ds-insc{font-family:var(--font);font-variant-numeric:tabular-nums;position:absolute;top:0.55rem;left:0.6rem;padding:0.15rem 0.45rem;font-size:0.8125rem;font-weight:600;font-stretch:82%;letter-spacing:0.02em;color:var(--ink);background:rgb(242 239 231 / 0.88);border:1px solid var(--manila);border-radius:2px;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Placas do comparador",
+    "overview": "Cada época do SPHEREx é uma placa fotográfica de vidro posta no comparador de piscar, o aparelho que achou Plutão em 1930. A tela é a bancada do astrônomo: o vidro claro e levemente quente é o fundo de tudo, o céu aparece em negativo (estrelas em tinta preta sobre vidro), e as únicas marcas coloridas são as que uma pessoa faria à mão sobre a placa: o círculo e a seta em lápis de cera vermelho onde o objeto deveria estar. Etiquetas de envelope em manila e uma régua do tempo proporcional às datas reais completam o material.\n\nA densidade é de instrumento, não de vitrine: a placa quadrada domina, os controles ficam numa coluna estreita com rótulos pequenos em caixa alta, e todo número usa algarismos tabulares para que datas, intervalos e faixas em µm não dancem ao trocar de época. O mundo recusa o padrão da categoria: o azul-marinho de \"espaço\" com brilhos e acentos neon.\n\nProfundidade é física e mínima: a placa é o único objeto que se ergue da bancada; o resto é papel, vidro e traço fino.",
+    "keyCharacteristics": [
+      "Fundo de vidro claro (`glass`) em toda a tela; céu em negativo por padrão.",
+      "Tinta de negativo (`ink`) para texto, estrelas e estados selecionados.",
+      "Lápis vermelho (`pencil`) reservado a marcas de descoberta e ao que \"apareceu\".",
+      "Azul-tinta (`ink-blue`) para o que \"sumiu\", a mira, o foco e a seleção de texto.",
+      "Uma só família (Archivo Variable), modulada pelo eixo de largura em vez de por troca de fonte.",
+      "Cantos quase retos (3px), bordas de 1px, sem gradientes nem brilhos."
+    ],
+    "rules": [
+      {
+        "name": "A Regra da Cor Única para Mudança",
+        "body": "Vermelho e azul só significam mudança ou descoberta. Nada decorativo, nenhum ícone, nenhum fundo de seção usa `pencil` ou `ink-blue`; e a diferença sempre vem com legenda textual ao lado das amostras.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra do Manila Mudo",
+        "body": "Manila (contraste 2,8:1 sobre o vidro) é cor de traço, borda e etiqueta física, nunca de texto. Texto secundário usa `ink-muted` (6,1:1).",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra da Seleção em Tinta",
+        "body": "O estado \"escolhido\" é sempre inverter para tinta sobre vidro (`ink` de fundo, `glass` no texto); não existe cor de marca para seleção.",
+        "section": "colors"
+      },
+      {
+        "name": "A Regra dos Algarismos Tabulares",
+        "body": "`font-variant-numeric: tabular-nums` no corpo inteiro; datas, contagens de exposição e faixas em µm não mudam de largura ao trocar de época.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra da Largura, Não da Família",
+        "body": "Hierarquia vem de peso e do eixo de largura da Archivo; não introduzir uma segunda família.",
+        "section": "typography"
+      },
+      {
+        "name": "A Regra da Placa Única",
+        "body": "Só a placa e o que está sobre ela ganham sombra. Controles nunca se erguem; estado é dado por tinta, vidro fosco ou borda.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do manter o fundo em `glass` e o céu em negativo (estrelas em `ink`) como estado padrão.",
+      "Do reservar `pencil` às marcas de descoberta, à época atual e ao que \"apareceu\"; `ink-blue` ao que \"sumiu\", à mira e ao foco.",
+      "Do acompanhar qualquer uso de vermelho/azul como dado com legenda textual.",
+      "Do renderizar a diferença em unidades de ruído: abaixo de 2σ o pixel fica vidro, a partir de 5σ cor cheia.",
+      "Do usar algarismos tabulares e o eixo de largura da Archivo para hierarquia.",
+      "Do marcar seleção invertendo para tinta sobre vidro, e foco com anel de 2px em `ink-blue`.",
+      "Do manter cantos em 3px (2px em peças pequenas) e bordas de 1px.",
+      "Do escalar a régua do tempo pelas datas reais e a faixa do detector pela escala real em µm."
+    ],
+    "donts": [
+      "Don't usar o visual de \"espaço\" da categoria: fundo azul-marinho ou preto, brilhos, nebulosas, acentos neon.",
+      "Don't usar `pencil` ou `ink-blue` como cor decorativa, de marca, de botão ou de fundo de seção.",
+      "Don't usar `manila` para texto; ele não passa de 2,8:1 sobre o vidro.",
+      "Don't dar sombra a controles; só a placa e o aviso sobre ela se erguem.",
+      "Don't trocar o círculo à mão por um círculo geométrico perfeito de CSS.",
+      "Don't introduzir uma segunda família tipográfica."
+    ]
+  }
+}

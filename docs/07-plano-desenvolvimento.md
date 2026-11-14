@@ -60,9 +60,10 @@ Branch: `fase-3/api`
 
 Branch: `fase-4/frontend`
 
-- [ ] `viewer-core` com TDD: decodificar `.f32`, esticamento, diferença, soma, estado na URL
-- [ ] Interface: entrada de coordenadas, botões dos alvos, player, blink, diferença, seletor de detector
-- [ ] **🎯 Marco 2:** site funcionando com os dados estáticos, ou seja, **MVP entregável**
+- [x] `viewer-core` com TDD: decodificar `.f32`, esticamento, diferença, soma, estado na URL
+- [x] Interface: entrada de coordenadas, botões dos alvos, player, blink, diferença, seletor de detector
+- [x] **🎯 Marco 2:** site funcionando com os dados estáticos, ou seja, **MVP entregável**
+- [x] Extras: direção visual "Placas do comparador" (PRODUCT.md, `.impeccable/surfaces/`), zoom 1×/2×/4×, contraste, negativo/positivo, régua do tempo proporcional às datas, busca por nome/RA-Dec via API opcional, copiar link, embed
 
 ### Fase 5 — Publicação
 
