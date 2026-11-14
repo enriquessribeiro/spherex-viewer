@@ -101,18 +101,34 @@ Exposições com o mesmo `large slew` e `small slew` diferentes são tiradas em 
 
 #### Flags (bits do `FLAGS`)
 
-Definição completa na Tabela 16 do *Explanatory Supplement*; os nomes também estão no cabeçalho (`MSKNnnnn` / `MSKDnnnn`).
+Lista **conferida no cabeçalho de recortes reais do DR1** (`MSKNnnnn` = nome, `MSKDnnnn` = descrição). Definição completa na Tabela 16 do *Explanatory Supplement*.
 
 | Bit | Nome | Significado | Tratamento no projeto |
 |---|---|---|---|
 | 0 | TRANSIENT | Transiente detectado durante a leitura | Mascarar |
+| 1 | OVERFLOW | Estouro na leitura | Mascarar |
+| 2 | SUR_ERROR | Erro no processamento a bordo | Mascarar |
+| 6 | NONFUNC | Pixel permanentemente inutilizável | Mascarar |
+| 7 | DICHROIC | Baixa eficiência por causa do dicroico | Manter (calibrado) |
+| 9 | MISSING_DATA | Dado perdido a bordo | Mascarar |
 | 10 | HOT | Pixel quente | Mascarar |
 | 11 | COLD | Sinal anormalmente baixo | Mascarar |
-| 15 | NONLINEAR | Correção de não linearidade não confiável (saturação) | Mascarar + avisar |
+| 12 | FULLSAMPLE | Histórico completo de amostras disponível | Informativo |
+| 14 | PHANMISS | Correção de "phantom" não aplicada | Manter |
+| 15 | NONLINEAR | Correção de não linearidade não confiável (saturação) | Mascarar |
+| 17 | PERSIST | Carga residual de exposição anterior | **Overlay**: pode simular um objeto que "apareceu" |
 | 19 | OUTLIER | Pixel atípico | Mascarar |
-| 21 | SOURCE | Pixel sobre uma fonte conhecida (o mais comum) | **Não** mascarar (é informativo) |
-| 22–24 | GHOST* | Fantasmas de fontes brilhantes | Overlay de contaminação |
-| 26–28 | BLOOM / SNOWBALL / HALO | Artefatos | Overlay de contaminação |
+| 20 | CROSSTALK | Afetado por crosstalk | Overlay |
+| 21 | SOURCE | Pixel sobre uma fonte conhecida (~37% dos pixels) | **Não** mascarar (marca estrelas) |
+| 22 | GHOST | Fantasma de fonte brilhante na exposição | Overlay |
+| 23 | GHOST_FPA | Fantasma de fonte brilhante em outro detector | Overlay |
+| 24 | GHOST_EXT | Fantasma de fonte brilhante fora do campo | Overlay |
+| 25 | STREAK | Rastro | Overlay |
+| 26 | BLOOM | Artefato de "bloom" | Overlay |
+| 27 | SNOWBALL | Artefato "snowball" (raio cósmico) | Overlay |
+| 28 | HALO | Halo transiente | Overlay |
+
+Bits mascarados no pipeline: `0, 1, 2, 6, 9, 10, 11, 15, 19`.
 
 ### 3.2 All-Sky Cube (só DR1)
 

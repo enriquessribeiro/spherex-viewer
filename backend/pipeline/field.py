@@ -15,10 +15,11 @@ from pipeline.archive import Archive, Exposure
 PIXEL_SCALE_ARCSEC = 6.15
 EPOCH_GAP_DAYS = 10.0
 
-# Bits de FLAGS que indicam pixel inutilizável (docs/02-dados-spherex.md):
-# TRANSIENT, HOT, COLD, NONLINEAR, OUTLIER. SOURCE (21) e fantasmas/artefatos
-# (22-28) não são mascarados: SOURCE marca estrelas, os demais viram overlay.
-BAD_PIXEL_BITS = (0, 10, 11, 15, 19)
+# Bits de FLAGS que indicam pixel inutilizável (docs/02-dados-spherex.md), conferidos
+# no cabeçalho de recortes reais: TRANSIENT, OVERFLOW, SUR_ERROR, NONFUNC, MISSING_DATA,
+# HOT, COLD, NONLINEAR, OUTLIER. SOURCE (21) não é mascarado (marca estrelas);
+# PERSIST (17), CROSSTALK (20) e fantasmas/artefatos (22-28) viram overlay.
+BAD_PIXEL_BITS = (0, 1, 2, 6, 9, 10, 11, 15, 19)
 BAD_PIXEL_MASK = sum(1 << b for b in BAD_PIXEL_BITS)
 
 

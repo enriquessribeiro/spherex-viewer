@@ -151,11 +151,17 @@ def test_luz_zodiacal_e_subtraida_do_quadro():
 HOT, SOURCE = 10, 21
 
 
-def test_pixel_com_defeito_e_ignorado_na_soma():
-    # Pixel HOT com valor absurdo numa exposição, 8 px a oeste e 6 px ao sul do centro.
+# Bits de pixel inutilizável, conferidos no cabeçalho FLAGS de um recorte real (DR1):
+# TRANSIENT, OVERFLOW, SUR_ERROR, NONFUNC, MISSING_DATA, HOT, COLD, NONLINEAR, OUTLIER.
+BITS_RUINS = [0, 1, 2, 6, 9, 10, 11, 15, 19]
+
+
+@pytest.mark.parametrize("bit", BITS_RUINS)
+def test_pixel_com_defeito_e_ignorado_na_soma(bit):
+    # Pixel com defeito e valor absurdo numa exposição, 8 px a oeste e 6 px ao sul do centro.
     field = _campo_com_exposicoes(
         [
-            SyntheticExposure(det="D6", mjd=60800.0, flagged=((-8, -6, HOT, 1e4),)),
+            SyntheticExposure(det="D6", mjd=60800.0, flagged=((-8, -6, bit, 1e4),)),
             SyntheticExposure(det="D6", mjd=60800.5),
         ]
     )
