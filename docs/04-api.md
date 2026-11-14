@@ -64,6 +64,21 @@ Arredondar em 0,0001° (0,36″, bem menor que um pixel) faz pedidos quase iguai
 
 ## 4. Endpoints
 
+**Estado da implementação** (fase 3, código em `backend/api/`):
+
+| Endpoint | Estado |
+|---|---|
+| `GET /api/v1/health` | ✅ |
+| `GET /api/v1/config` | ✅ conteúdo reduzido: limites de `fov`, downloads paralelos e `poll_after_ms` (detectores e bits ficam no frontend/contrato) |
+| `GET /api/v1/resolve` | ✅ coordenadas (graus ou sexagesimal) sem rede; nomes via SIMBAD (espelho de Harvard, depois CDS). Sem movimento próprio para coordenadas digitadas |
+| `GET /api/v1/field` | ✅ 202 com progresso → 200 com `field.json`; erros 400/404/429/502 |
+| `GET /api/v1/fields/{field_id}/{data_version}/...` | ✅ `field.json`, `.f32`, `.var.f32`, `.mask.u8`, `.png` (PNG com o esticamento padrão; parâmetros `stretch`/`vmin`/`vmax`/`scale` ainda não implementados) |
+| `.../spectrum` | Planejado — fase 6 |
+| `.../exposures/{id}.f32` | Planejado — fase 6 |
+| `.../frames/{epoch}/{det}.fits` | Planejado |
+
+Diferenças em relação ao rascunho: o `partial` (épocas já prontas durante o processamento) e o `eta_s` ainda não são enviados no `202`; erros transitórios (`UPSTREAM_ERROR`) são esquecidos depois de reportados, para o próximo pedido tentar de novo.
+
 ### 4.1 `GET /api/v1/health`
 
 Verifica se o servidor está de pé. Usado pelo frontend para mostrar "acordando o servidor…".

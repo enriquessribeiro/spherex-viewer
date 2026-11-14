@@ -51,9 +51,10 @@ Branch: `fase-2/dados-reais`
 
 Branch: `fase-3/api`
 
-- [ ] Gerar `field.json` + `.f32` / `.png`, validados pelos JSON Schemas
-- [ ] `build_static`: gera `data/` dos alvos. **A partir daqui o frontend pode ser feito sem backend no ar**
-- [ ] API FastAPI: `/field` assíncrono (202 → 200), `/resolve`, `/config`, `/health`, erros, CORS
+- [x] Gerar `field.json` + `.f32` / `.png`, validados pelos JSON Schemas
+- [x] `build_static`: gera `data/` dos alvos. **A partir daqui o frontend pode ser feito sem backend no ar**
+- [x] API FastAPI: `/field` assíncrono (202 → 200), `/resolve`, `/config`, `/health`, erros, CORS
+- [x] Extras: `default_detector` por alvo, miniatura na época mais recente com ≥ 3 exposições, máscara (saturado/baixa qualidade) no lugar de `flags.u32`
 
 ### Fase 4 — Frontend
 
