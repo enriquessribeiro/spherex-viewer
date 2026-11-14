@@ -66,7 +66,24 @@ curl "http://127.0.0.1:8000/api/v1/field?ra=133.76002&dec=-7.24221&fov=6"   # 20
 
 Medido localmente: WISE 0855 com o cache cheio fica pronto em ~22 s (reprojeção de 258 exposições); um campo novo depende do IRSA (~5–20 min para 250–550 exposições).
 
-## 6. Estrutura do backend
+## 6. Rodar o site (frontend)
+
+```bash
+cd frontend
+npm install
+# dados dos alvos para desenvolvimento (gerados pelo backend; pasta ignorada pelo git):
+(cd ../backend && uv run python -m pipeline.build_static --out ../frontend/public/data)
+npm run dev            # http://localhost:5173
+npm test               # viewer-core (Vitest): quadros, contraste, diferença, WCS, URL, contrato
+npm run build          # dist/ (com public/data copiado), pronto para o GitHub Pages
+```
+
+- Para buscar coordenadas e nomes fora da lista de alvos, apontar para uma API: `VITE_API_BASE=http://127.0.0.1:8000 npm run dev`. Sem API, o site funciona só com os alvos pré-processados.
+- Parâmetros da URL (link compartilhável e `embed=1`): [04-api.md](04-api.md) §7.
+- Fixture de contrato do frontend: gerada pelo backend com `backend/scripts/gerar_fixture_frontend.py` (regerar se o formato do `field.json` mudar).
+- Capturas de tela automáticas usam Playwright (`npx playwright install chromium-headless-shell`). No WSL podem faltar `libnss3`, `libnspr4` e `libasound2`: instalar com `sudo apt-get install libnss3 libnspr4 libasound2t64`.
+
+## 7. Estrutura do backend
 
 | Pasta | Conteúdo |
 |---|---|
@@ -74,7 +91,9 @@ Medido localmente: WISE 0855 com o cache cheio fica pronto em ~22 s (reprojeçã
 | `api/` | HTTP: `app` (`create_app`), `jobs` (processamento assíncrono), `coords`, `simbad`, `main` (produção) |
 | `tests/` | Testes por fronteira; `fixtures/irsa/` com respostas reais gravadas; `science/` com a validação científica |
 | `../schemas/` | JSON Schema de `field.json` e `manifest.json` (contrato com o frontend) |
+| `../frontend/src/core/` | Lógica pura do site (testada): quadros, contraste, diferença, renderização, WCS, épocas, estado na URL, fonte dos dados |
+| `../frontend/src/` | Interface: `main.ts` (controlador), `data.ts` (carregamento e cache), `ui/marks.ts` (marcas de lápis), `style.css` |
 
-## 7. Fluxo de trabalho
+## 8. Fluxo de trabalho
 
 Branch por fase, PR para a `main`, commits por fatia de TDD. Detalhes em [07-plano-desenvolvimento.md](07-plano-desenvolvimento.md) §5.
