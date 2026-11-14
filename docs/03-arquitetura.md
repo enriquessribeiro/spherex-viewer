@@ -141,3 +141,21 @@ Hospedagem, cache e a atualização semanal dos alvos pré-processados (GitHub P
 2. **Alinhamento**: se falhar, a animação perde sentido. Validar com estrelas de campo, que devem ficar perfeitamente paradas.
 3. **Pixel grande (~6″)**: Barnard's Star anda ~1,5–2 pixels por semestre. É visível, mas sutil; a imagem de diferença e o marcador de posição prevista ajudam muito.
 4. **Fontes brilhantes**: geram fantasmas e saturação. Usar as FLAGS para avisar o usuário.
+
+## 7. Decisões de implementação do pipeline
+
+Decisões tomadas durante a implementação (fases 1 e 2), várias forçadas pelos dados reais. Código em `backend/pipeline/`.
+
+| Decisão | Motivo | Onde |
+|---|---|---|
+| O pipeline recebe um **adaptador de arquivo** (`Archive`: `query` + `fetch_cutout`) | Testar a ciência com dados sintéticos; trocar IRSA por cache/arquivo gravado sem mudar o pipeline | `archive.py` |
+| Recorte pedido com **1,5 × o campo** | Com o detector girado, o recorte precisa cobrir a diagonal do campo (√2 ≈ 1,41) | `field.py` |
+| **Interpolação normalizada** na reprojeção (imagem e mapa de pixels válidos reprojetados e divididos) | A bilinear comum espalhava cada pixel mascarado para ~4 vizinhos: com dados reais só 91,6% do quadro ficava válido | `field.py` |
+| Bits mascarados: `0, 1, 2, 6, 9, 10, 11, 15, 19` | Lista conferida no cabeçalho `FLAGS` real (ver [02-dados-spherex.md](02-dados-spherex.md)) | `field.py` |
+| Soma ponderada por **1/variância**, com variância propagada | Exposições mais ruidosas pesam menos; a variância do quadro alimenta o espectro e o S/R | `field.py` |
+| Contraste: `vmin` = percentil 1, `vmax` = **máximo**, comum a todas as épocas | Variáveis brilhantes (R Dra) não podem saturar, senão a variação some | `field.py` |
+| **4 downloads simultâneos**, 6 tentativas com espera exponencial (2–32 s) | O IRSA responde `503 Server busy` mesmo com 2 pedidos simultâneos | `field.py`, `irsa.py` |
+| **Exposição indisponível é pulada** e listada em `Field.failed_exposures`; o campo só falha se nenhuma exposição vier | Um único `503` persistente derrubou um campo de 258 exposições | `field.py` |
+| Extensão **EPSF descartada** ao ler o recorte | ~4 MB por recorte, não usada | `irsa.py` |
+| Cache em disco: recortes permanentes, consultas por 24 h, escrita atômica | Reprocessar sem baixar de novo; dados novos chegam semanalmente | `cache.py` |
+| Centro dos alvos = posição **propagada pelo movimento próprio** | O WISE 0855 está ~3,4′ a oeste da coordenada da designação (2010) | `targets.py`, `targets.yaml` |

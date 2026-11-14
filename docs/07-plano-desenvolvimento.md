@@ -80,7 +80,7 @@ Branch: `fase-6/<extra>` (um branch por extra, pois são independentes). Em orde
 4. [ ] Falsa cor (3 detectores)
 5. [ ] Campo de visão variável
 6. [ ] Modo embed
-7. [ ] Roteiro do pitch (`docs/09-apresentacao.md`) com os resultados da validação científica
+7. [ ] Roteiro do pitch (`docs/10-apresentacao.md`) com os resultados da validação científica
 
 ## 3. Prioridade se o tempo apertar
 

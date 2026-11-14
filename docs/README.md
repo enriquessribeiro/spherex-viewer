@@ -14,7 +14,9 @@
 
 | [07-plano-desenvolvimento.md](07-plano-desenvolvimento.md) | Fases, marcos de entrega, prioridades e fluxo de git (branch por fase + Pull Requests) |
 
+| [08-resultados.md](08-resultados.md) | Resultados com dados reais: Marco 1 (WISE 0855 andando), astrometria, validação científica e lições para o produto |
+
 Documentos planejados (criar conforme o projeto avança):
 
-- `08-desenvolvimento.md` — como rodar localmente
-- `09-apresentacao.md` — roteiro do pitch / demo para os jurados
+- `09-desenvolvimento.md` — como rodar localmente
+- `10-apresentacao.md` — roteiro do pitch / demo para os jurados
