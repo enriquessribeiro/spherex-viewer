@@ -1,6 +1,7 @@
-# Relatório de progresso — fases 0 a 3
+# Relatório de progresso — fases 0 a 5
 
 > Situação em **14/11/2026**, primeiro dia do NASA Space Apps Challenge 2026.
+> Site publicado: <https://enriquessribeiro.github.io/spherex-viewer/>
 > Desafio: **Planet X and SPHEREx**. Repositório: `enriquessribeiro/spherex-viewer`.
 
 Este relatório consolida o que foi construído até agora, como foi construído e por quê. Os detalhes de cada assunto estão nos documentos de referência ([índice](README.md)); aqui o foco é a história completa e as decisões.
@@ -19,9 +20,11 @@ Este relatório consolida o que foi construído até agora, como foi construído
 | R Draconis | Brilho cai para 0,46× entre épocas (15σ) |
 | Estrelas de campo | Ficam paradas entre épocas com variação de 0,02–0,04 px (alinhamento ~25× melhor que um pixel) |
 
-- **O backend está completo para o MVP.** Os dados de cada campo são gravados num formato formal (JSON Schema), os 5 alvos já podem ser gerados como dados estáticos (5 MB no total) e há uma API que processa qualquer coordenada sob demanda.
-- **Ainda não há interface.** O site (frontend) e a publicação são as fases 4 e 5.
-- Números: 5 PRs mergeados, 47 commits, 91 testes (67 rápidos + 16 científicos + 8 de serviços reais), ~2.600 linhas de Python, 11 documentos.
+- **O backend está completo para o MVP.** Os dados de cada campo são gravados num formato formal (JSON Schema), os 5 alvos são gerados como dados estáticos (5 MB no total) e há uma API que processa qualquer coordenada sob demanda.
+- **O site está no ar** em <https://enriquessribeiro.github.io/spherex-viewer/>, com os 5 alvos do desafio: Animar, Piscar e Diferença, detectores D1–D6, régua do tempo, link compartilhável. A API está no Render.
+- **O que ainda não funciona**: os serviços de consulta do IRSA (TAP e depois SIA) caíram durante a publicação. Os dados no ar são um *snapshot* validado localmente; a atualização automática nunca rodou com sucesso no GitHub, e a busca por coordenada ou nome fora da lista de alvos dá erro enquanto o IRSA estiver fora.
+- **A revisão de código independente não foi feita** (interrompida pelo limite de uso, sem achados).
+- Números: 13 PRs mergeados, 75 commits, 128 testes (72 rápidos do backend + 16 científicos + 8 de serviços reais + 32 do frontend), ~2.800 linhas de Python, ~2.100 de TypeScript/CSS, 11 documentos e 3 diagramas.
 
 ## 2. Linha do tempo
 
@@ -33,6 +36,10 @@ Este relatório consolida o que foi construído até agora, como foi construído
 | Fase 2 | Adaptador do IRSA, cache, paralelismo, alvos, Marco 1 e validação científica | **PR #3**: 42 + 16 testes |
 | Relatório | Este documento (versão das fases 0 a 2) | **PR #4** |
 | Fase 3 | Contrato de dados (JSON Schema), gravação dos campos, dados estáticos dos alvos e API | **PR #5**: 67 + 16 + 8 testes |
+| Fase 4 | Núcleo do site com TDD, interface "Placas do comparador", revisão de design em duas rodadas, `PRODUCT.md` e `DESIGN.md` | **PR #7**: + 32 testes do frontend; **Marco 2** |
+| Diagramas e README | Fluxo do sistema em diagramas de raia; README na raiz do repositório | **PRs #8, #9, #10** |
+| Fase 5 | Workflow de publicação, blueprint do Render, limite de campo configurável | **PR #11** |
+| Queda do IRSA | Primeira publicação falhou (TAP com 502). Fallback de consulta para o SIA e publicação de snapshot | **PRs #12, #13**; site no ar |
 
 ## 3. O que foi construído
 
@@ -67,6 +74,20 @@ spherex-viewer/
         ├── test_output.py, test_build_static.py, test_api.py, test_simbad_live.py
         ├── fixtures/irsa/   ← respostas reais gravadas do IRSA (WISE 0855)
         └── science/         ← validação científica com dados reais
+
+frontend/                    ← o site (Vite + TypeScript, sem framework)
+├── src/core/                ← lógica pura e testada: quadros, contraste, diferença em σ,
+│                               renderização, WCS, épocas, estado na URL, fonte dos dados
+├── src/main.ts, data.ts     ← controlador da tela e carregamento (estático ou API)
+├── src/ui/marks.ts          ← marcas de lápis (círculo e seta)
+└── tests/                   ← Vitest; fixture de contrato gravada pelo backend
+
+.github/workflows/
+├── test.yml                 ← testes do backend e do frontend em todo PR
+├── update-data.yml          ← alvos → validação científica → GitHub Pages (a cada 3 dias)
+└── publish-snapshot.yml     ← publica os dados do branch data-snapshot (manual)
+render.yaml                  ← blueprint da API no Render
+PRODUCT.md, DESIGN.md        ← registro do produto e do sistema visual
 ```
 
 ### 3.2 O pipeline, passo a passo
@@ -138,6 +159,23 @@ Saída (`Field`):
 
 Erros padronizados: `400` (parâmetros), `404 NO_COVERAGE`, `429 BUSY` (+ `Retry-After`), `502 UPSTREAM_ERROR` (o próximo pedido tenta de novo). CORS liberado para embed. Medido localmente: WISE 0855 pronto em ~22 s com o cache cheio.
 
+### 3.7 O site (fase 4)
+
+- **`viewer-core`** (TypeScript puro, 32 testes): decodifica os quadros float32 e a máscara; contraste linear/asinh/log/raiz; **diferença em unidades de ruído**, (b − a)/√(var_a + var_b); renderização nas cores da placa; projeção TAN para posicionar as marcas; par de épocas padrão pelo maior sinal; estado ⇄ URL; escolha entre dados estáticos e API. Um teste de contrato valida, com o mesmo JSON Schema, arquivos gravados pelo backend.
+- **Interface**: placa em negativo com mira fixa e círculo/seta de lápis na posição prevista; Animar, Piscar e Diferença; detectores com a faixa em µm desenhada em escala; régua do tempo nas datas reais com o nº de exposições; contraste, negativo/positivo, zoom 1×/2×/4×; busca por nome ou RA/Dec; copiar link; `embed=1`.
+- **Direção visual "Placas do comparador"**, escolhida numa página de decisão entre alternativas: as épocas como as placas de vidro com que Tombaugh achou Plutão. Vermelho reservado às marcas de descoberta. Registrada em `PRODUCT.md`, `DESIGN.md` e `.impeccable/surfaces/`.
+- **Revisão de design independente em duas rodadas**. Pontos em aberto, por troca consciente: a placa ocupa ~55% da área de conteúdo a 1440×900 (o contrato pedia ~60%; maior empurraria a régua para baixo da dobra).
+
+### 3.8 Publicação (fase 5)
+
+| Peça | Estado |
+|---|---|
+| GitHub Pages (origem: GitHub Actions) | ✅ no ar |
+| `publish-snapshot.yml` | ✅ rodou com sucesso; é o que está publicado |
+| `update-data.yml` (pipeline → validação científica → Pages) | ⚠️ escrito e simulado localmente passo a passo; **falhou as duas vezes no GitHub**, na consulta ao IRSA |
+| API no Render (`render.yaml`, um campo por vez de até 10′) | ✅ `/health`, `/config` e `/resolve` respondem; **nenhum campo foi processado por ela** (depende do IRSA) |
+| Variável `API_BASE` no repositório | ✅ embutida no site publicado |
+
 ## 4. Processo de trabalho
 
 ### 4.1 Documentação primeiro
@@ -166,13 +204,13 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | Fronteira | Situação |
 |---|---|
 | 1. Pipeline com céu sintético (+ recortes reais gravados) | ✅ 32 testes |
-| 2. Adaptador do IRSA (respostas gravadas) + cache | ✅ 8 testes |
+| 2. Adaptador do IRSA (respostas gravadas, fallback para o SIA) + cache | ✅ 11 testes |
 | Alvos (propagação × Gaia DR3, `targets.yaml`) | ✅ 2 testes |
-| 3. API HTTP | ✅ 15 testes (+ 8 `live` do SIMBAD) |
+| 3. API HTTP | ✅ 17 testes (+ 8 `live` do SIMBAD) |
 | 4. Contrato de dados (JSON Schema) | ✅ 10 testes (gravação + dados estáticos) |
-| 5. Núcleo do frontend | Fase 4 |
+| 5. Núcleo do frontend | ✅ 32 testes (Vitest) |
 | 6. Validação científica (dados reais) | ✅ 16 testes |
-| 7. Ponta a ponta no navegador | Opcional |
+| 7. Ponta a ponta no navegador | Não automatizado. O site local e o publicado foram abertos num navegador sem interface para capturas e checagem de erros |
 
 ## 5. Decisões técnicas
 
@@ -224,7 +262,23 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | Arquivo e resolvedor **injetáveis** em `create_app` | API testada sem rede, com o céu sintético |
 | SIMBAD pelo **espelho de Harvard** primeiro | O servidor principal do CDS esteve fora do ar |
 
-### 5.4 Validação científica
+### 5.4 Site e publicação (fases 4 e 5)
+
+| Decisão | Por quê |
+|---|---|
+| **Vite + TypeScript sem framework** | Site pequeno e estático; Vitest integrado para o TDD do núcleo |
+| Lógica em `core/` separada da interface | O que é testável (matemática, coordenadas, URL) fica sem DOM |
+| **Diferença em unidades de ruído** (abaixo de 2σ some, a partir de 5σ cor cheia) | Escalada pelo brilho máximo saía em branco; por percentil virava "confete". Usa a variância das duas épocas |
+| Miniaturas desenhadas no navegador, com contraste pelos percentis do próprio quadro | Os PNGs invertidos por CSS viravam quadrados brancos; fração fixa do intervalo estourava em D6 |
+| Régua do tempo proporcional às datas, com rótulos que colidem escondidos | As épocas são irregulares; mostrar isso é parte da honestidade do dado |
+| **Publicação bloqueada pela validação científica** | O site nunca publica dados que falham na ciência |
+| `actions/cache` dividido em restaurar e salvar (`if: always()`) | Os downloads do IRSA não se perdem se um passo seguinte falhar |
+| Workflow só dispara em push que mexe em código | Mudanças de documentação não republicam |
+| **`SPHEREX_FOV_MAX`** (10′ no Render) | O pipeline guarda as exposições na memória: ~75 MB em 6′, mais de 1 GB em 30′; o Render grátis tem 512 MB |
+| **Fallback de consulta TAP → SIA** | O TAP caiu sozinho; o SIA devolve as mesmas exposições |
+| **Snapshot em branch separado** (`data-snapshot`) + workflow manual | Publicar com o IRSA fora do ar sem commitar dados gerados na `main` |
+
+### 5.5 Validação científica
 
 | Decisão | Por quê |
 |---|---|
@@ -253,6 +307,14 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | 12 | `field_id` do exemplo do contrato não batia (−7,2452 × −7,2451) | −7,24515 não é exato em binário | Exemplo corrigido; arredondamento padrão, igual ao do JavaScript | 3 |
 | 13 | Commit feito com um teste falhando | A cadeia de comandos usava `grep`, que devolve sucesso | Corrigido antes do push; commit só depois de `pytest` passar | 3 |
 | 14 | Miniatura da Barnard's Star usava uma época de 1 exposição | Regra "última época" | Época mais recente com ≥ 3 exposições | 3 |
+| 15 | Vermelho nos sliders, foco e detector, contra o próprio contrato de design | Cor de destaque aplicada por padrão | Vermelho só nas marcas de descoberta (apontado pelo revisor) | 4 |
+| 16 | Diferença em branco, depois "confete" de ruído | Escala pelo brilho máximo, depois por percentil | Diferença em unidades de ruído | 4 |
+| 17 | Régua do tempo abaixo da dobra a 1440×900 | Placa grande demais | Etiqueta compacta, zoom no canto da placa | 4 |
+| 18 | `fov=nan` respondia 500 | Comparações com NaN passam direto | 400 `INVALID_PARAM` para números não finitos | 5 |
+| 19 | `API_BASE` criado como *Secret* | O workflow lê uma *Variable* | Recriado como variável (a URL é pública de qualquer forma) | 5 |
+| 20 | Primeira publicação falhou na primeira consulta | TAP do IRSA com 502 (sync, async e availability) | Fallback para o SIA + publicação de snapshot | 5 |
+| 21 | Segunda execução falhou mesmo com o fallback | O SIA também passou a responder 502 | Sem solução do nosso lado; site segue no snapshot | 5 |
+| 22 | Revisão de código não aconteceu | Limite de uso de 5 horas atingido no início | Pendente | — |
 
 ## 7. Resultados
 
@@ -276,13 +338,24 @@ Achados com valor para a apresentação:
 - **`WCS-WAVE` é "para visualização"** segundo a documentação do SPHEREx; suficiente para o espectro do site, não para ciência de precisão.
 - **Primeiro download é lento** (~60 min para os 5 alvos), por causa da extensão PSF que o IRSA sempre envia. Execuções seguintes usam o cache.
 - **SIMBAD principal (CDS) estava fora do ar**; usado o espelho de Harvard.
+- **Dependência do IRSA no caminho ao vivo**: sem os serviços de consulta, a API não processa campos novos e o robô não atualiza os alvos. Os 5 alvos publicados não são afetados.
+- **A primeira execução completa do `update-data.yml` nunca rodou no GitHub**: foi simulada localmente com o cache cheio, mas o download de ~1.950 recortes a partir do runner não foi exercitado.
+- **Memória do pipeline cresce com (nº de exposições × área do campo)**: todas as exposições reprojetadas ficam na memória até a soma. Contornado com o limite de 10′ no Render; a solução é acumular as somas em fluxo.
+- **O "σ" da diferença é aproximado**: a variância é interpolada junto com a imagem na reprojeção, o que tende a superestimá-la. A diferença fica conservadora (mostra menos pixels do que deveria), o que não foi medido.
+- **O código não passou por revisão independente**; só a interface foi revisada (design).
 
-## 9. Próximos passos
+## 9. Onde estamos e próximos passos
 
-| Fase | Entrega |
-|---|---|
-| **4 — Frontend** | `viewer-core` com TDD; player, blink, diferença, seletor de detector; **Marco 2: site funcionando com dados estáticos** |
-| **5 — Publicação** | Action a cada 3 dias (pipeline → validação científica → Pages); API no Render |
-| **6 — Extras** | Espectro sob demanda; Aladin Lite com Gaia/WISE e posição prevista; overlay de flags; falsa cor; campo variável; embed; roteiro do pitch |
+| Fase | Entrega | Estado |
+|---|---|---|
+| 0–3 | Pipeline, dados reais, validação científica, contrato e API | ✅ |
+| 4 | Site (**Marco 2**) | ✅ |
+| 5 | Publicação | ✅ site e API no ar · ⚠️ atualização automática sem nenhuma execução bem-sucedida |
+| 6 | Extras | Não iniciada |
 
-Lições já registradas para o frontend: abrir no **detector padrão** do alvo (D6 para anãs frias), diferença padrão entre as épocas com **mais sinal**, núcleo saturado pintado com o **brilho máximo** (bit 0 da máscara), zoom e mira fixa para movimentos de ~1 px, e **controle de contraste**: com `vmax` = máximo, o campo em volta de alvos muito brilhantes (Barnard, R Dra) fica escuro.
+Pendências, em ordem sugerida:
+
+1. **Quando o IRSA voltar**: rodar *Atualizar dados e publicar* (botão *Run workflow*) e acompanhar a primeira execução completa (~1 h); testar um campo novo pela API publicada; conferir no Render se o último deploy inclui o fallback do SIA (commit `0932573` ou posterior).
+2. **Revisão de código** do backend e do frontend.
+3. **Fase 6**, em ordem de valor: espectro sob demanda; Aladin Lite com Gaia/WISE; overlay de flags de contaminação; falsa cor; soma de épocas na interface; roteiro do pitch (`11-apresentacao.md`).
+4. Itens do Space Apps fora do código: licença de código aberto no repositório e a página do projeto no site do evento.
