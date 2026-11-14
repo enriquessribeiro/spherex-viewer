@@ -59,6 +59,8 @@ class SyntheticExposure:
     # Pixels marcados em FLAGS: (leste_px, norte_px, bit, valor). A posição é no céu,
     # relativa ao centro do recorte; valor=None mantém o brilho, senão o substitui.
     flagged: tuple[tuple[float, float, int, float | None], ...] = ()
+    variance: float = 1.0  # valor de VARIANCE, (MJy/sr)^2
+    bias: float = 0.0  # brilho constante somado à IMAGE (não é luz zodiacal)
 
 
 @dataclass
@@ -92,7 +94,7 @@ class SyntheticArchive:
         wcs.wcs.cdelt = [-PIXEL_SCALE_DEG, PIXEL_SCALE_DEG]
         wcs.wcs.pc = [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
 
-        image = np.full((n, n), spec.zodi, dtype=np.float32)
+        image = np.full((n, n), spec.zodi + spec.bias, dtype=np.float32)
         yy, xx = np.mgrid[0:n, 0:n]
         for src in self.sources:
             x, y = wcs.world_to_pixel_values(*src.position_at(spec.mjd))
@@ -116,7 +118,7 @@ class SyntheticArchive:
                 fits.PrimaryHDU(),
                 fits.ImageHDU(image, header=header, name="IMAGE"),
                 fits.ImageHDU(flags, name="FLAGS"),
-                fits.ImageHDU(np.ones((n, n), dtype=np.float32), name="VARIANCE"),
+                fits.ImageHDU(np.full((n, n), spec.variance, dtype=np.float32), name="VARIANCE"),
                 fits.ImageHDU(np.full((n, n), spec.zodi, dtype=np.float32), name="ZODI"),
             ]
         )

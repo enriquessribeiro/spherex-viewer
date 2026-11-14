@@ -39,8 +39,8 @@ A peça mais importante. O pipeline recebe um **adaptador de arquivo** (`archive
 | Luz zodiacal constante de 5 MJy/sr | Fundo do quadro ≈ 0 (±ruído) |
 | Pixel marcado HOT com valor absurdo | Ignorado na soma (não aparece no quadro) |
 | Pixel marcado SOURCE | **Não** é mascarado |
-| N exposições com ruído σ | Ruído do quadro ≈ σ/√N |
-| Duas exposições com variâncias diferentes | Soma pondera por 1/variância |
+| N exposições de variância σ² | Variância do quadro = σ²/N (ruído σ/√N). Testado pela variância propagada, que é exata, e não pelo desvio padrão de ruído aleatório, que a interpolação da reprojeção suaviza |
+| Duas exposições com variâncias diferentes (valores 2 e 4, variâncias 1 e 3) | Soma pondera por 1/variância → 2,5; variância do quadro 0,75 |
 | Fonte com brilho diferente por época | `display.vmin/vmax` iguais para todas as épocas do detector |
 | Fonte com espectro plantado (ex.: pico em 4,6 µm) | `spectrum` recupera o pico no comprimento de onda certo (± 1 canal) |
 | `fov` = 6′ | Grade de 59 × 59 pixels, norte para cima |

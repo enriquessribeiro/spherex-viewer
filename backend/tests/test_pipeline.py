@@ -177,3 +177,32 @@ def test_pixel_marcado_como_fonte_conhecida_nao_e_mascarado():
     janela = quadro[CENTRO_PX - 5 : CENTRO_PX + 6, CENTRO_PX - 5 : CENTRO_PX + 6]
     # Fluxo total da gaussiana plantada (pico 100, sigma 1 px) = 2*pi*sigma^2*100.
     assert np.nansum(janela) == approx(2 * math.pi * 100.0, rel=0.02)
+
+
+def _campo_vazio(exposicoes):
+    archive = SyntheticArchive(sources=[], exposures=exposicoes)
+    return build_field(ra=RA0, dec=DEC0, fov_arcmin=6, archive=archive)
+
+
+def test_soma_pondera_cada_exposicao_pelo_inverso_da_variancia():
+    field = _campo_vazio(
+        [
+            SyntheticExposure(det="D6", mjd=60800.0, bias=2.0, variance=1.0),
+            SyntheticExposure(det="D6", mjd=60800.5, bias=4.0, variance=3.0),
+        ]
+    )
+
+    frame = field.epochs[0].frames["D6"]
+    # (2/1 + 4/3) / (1/1 + 1/3) = 2,5  (a média simples daria 3)
+    assert np.nanmedian(frame.data) == approx(2.5, abs=1e-6)
+    # 1 / (1/1 + 1/3) = 0,75
+    assert np.nanmedian(frame.variance) == approx(0.75, abs=1e-6)
+
+
+def test_variancia_do_quadro_cai_com_o_numero_de_exposicoes():
+    field = _campo_vazio(
+        [SyntheticExposure(det="D6", mjd=60800.0 + i * 0.1, variance=4.0) for i in range(9)]
+    )
+
+    # 9 exposições de variância 4 → 4/9 (ruído σ/√N)
+    assert np.nanmedian(field.epochs[0].frames["D6"].variance) == approx(4 / 9, abs=1e-6)
