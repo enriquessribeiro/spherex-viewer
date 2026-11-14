@@ -10,6 +10,10 @@ import yaml
 
 DAYS_PER_YEAR = 365.25
 
+# Época de referência para o centro dos campos dos alvos: ~nov/2025, meio do
+# primeiro ano de dados do SPHEREx. Objetos rápidos ficam perto do centro em todas as épocas.
+REFERENCE_MJD = 61000.0
+
 
 @dataclass(frozen=True)
 class Target:
@@ -22,6 +26,10 @@ class Target:
     ref_mjd: float = 51544.5  # J2000
     fov_arcmin: float = 6.0
     description: str = ""
+
+    def field_center(self) -> tuple[float, float]:
+        """Centro do campo publicado: posição propagada até REFERENCE_MJD."""
+        return self.position_at(REFERENCE_MJD)
 
     def position_at(self, mjd: float) -> tuple[float, float]:
         """Posição propagada linearmente pelo movimento próprio até `mjd`."""
