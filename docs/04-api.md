@@ -292,7 +292,7 @@ Notas:
 - **Máscara** (`.mask.u8`, 1 byte por pixel, norte na 1ª linha): bit 0 = **saturado** (núcleo de estrela brilhante sem dado; pintar com o brilho máximo), bit 1 = **baixa qualidade** (só havia dados com flag suspeito). O overlay de fantasmas/artefatos (flags 17, 20, 22–28) fica para a fase 6.
 - `exposures` lista as exposições usadas (sem arquivo individual por enquanto). `failed_exposures` lista as que o IRSA não entregou.
 - O PNG já aplica o esticamento `asinh` com os limites de `display` e pinta o núcleo saturado de branco.
-- `target` só existe quando o campo veio de um nome resolvido ou de um alvo da lista; contém as posições previstas por época (movimento próprio + paralaxe quando disponível).
+- `target` só existe quando o campo veio de um nome resolvido ou de um alvo da lista; contém as posições previstas por época, só pelo movimento próprio: a paralaxe (até ~0,55″ na Barnard's Star, < 0,1 px) não é aplicada.
 
 ## 6. Dados estáticos (GitHub Pages)
 
