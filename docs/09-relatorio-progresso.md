@@ -125,8 +125,9 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 
 | Fronteira | Situação |
 |---|---|
-| 1. Pipeline com céu sintético | ✅ 27 testes |
+| 1. Pipeline com céu sintético (+ recortes reais gravados) | ✅ 32 testes |
 | 2. Adaptador do IRSA (respostas gravadas) + cache | ✅ 8 testes |
+| Alvos (propagação × Gaia DR3, `targets.yaml`) | ✅ 2 testes |
 | 3. API HTTP | Fase 3 |
 | 4. Contrato de dados (JSON Schema) | Fase 3 |
 | 5. Núcleo do frontend | Fase 4 |
