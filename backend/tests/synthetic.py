@@ -56,6 +56,9 @@ class SyntheticExposure:
     rotation_deg: float = 0.0
     offset_px: tuple[float, float] = (0.0, 0.0)
     zodi: float = 0.0  # luz zodiacal (MJy/sr), somada à IMAGE e registrada em ZODI
+    # Pixels marcados em FLAGS: (leste_px, norte_px, bit, valor). A posição é no céu,
+    # relativa ao centro do recorte; valor=None mantém o brilho, senão o substitui.
+    flagged: tuple[tuple[float, float, int, float | None], ...] = ()
 
 
 @dataclass
@@ -97,13 +100,22 @@ class SyntheticArchive:
                 -((xx - x) ** 2 + (yy - y) ** 2) / (2 * PSF_SIGMA_PX**2)
             ).astype(np.float32)
 
+        flags = np.zeros((n, n), dtype=np.int32)
+        for east_px, north_px, bit, value in spec.flagged:
+            sky_ra = ra + east_px * PIXEL_SCALE_DEG / math.cos(math.radians(dec))
+            sky_dec = dec + north_px * PIXEL_SCALE_DEG
+            x, y = (int(round(float(v))) for v in wcs.world_to_pixel_values(sky_ra, sky_dec))
+            flags[y, x] |= 1 << bit
+            if value is not None:
+                image[y, x] = value
+
         header = wcs.to_header()
         header["BUNIT"] = "MJy/sr"
         return fits.HDUList(
             [
                 fits.PrimaryHDU(),
                 fits.ImageHDU(image, header=header, name="IMAGE"),
-                fits.ImageHDU(np.zeros((n, n), dtype=np.int32), name="FLAGS"),
+                fits.ImageHDU(flags, name="FLAGS"),
                 fits.ImageHDU(np.ones((n, n), dtype=np.float32), name="VARIANCE"),
                 fits.ImageHDU(np.full((n, n), spec.zodi, dtype=np.float32), name="ZODI"),
             ]

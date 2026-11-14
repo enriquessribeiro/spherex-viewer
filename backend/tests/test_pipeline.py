@@ -145,3 +145,35 @@ def test_luz_zodiacal_e_subtraida_do_quadro():
     quadro = field.epochs[0].frames["D6"].data
     canto = quadro[:10, :10]  # longe da estrela no centro
     assert np.nanmedian(canto) == approx(0.0, abs=1e-3)
+
+
+HOT, SOURCE = 10, 21
+
+
+def test_pixel_com_defeito_e_ignorado_na_soma():
+    # Pixel HOT com valor absurdo numa exposição, 8 px a oeste e 6 px ao sul do centro.
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D6", mjd=60800.0, flagged=((-8, -6, HOT, 1e4),)),
+            SyntheticExposure(det="D6", mjd=60800.5),
+        ]
+    )
+
+    quadro = field.epochs[0].frames["D6"].data
+    # Oeste fica à direita: x = 29 + 8; sul fica abaixo: y = 29 - 6.
+    vizinhanca = quadro[CENTRO_PX - 6 - 1 : CENTRO_PX - 6 + 2, CENTRO_PX + 8 - 1 : CENTRO_PX + 8 + 2]
+    assert np.nanmax(vizinhanca) < 1.0
+
+
+def test_pixel_marcado_como_fonte_conhecida_nao_e_mascarado():
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D6", mjd=60800.0, flagged=((0, 0, SOURCE, None),)),
+            SyntheticExposure(det="D6", mjd=60800.5, flagged=((0, 0, SOURCE, None),)),
+        ]
+    )
+
+    quadro = field.epochs[0].frames["D6"].data
+    janela = quadro[CENTRO_PX - 5 : CENTRO_PX + 6, CENTRO_PX - 5 : CENTRO_PX + 6]
+    # Fluxo total da gaussiana plantada (pico 100, sigma 1 px) = 2*pi*sigma^2*100.
+    assert np.nansum(janela) == approx(2 * math.pi * 100.0, rel=0.02)

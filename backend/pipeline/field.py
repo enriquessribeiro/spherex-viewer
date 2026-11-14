@@ -15,6 +15,12 @@ from pipeline.archive import Archive, Exposure
 PIXEL_SCALE_ARCSEC = 6.15
 EPOCH_GAP_DAYS = 10.0
 
+# Bits de FLAGS que indicam pixel inutilizável (docs/02-dados-spherex.md):
+# TRANSIENT, HOT, COLD, NONLINEAR, OUTLIER. SOURCE (21) e fantasmas/artefatos
+# (22-28) não são mascarados: SOURCE marca estrelas, os demais viram overlay.
+BAD_PIXEL_BITS = (0, 10, 11, 15, 19)
+BAD_PIXEL_MASK = sum(1 << b for b in BAD_PIXEL_BITS)
+
 
 @dataclass
 class Frame:
@@ -76,7 +82,8 @@ def build_field(ra: float, dec: float, fov_arcmin: float, archive: Archive) -> F
             hdul = archive.fetch_cutout(exp, ra, dec, size_deg)
             image = hdul["IMAGE"]
             # IMAGE inclui a luz zodiacal; ZODI é o modelo dela (docs/02-dados-spherex.md).
-            data = image.data - hdul["ZODI"].data
+            data = (image.data - hdul["ZODI"].data).astype(np.float64)
+            data[(hdul["FLAGS"].data & BAD_PIXEL_MASK) != 0] = np.nan
             reprojected, _ = reproject_interp(
                 (data, WCS(image.header)), wcs, shape_out=(n, n)
             )
