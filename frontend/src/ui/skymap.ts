@@ -92,7 +92,7 @@ export class SkyMap {
           if (!p.isDragging) this.status.textContent = `Ponto: RA ${p.ra.toFixed(4)}°, Dec ${p.dec.toFixed(4)}°`;
         });
         this.status.textContent = "Arraste para girar o céu; role para aproximar. Clique num alvo para ver as épocas.";
-        if (this.pending) this.showField(this.pending.ra, this.pending.dec, this.pending.fov);
+        if (this.pending) this.showField(this.pending.ra, this.pending.dec, this.pending.fov, false); // já abriu nele
       } catch (err) {
         this.status.textContent = `O mapa do céu não carregou (${(err as Error).message}). O resto do site funciona normalmente.`;
         this.loading = null;
@@ -107,9 +107,11 @@ export class SkyMap {
   }
 
   /** Marca o campo aberto na placa e leva o mapa até ele. */
-  showField(ra: number, dec: number, fov: number): void {
+  showField(ra: number, dec: number, fov: number, recenter = true): void {
     this.pending = { ra, dec, fov };
     if (!this.aladin) return;
+    // Mapa já carregado (ex.: o campo da API chegou depois): gira o céu até o campo, mantendo o zoom.
+    if (recenter) this.aladin.gotoRaDec(ra, dec);
     if (!this.fieldOverlay) {
       this.fieldOverlay = this.A.graphicOverlay({ color: INK_BLUE, lineWidth: 2, name: "Campo aberto" });
       this.aladin.addOverlay(this.fieldOverlay);
