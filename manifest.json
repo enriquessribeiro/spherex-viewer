@@ -1,0 +1,66 @@
+{
+ "schema_version": 1,
+ "generated_at": "2026-11-14T16:54:11Z",
+ "targets": [
+  {
+   "id": "barnard",
+   "name": "Barnard's Star",
+   "ra": 269.4462935799719,
+   "dec": 4.7678813681790695,
+   "fov_arcmin": 6,
+   "default_detector": "D2",
+   "field": "fields/269.4463+4.7679_6/5a31a3260f0a/field.json",
+   "latest_exposure_mjd": 61305.628021,
+   "thumbnail": "fields/269.4463+4.7679_6/5a31a3260f0a/frames/6/D2.png",
+   "description": "Anã vermelha a 6 anos-luz; maior movimento próprio conhecido (~10,4″/ano)"
+  },
+  {
+   "id": "epsindib",
+   "name": "Epsilon Indi B",
+   "ra": 331.09641720162676,
+   "dec": -56.80058328552298,
+   "fov_arcmin": 6,
+   "default_detector": "D2",
+   "field": "fields/331.0964-56.8006_6/824304f32a64/field.json",
+   "latest_exposure_mjd": 61315.478076,
+   "thumbnail": "fields/331.0964-56.8006_6/824304f32a64/frames/6/D2.png",
+   "description": "Par de anãs marrons (Ba/Bb) orbitando ε Indi A, a ~12 anos-luz (~4,7″/ano)"
+  },
+  {
+   "id": "wise0855",
+   "name": "WISE 0855-0714",
+   "ra": 133.76001995701068,
+   "dec": -7.242206991101986,
+   "fov_arcmin": 6,
+   "default_detector": "D6",
+   "field": "fields/133.7600-7.2422_6/6499edbc3755/field.json",
+   "latest_exposure_mjd": 61174.287218,
+   "thumbnail": "fields/133.7600-7.2422_6/6499edbc3755/frames/4/D6.png",
+   "description": "A anã marrom mais fria conhecida (~285 K), a 7,4 anos-luz (~8,1″/ano)"
+  },
+  {
+   "id": "rwaur",
+   "name": "RW Aurigae",
+   "ra": 76.95658631419977,
+   "dec": 30.401291980022435,
+   "fov_arcmin": 6,
+   "default_detector": "D2",
+   "field": "fields/76.9566+30.4013_6/9ca8a51a8acf/field.json",
+   "latest_exposure_mjd": 61299.895897,
+   "thumbnail": "fields/76.9566+30.4013_6/9ca8a51a8acf/frames/3/D2.png",
+   "description": "Estrela jovem variável (T Tauri)"
+  },
+  {
+   "id": "rdra",
+   "name": "R Draconis",
+   "ra": 248.16723470373543,
+   "dec": 66.75502363493199,
+   "fov_arcmin": 6,
+   "default_detector": "D2",
+   "field": "fields/248.1672+66.7550_6/08478a753a31/field.json",
+   "latest_exposure_mjd": 61237.873234,
+   "thumbnail": "fields/248.1672+66.7550_6/08478a753a31/frames/7/D2.png",
+   "description": "Variável de longo período (tipo Mira, ~245 dias)"
+  }
+ ]
+}

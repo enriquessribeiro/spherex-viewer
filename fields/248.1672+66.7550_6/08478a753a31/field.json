@@ -1,0 +1,3712 @@
+{
+ "schema_version": 1,
+ "field_id": "248.1672+66.7550_6",
+ "data_version": "08478a753a31",
+ "status": "ready",
+ "generated_at": "2026-11-14T16:54:11Z",
+ "center": {
+  "ra": 248.16723470373543,
+  "dec": 66.75502363493199
+ },
+ "fov_arcmin": 6,
+ "grid": {
+  "n": 59,
+  "pixel_scale_arcsec": 6.15,
+  "row_order": "north_first",
+  "wcs": {
+   "CTYPE1": "RA---TAN",
+   "CTYPE2": "DEC--TAN",
+   "CRVAL1": 248.16723470373543,
+   "CRVAL2": 66.75502363493199,
+   "CRPIX1": 30.0,
+   "CRPIX2": 30.0,
+   "CDELT1": -0.0017083333333333334,
+   "CDELT2": 0.0017083333333333334
+  }
+ },
+ "collections": [
+  "spherex_dr1",
+  "spherex_qr3"
+ ],
+ "latest_exposure_mjd": 61237.873234,
+ "base_url": "fields/248.1672+66.7550_6/08478a753a31/",
+ "epochs": [
+  {
+   "index": 1,
+   "mjd_start": 60811.955829,
+   "mjd_end": 60815.694173,
+   "mjd_mid": 60813.825001000005,
+   "date_start": "2025-05-16",
+   "date_end": "2025-05-20",
+   "frames": {
+    "D3": {
+     "n_exposures": 6,
+     "mjd_mean": 60813.20318716666,
+     "lambda_min_um": 1.63,
+     "lambda_max_um": 2.41,
+     "background": 0.8077666615865596,
+     "frame": "frames/1/D3.f32",
+     "variance": "frames/1/D3.var.f32",
+     "mask": "frames/1/D3.mask.u8",
+     "png": "frames/1/D3.png"
+    },
+    "D6": {
+     "n_exposures": 6,
+     "mjd_mean": 60813.20318716666,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.46084953536640033,
+     "frame": "frames/1/D6.f32",
+     "variance": "frames/1/D6.var.f32",
+     "mask": "frames/1/D6.mask.u8",
+     "png": "frames/1/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2025W20_2D_0243_1D3",
+     "det": "D3",
+     "mjd": 60811.955829,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_1D6",
+     "det": "D6",
+     "mjd": 60811.955829,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_2D6",
+     "det": "D6",
+     "mjd": 60811.957321,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_2D3",
+     "det": "D3",
+     "mjd": 60811.957321,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_3D3",
+     "det": "D3",
+     "mjd": 60811.958814,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_3D6",
+     "det": "D6",
+     "mjd": 60811.958814,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_4D6",
+     "det": "D6",
+     "mjd": 60811.960306,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W20_2D_0243_4D3",
+     "det": "D3",
+     "mjd": 60811.960306,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W21_1B_0329_1D6",
+     "det": "D6",
+     "mjd": 60815.69268,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W21_1B_0329_1D3",
+     "det": "D3",
+     "mjd": 60815.69268,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W21_1B_0329_2D3",
+     "det": "D3",
+     "mjd": 60815.694173,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W21_1B_0329_2D6",
+     "det": "D6",
+     "mjd": 60815.694173,
+     "collection": "spherex_dr1"
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "mjd_start": 60828.12619,
+   "mjd_end": 60878.608219,
+   "mjd_mid": 60853.3672045,
+   "date_start": "2025-06-02",
+   "date_end": "2025-07-22",
+   "frames": {
+    "D1": {
+     "n_exposures": 22,
+     "mjd_mean": 60863.590982409085,
+     "lambda_min_um": 0.75,
+     "lambda_max_um": 1.09,
+     "background": 0.36196809476864944,
+     "frame": "frames/2/D1.f32",
+     "variance": "frames/2/D1.var.f32",
+     "mask": "frames/2/D1.mask.u8",
+     "png": "frames/2/D1.png"
+    },
+    "D2": {
+     "n_exposures": 33,
+     "mjd_mean": 60846.05915266666,
+     "lambda_min_um": 1.1,
+     "lambda_max_um": 1.62,
+     "background": 0.5860961945146679,
+     "frame": "frames/2/D2.f32",
+     "variance": "frames/2/D2.var.f32",
+     "mask": "frames/2/D2.mask.u8",
+     "png": "frames/2/D2.png"
+    },
+    "D3": {
+     "n_exposures": 17,
+     "mjd_mean": 60834.81247758824,
+     "lambda_min_um": 1.63,
+     "lambda_max_um": 2.41,
+     "background": 0.6406773717205317,
+     "frame": "frames/2/D3.f32",
+     "variance": "frames/2/D3.var.f32",
+     "mask": "frames/2/D3.mask.u8",
+     "png": "frames/2/D3.png"
+    },
+    "D4": {
+     "n_exposures": 21,
+     "mjd_mean": 60863.7169044762,
+     "lambda_min_um": 2.42,
+     "lambda_max_um": 3.82,
+     "background": 0.4500079349540928,
+     "frame": "frames/2/D4.f32",
+     "variance": "frames/2/D4.var.f32",
+     "mask": "frames/2/D4.mask.u8",
+     "png": "frames/2/D4.png"
+    },
+    "D5": {
+     "n_exposures": 32,
+     "mjd_mean": 60845.695852875,
+     "lambda_min_um": 3.83,
+     "lambda_max_um": 4.41,
+     "background": 0.48737529137506075,
+     "frame": "frames/2/D5.f32",
+     "variance": "frames/2/D5.var.f32",
+     "mask": "frames/2/D5.mask.u8",
+     "png": "frames/2/D5.png"
+    },
+    "D6": {
+     "n_exposures": 16,
+     "mjd_mean": 60834.597173312504,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.3740626846547301,
+     "frame": "frames/2/D6.f32",
+     "variance": "frames/2/D6.var.f32",
+     "mask": "frames/2/D6.mask.u8",
+     "png": "frames/2/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2025W23_1C_0021_1D3",
+     "det": "D3",
+     "mjd": 60828.12619,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_1D6",
+     "det": "D6",
+     "mjd": 60828.12619,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_2D3",
+     "det": "D3",
+     "mjd": 60828.1277,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_2D6",
+     "det": "D6",
+     "mjd": 60828.1277,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_3D6",
+     "det": "D6",
+     "mjd": 60828.129192,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_3D3",
+     "det": "D3",
+     "mjd": 60828.129192,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_4D3",
+     "det": "D3",
+     "mjd": 60828.130684,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0021_4D6",
+     "det": "D6",
+     "mjd": 60828.130684,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0607_3D3",
+     "det": "D3",
+     "mjd": 60831.186215,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_1C_0607_3D6",
+     "det": "D6",
+     "mjd": 60831.186215,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0129_2D6",
+     "det": "D6",
+     "mjd": 60832.136834,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0129_2D3",
+     "det": "D3",
+     "mjd": 60832.136834,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0130_1D6",
+     "det": "D6",
+     "mjd": 60832.138575,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0130_1D3",
+     "det": "D3",
+     "mjd": 60832.138575,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_1D1",
+     "det": "D1",
+     "mjd": 60832.473887,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_1D4",
+     "det": "D4",
+     "mjd": 60832.473887,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_2D4",
+     "det": "D4",
+     "mjd": 60832.47538,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_2D1",
+     "det": "D1",
+     "mjd": 60832.47538,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_3D4",
+     "det": "D4",
+     "mjd": 60832.476872,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_3D1",
+     "det": "D1",
+     "mjd": 60832.476872,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_4D1",
+     "det": "D1",
+     "mjd": 60832.478364,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0206_4D4",
+     "det": "D4",
+     "mjd": 60832.478364,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_1D2",
+     "det": "D2",
+     "mjd": 60834.787751,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_1D5",
+     "det": "D5",
+     "mjd": 60834.787751,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_2D5",
+     "det": "D5",
+     "mjd": 60834.789243,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_2D2",
+     "det": "D2",
+     "mjd": 60834.789243,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_3D2",
+     "det": "D2",
+     "mjd": 60834.790735,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_3D5",
+     "det": "D5",
+     "mjd": 60834.790735,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_4D5",
+     "det": "D5",
+     "mjd": 60834.792227,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W23_2B_0696_4D2",
+     "det": "D2",
+     "mjd": 60834.792227,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0123_1D5",
+     "det": "D5",
+     "mjd": 60835.535121,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0123_1D2",
+     "det": "D2",
+     "mjd": 60835.535121,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0123_2D5",
+     "det": "D5",
+     "mjd": 60835.536613,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0123_2D2",
+     "det": "D2",
+     "mjd": 60835.536613,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0123_3D2",
+     "det": "D2",
+     "mjd": 60835.538105,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0123_3D5",
+     "det": "D5",
+     "mjd": 60835.538105,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_1D2",
+     "det": "D2",
+     "mjd": 60836.010581,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_1D5",
+     "det": "D5",
+     "mjd": 60836.010581,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_2D2",
+     "det": "D2",
+     "mjd": 60836.012074,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_2D5",
+     "det": "D5",
+     "mjd": 60836.012074,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_3D2",
+     "det": "D2",
+     "mjd": 60836.013566,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_3D5",
+     "det": "D5",
+     "mjd": 60836.013566,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_4D5",
+     "det": "D5",
+     "mjd": 60836.015058,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0215_4D2",
+     "det": "D2",
+     "mjd": 60836.015058,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0358_1D5",
+     "det": "D5",
+     "mjd": 60836.758076,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0358_1D2",
+     "det": "D2",
+     "mjd": 60836.758076,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0457_1D3",
+     "det": "D3",
+     "mjd": 60837.301931,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0457_1D6",
+     "det": "D6",
+     "mjd": 60837.301931,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_1D6",
+     "det": "D6",
+     "mjd": 60838.25287,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_1D3",
+     "det": "D3",
+     "mjd": 60838.25287,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_2D6",
+     "det": "D6",
+     "mjd": 60838.254362,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_2D3",
+     "det": "D3",
+     "mjd": 60838.254362,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_3D3",
+     "det": "D3",
+     "mjd": 60838.255854,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_3D6",
+     "det": "D6",
+     "mjd": 60838.255854,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_1A_0631_4D3",
+     "det": "D3",
+     "mjd": 60838.257347,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_1D3",
+     "det": "D3",
+     "mjd": 60838.660237,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_1D6",
+     "det": "D6",
+     "mjd": 60838.660237,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_2D3",
+     "det": "D3",
+     "mjd": 60838.661729,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_2D6",
+     "det": "D6",
+     "mjd": 60838.66173,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_3D6",
+     "det": "D6",
+     "mjd": 60838.663222,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_3D3",
+     "det": "D3",
+     "mjd": 60838.663222,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_4D6",
+     "det": "D6",
+     "mjd": 60838.664714,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0033_4D3",
+     "det": "D3",
+     "mjd": 60838.664714,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0074_1D6",
+     "det": "D6",
+     "mjd": 60838.864463,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0074_1D3",
+     "det": "D3",
+     "mjd": 60838.864463,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_1D2",
+     "det": "D2",
+     "mjd": 60841.445866,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_1D5",
+     "det": "D5",
+     "mjd": 60841.445866,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_2D5",
+     "det": "D5",
+     "mjd": 60841.447358,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_2D2",
+     "det": "D2",
+     "mjd": 60841.447358,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_3D5",
+     "det": "D5",
+     "mjd": 60841.44885,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_3D2",
+     "det": "D2",
+     "mjd": 60841.44885,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_4D2",
+     "det": "D2",
+     "mjd": 60841.450343,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W24_2D_0534_4D5",
+     "det": "D5",
+     "mjd": 60841.450343,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W25_2A_0633_2D2",
+     "det": "D2",
+     "mjd": 60848.648547,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W25_2A_0633_2D5",
+     "det": "D5",
+     "mjd": 60848.648547,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W25_2A_0633_3D5",
+     "det": "D5",
+     "mjd": 60848.650039,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W25_2A_0633_3D2",
+     "det": "D2",
+     "mjd": 60848.650039,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_1D2",
+     "det": "D2",
+     "mjd": 60851.56823,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_1D5",
+     "det": "D5",
+     "mjd": 60851.56823,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_2D2",
+     "det": "D2",
+     "mjd": 60851.569722,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_2D5",
+     "det": "D5",
+     "mjd": 60851.569722,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_3D5",
+     "det": "D5",
+     "mjd": 60851.571214,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_3D2",
+     "det": "D2",
+     "mjd": 60851.571214,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_4D2",
+     "det": "D2",
+     "mjd": 60851.572707,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0506_4D5",
+     "det": "D5",
+     "mjd": 60851.572707,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0517_1D5",
+     "det": "D5",
+     "mjd": 60851.637922,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0517_1D2",
+     "det": "D2",
+     "mjd": 60851.637922,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0517_2D2",
+     "det": "D2",
+     "mjd": 60851.639414,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_1A_0517_2D5",
+     "det": "D5",
+     "mjd": 60851.639414,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_2A_0170_4D2",
+     "det": "D2",
+     "mjd": 60853.203278,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W26_2A_0170_4D5",
+     "det": "D5",
+     "mjd": 60853.203278,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0331_2D5",
+     "det": "D5",
+     "mjd": 60857.683254,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0331_2D2",
+     "det": "D2",
+     "mjd": 60857.683254,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0331_3D2",
+     "det": "D2",
+     "mjd": 60857.684746,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0331_4D5",
+     "det": "D5",
+     "mjd": 60857.686238,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0331_4D2",
+     "det": "D2",
+     "mjd": 60857.686238,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0541_1D2",
+     "det": "D2",
+     "mjd": 60858.837904,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0541_1D5",
+     "det": "D5",
+     "mjd": 60858.837904,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_1D5",
+     "det": "D5",
+     "mjd": 60858.904576,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_1D2",
+     "det": "D2",
+     "mjd": 60858.904576,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_2D5",
+     "det": "D5",
+     "mjd": 60858.906068,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_2D2",
+     "det": "D2",
+     "mjd": 60858.906068,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_3D2",
+     "det": "D2",
+     "mjd": 60858.90756,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_3D5",
+     "det": "D5",
+     "mjd": 60858.90756,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_4D2",
+     "det": "D2",
+     "mjd": 60858.909052,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_1A_0555_4D5",
+     "det": "D5",
+     "mjd": 60858.909052,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0243_1D4",
+     "det": "D4",
+     "mjd": 60860.540193,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0243_1D1",
+     "det": "D1",
+     "mjd": 60860.540193,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0331_1D1",
+     "det": "D1",
+     "mjd": 60860.946619,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0557_1D1",
+     "det": "D1",
+     "mjd": 60861.962188,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0557_1D4",
+     "det": "D4",
+     "mjd": 60861.962188,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0557_2D1",
+     "det": "D1",
+     "mjd": 60861.96368,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W27_2A_0557_2D4",
+     "det": "D4",
+     "mjd": 60861.96368,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W28_1B_0100_1D1",
+     "det": "D1",
+     "mjd": 60863.457071,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W28_1B_0100_1D4",
+     "det": "D4",
+     "mjd": 60863.457071,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0141_2D4",
+     "det": "D4",
+     "mjd": 60870.727533,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0141_2D1",
+     "det": "D1",
+     "mjd": 60870.727533,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0141_3D1",
+     "det": "D1",
+     "mjd": 60870.729025,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0141_3D4",
+     "det": "D4",
+     "mjd": 60870.729025,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0141_4D4",
+     "det": "D4",
+     "mjd": 60870.730517,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0141_4D1",
+     "det": "D1",
+     "mjd": 60870.730517,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_1D4",
+     "det": "D4",
+     "mjd": 60873.443774,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_1D1",
+     "det": "D1",
+     "mjd": 60873.443774,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_2D1",
+     "det": "D1",
+     "mjd": 60873.445266,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_2D4",
+     "det": "D4",
+     "mjd": 60873.445266,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_3D1",
+     "det": "D1",
+     "mjd": 60873.446759,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_3D4",
+     "det": "D4",
+     "mjd": 60873.446759,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_4D1",
+     "det": "D1",
+     "mjd": 60873.448251,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_1A_0676_4D4",
+     "det": "D4",
+     "mjd": 60873.448251,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0288_1D4",
+     "det": "D4",
+     "mjd": 60874.666517,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0288_1D1",
+     "det": "D1",
+     "mjd": 60874.666517,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0288_2D1",
+     "det": "D1",
+     "mjd": 60874.668009,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0288_2D4",
+     "det": "D4",
+     "mjd": 60874.668009,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0288_3D1",
+     "det": "D1",
+     "mjd": 60874.669502,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0288_3D4",
+     "det": "D4",
+     "mjd": 60874.669502,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0351_1D1",
+     "det": "D1",
+     "mjd": 60874.869855,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0351_1D4",
+     "det": "D4",
+     "mjd": 60874.869855,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0805_1D4",
+     "det": "D4",
+     "mjd": 60876.774132,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W29_2A_0805_1D1",
+     "det": "D1",
+     "mjd": 60876.774132,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W30_1B_0289_1D1",
+     "det": "D1",
+     "mjd": 60878.608219,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W30_1B_0289_1D4",
+     "det": "D4",
+     "mjd": 60878.608219,
+     "collection": "spherex_dr1"
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "mjd_start": 60965.614508,
+   "mjd_end": 61023.738599,
+   "mjd_mid": 60994.6765535,
+   "date_start": "2025-10-17",
+   "date_end": "2025-12-14",
+   "frames": {
+    "D1": {
+     "n_exposures": 45,
+     "mjd_mean": 60980.10451602223,
+     "lambda_min_um": 0.75,
+     "lambda_max_um": 1.09,
+     "background": 0.23082291618888248,
+     "frame": "frames/3/D1.f32",
+     "variance": "frames/3/D1.var.f32",
+     "mask": "frames/3/D1.mask.u8",
+     "png": "frames/3/D1.png"
+    },
+    "D2": {
+     "n_exposures": 37,
+     "mjd_mean": 61014.483538756765,
+     "lambda_min_um": 1.1,
+     "lambda_max_um": 1.62,
+     "background": 0.4225913709818779,
+     "frame": "frames/3/D2.f32",
+     "variance": "frames/3/D2.var.f32",
+     "mask": "frames/3/D2.mask.u8",
+     "png": "frames/3/D2.png"
+    },
+    "D4": {
+     "n_exposures": 44,
+     "mjd_mean": 60979.805581318185,
+     "lambda_min_um": 2.42,
+     "lambda_max_um": 3.82,
+     "background": 0.3174124489282768,
+     "frame": "frames/3/D4.f32",
+     "variance": "frames/3/D4.var.f32",
+     "mask": "frames/3/D4.mask.u8",
+     "png": "frames/3/D4.png"
+    },
+    "D5": {
+     "n_exposures": 38,
+     "mjd_mean": 61014.3519124737,
+     "lambda_min_um": 3.83,
+     "lambda_max_um": 4.41,
+     "background": 0.3534307390675633,
+     "frame": "frames/3/D5.f32",
+     "variance": "frames/3/D5.var.f32",
+     "mask": "frames/3/D5.mask.u8",
+     "png": "frames/3/D5.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2025W42_2A_0244_1D4",
+     "det": "D4",
+     "mjd": 60965.614508,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_1D1",
+     "det": "D1",
+     "mjd": 60965.614508,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_2D1",
+     "det": "D1",
+     "mjd": 60965.616018,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_2D4",
+     "det": "D4",
+     "mjd": 60965.616018,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_3D4",
+     "det": "D4",
+     "mjd": 60965.61751,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_3D1",
+     "det": "D1",
+     "mjd": 60965.61751,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_4D4",
+     "det": "D4",
+     "mjd": 60965.619002,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0244_4D1",
+     "det": "D1",
+     "mjd": 60965.619002,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0499_2D1",
+     "det": "D1",
+     "mjd": 60966.904349,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0499_2D4",
+     "det": "D4",
+     "mjd": 60966.904349,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0513_1D4",
+     "det": "D4",
+     "mjd": 60966.969973,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0513_1D1",
+     "det": "D1",
+     "mjd": 60966.969973,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0513_2D4",
+     "det": "D4",
+     "mjd": 60966.971465,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0513_2D1",
+     "det": "D1",
+     "mjd": 60966.971465,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0513_3D4",
+     "det": "D4",
+     "mjd": 60966.972957,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0513_3D1",
+     "det": "D1",
+     "mjd": 60966.972957,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_1D1",
+     "det": "D1",
+     "mjd": 60967.038385,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_1D4",
+     "det": "D4",
+     "mjd": 60967.038385,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_2D1",
+     "det": "D1",
+     "mjd": 60967.039878,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_2D4",
+     "det": "D4",
+     "mjd": 60967.039878,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_3D1",
+     "det": "D1",
+     "mjd": 60967.04137,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_3D4",
+     "det": "D4",
+     "mjd": 60967.04137,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_4D1",
+     "det": "D1",
+     "mjd": 60967.042862,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0526_4D4",
+     "det": "D4",
+     "mjd": 60967.042862,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_1D4",
+     "det": "D4",
+     "mjd": 60967.447423,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_1D1",
+     "det": "D1",
+     "mjd": 60967.447423,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_2D4",
+     "det": "D4",
+     "mjd": 60967.448915,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_2D1",
+     "det": "D1",
+     "mjd": 60967.448915,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_3D4",
+     "det": "D4",
+     "mjd": 60967.450408,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_3D1",
+     "det": "D1",
+     "mjd": 60967.450408,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_4D1",
+     "det": "D1",
+     "mjd": 60967.4519,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W42_2A_0617_4D4",
+     "det": "D4",
+     "mjd": 60967.4519,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W43_2A_0320_1D1",
+     "det": "D1",
+     "mjd": 60972.948319,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W43_2A_0320_1D4",
+     "det": "D4",
+     "mjd": 60972.948319,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W43_2A_0464_1D1",
+     "det": "D1",
+     "mjd": 60973.557852,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W43_2A_0464_1D4",
+     "det": "D4",
+     "mjd": 60973.557852,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W43_2A_0464_2D4",
+     "det": "D4",
+     "mjd": 60973.559344,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W43_2A_0464_2D1",
+     "det": "D1",
+     "mjd": 60973.559344,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0067_1D1",
+     "det": "D1",
+     "mjd": 60982.317549,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0067_1D4",
+     "det": "D4",
+     "mjd": 60982.317549,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0067_2D4",
+     "det": "D4",
+     "mjd": 60982.319041,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0067_2D1",
+     "det": "D1",
+     "mjd": 60982.319041,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0515_1D1",
+     "det": "D1",
+     "mjd": 60984.28761,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0515_1D4",
+     "det": "D4",
+     "mjd": 60984.28761,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0515_2D4",
+     "det": "D4",
+     "mjd": 60984.289102,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0515_2D1",
+     "det": "D1",
+     "mjd": 60984.289102,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0515_3D1",
+     "det": "D1",
+     "mjd": 60984.290594,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0515_3D4",
+     "det": "D4",
+     "mjd": 60984.290594,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_1D4",
+     "det": "D4",
+     "mjd": 60984.833313,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_1D1",
+     "det": "D1",
+     "mjd": 60984.833313,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_2D4",
+     "det": "D4",
+     "mjd": 60984.834805,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_2D1",
+     "det": "D1",
+     "mjd": 60984.834805,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_3D4",
+     "det": "D4",
+     "mjd": 60984.836297,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_3D1",
+     "det": "D1",
+     "mjd": 60984.836297,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_4D1",
+     "det": "D1",
+     "mjd": 60984.83779,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_1A_0638_4D4",
+     "det": "D4",
+     "mjd": 60984.83779,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_1D1",
+     "det": "D1",
+     "mjd": 60987.482563,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_1D4",
+     "det": "D4",
+     "mjd": 60987.482563,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_2D4",
+     "det": "D4",
+     "mjd": 60987.484055,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_2D1",
+     "det": "D1",
+     "mjd": 60987.484055,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_3D4",
+     "det": "D4",
+     "mjd": 60987.485548,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_3D1",
+     "det": "D1",
+     "mjd": 60987.485548,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_4D1",
+     "det": "D1",
+     "mjd": 60987.48704,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0430_4D4",
+     "det": "D4",
+     "mjd": 60987.48704,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0458_1D4",
+     "det": "D4",
+     "mjd": 60987.617612,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0458_1D1",
+     "det": "D1",
+     "mjd": 60987.617612,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0458_2D1",
+     "det": "D1",
+     "mjd": 60987.619104,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W45_2A_0458_2D4",
+     "det": "D4",
+     "mjd": 60987.619104,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0002_4D4",
+     "det": "D4",
+     "mjd": 60992.510912,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0002_4D1",
+     "det": "D1",
+     "mjd": 60992.510912,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_1D1",
+     "det": "D1",
+     "mjd": 60993.253166,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_1D4",
+     "det": "D4",
+     "mjd": 60993.253166,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_2D4",
+     "det": "D4",
+     "mjd": 60993.254659,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_2D1",
+     "det": "D1",
+     "mjd": 60993.254659,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_3D1",
+     "det": "D1",
+     "mjd": 60993.256151,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_3D4",
+     "det": "D4",
+     "mjd": 60993.256151,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0163_4D1",
+     "det": "D1",
+     "mjd": 60993.257643,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_1D4",
+     "det": "D4",
+     "mjd": 60993.457996,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_1D1",
+     "det": "D1",
+     "mjd": 60993.457996,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_2D1",
+     "det": "D1",
+     "mjd": 60993.459488,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_2D4",
+     "det": "D4",
+     "mjd": 60993.459488,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_3D4",
+     "det": "D4",
+     "mjd": 60993.460981,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_3D1",
+     "det": "D1",
+     "mjd": 60993.460981,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_4D4",
+     "det": "D4",
+     "mjd": 60993.462473,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0205_4D1",
+     "det": "D1",
+     "mjd": 60993.462473,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0592_1D4",
+     "det": "D4",
+     "mjd": 60995.358454,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W46_2A_0592_1D1",
+     "det": "D1",
+     "mjd": 60995.358454,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_1D2",
+     "det": "D2",
+     "mjd": 60997.732738,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_1D5",
+     "det": "D5",
+     "mjd": 60997.732738,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_2D5",
+     "det": "D5",
+     "mjd": 60997.73423,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_2D2",
+     "det": "D2",
+     "mjd": 60997.73423,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_3D2",
+     "det": "D2",
+     "mjd": 60997.735722,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_3D5",
+     "det": "D5",
+     "mjd": 60997.735722,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_4D2",
+     "det": "D2",
+     "mjd": 60997.737215,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_1A_0388_4D5",
+     "det": "D5",
+     "mjd": 60997.737215,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_2A_0033_1D4",
+     "det": "D4",
+     "mjd": 60999.636837,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W47_2A_0033_1D1",
+     "det": "D1",
+     "mjd": 60999.636837,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0243_1D2",
+     "det": "D2",
+     "mjd": 61007.58201,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0243_1D5",
+     "det": "D5",
+     "mjd": 61007.58201,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0243_2D5",
+     "det": "D5",
+     "mjd": 61007.583503,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0243_2D2",
+     "det": "D2",
+     "mjd": 61007.583503,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0243_3D5",
+     "det": "D5",
+     "mjd": 61007.584995,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0243_3D2",
+     "det": "D2",
+     "mjd": 61007.584995,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0693_2D5",
+     "det": "D5",
+     "mjd": 61009.48174,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0693_3D5",
+     "det": "D5",
+     "mjd": 61009.483232,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0693_3D2",
+     "det": "D2",
+     "mjd": 61009.483232,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0693_4D5",
+     "det": "D5",
+     "mjd": 61009.484724,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W48_2A_0693_4D2",
+     "det": "D2",
+     "mjd": 61009.484724,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_1D2",
+     "det": "D2",
+     "mjd": 61010.022593,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_1D5",
+     "det": "D5",
+     "mjd": 61010.022593,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_2D5",
+     "det": "D5",
+     "mjd": 61010.024085,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_2D2",
+     "det": "D2",
+     "mjd": 61010.024085,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_3D2",
+     "det": "D2",
+     "mjd": 61010.025578,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_3D5",
+     "det": "D5",
+     "mjd": 61010.025578,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_4D2",
+     "det": "D2",
+     "mjd": 61010.02707,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0009_4D5",
+     "det": "D5",
+     "mjd": 61010.02707,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_1D2",
+     "det": "D2",
+     "mjd": 61011.245656,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_1D5",
+     "det": "D5",
+     "mjd": 61011.245656,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_2D5",
+     "det": "D5",
+     "mjd": 61011.247148,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_2D2",
+     "det": "D2",
+     "mjd": 61011.247148,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_3D5",
+     "det": "D5",
+     "mjd": 61011.24864,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_3D2",
+     "det": "D2",
+     "mjd": 61011.24864,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_4D5",
+     "det": "D5",
+     "mjd": 61011.250132,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0280_4D2",
+     "det": "D2",
+     "mjd": 61011.250132,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0473_1D5",
+     "det": "D5",
+     "mjd": 61012.131735,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W49_1A_0473_1D2",
+     "det": "D2",
+     "mjd": 61012.131735,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_1D2",
+     "det": "D2",
+     "mjd": 61019.871989,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_1D5",
+     "det": "D5",
+     "mjd": 61019.871989,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_2D2",
+     "det": "D2",
+     "mjd": 61019.873482,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_2D5",
+     "det": "D5",
+     "mjd": 61019.873482,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_3D2",
+     "det": "D2",
+     "mjd": 61019.874992,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_3D5",
+     "det": "D5",
+     "mjd": 61019.874992,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_4D5",
+     "det": "D5",
+     "mjd": 61019.876484,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_1A_0661_4D2",
+     "det": "D2",
+     "mjd": 61019.876484,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0214_3D5",
+     "det": "D5",
+     "mjd": 61021.230225,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0214_3D2",
+     "det": "D2",
+     "mjd": 61021.230225,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0214_4D2",
+     "det": "D2",
+     "mjd": 61021.231718,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0214_4D5",
+     "det": "D5",
+     "mjd": 61021.231718,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_1D2",
+     "det": "D2",
+     "mjd": 61021.362201,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_1D5",
+     "det": "D5",
+     "mjd": 61021.362201,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_2D5",
+     "det": "D5",
+     "mjd": 61021.363694,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_2D2",
+     "det": "D2",
+     "mjd": 61021.363694,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_3D2",
+     "det": "D2",
+     "mjd": 61021.365186,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_3D5",
+     "det": "D5",
+     "mjd": 61021.365186,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_4D5",
+     "det": "D5",
+     "mjd": 61021.366678,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0259_4D2",
+     "det": "D2",
+     "mjd": 61021.366678,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_1D2",
+     "det": "D2",
+     "mjd": 61021.497854,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_1D5",
+     "det": "D5",
+     "mjd": 61021.497854,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_2D5",
+     "det": "D5",
+     "mjd": 61021.499347,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_2D2",
+     "det": "D2",
+     "mjd": 61021.499347,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_3D5",
+     "det": "D5",
+     "mjd": 61021.500839,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_3D2",
+     "det": "D2",
+     "mjd": 61021.500839,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_4D2",
+     "det": "D2",
+     "mjd": 61021.502331,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0301_4D5",
+     "det": "D5",
+     "mjd": 61021.502331,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0333_3D5",
+     "det": "D5",
+     "mjd": 61021.637114,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0333_3D2",
+     "det": "D2",
+     "mjd": 61021.637114,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0333_4D5",
+     "det": "D5",
+     "mjd": 61021.638606,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0333_4D2",
+     "det": "D2",
+     "mjd": 61021.638606,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0602_1D2",
+     "det": "D2",
+     "mjd": 61022.788548,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0602_1D5",
+     "det": "D5",
+     "mjd": 61022.788548,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0602_2D2",
+     "det": "D2",
+     "mjd": 61022.790041,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0602_2D5",
+     "det": "D5",
+     "mjd": 61022.790041,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0799_1D2",
+     "det": "D2",
+     "mjd": 61023.738599,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W50_2A_0799_1D5",
+     "det": "D5",
+     "mjd": 61023.738599,
+     "collection": "spherex_dr1"
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "mjd_start": 61035.218053,
+   "mjd_end": 61053.414626,
+   "mjd_mid": 61044.3163395,
+   "date_start": "2025-12-26",
+   "date_end": "2026-01-13",
+   "frames": {
+    "D3": {
+     "n_exposures": 24,
+     "mjd_mean": 61041.39583612501,
+     "lambda_min_um": 1.63,
+     "lambda_max_um": 2.41,
+     "background": 0.6477218558864422,
+     "frame": "frames/4/D3.f32",
+     "variance": "frames/4/D3.var.f32",
+     "mask": "frames/4/D3.mask.u8",
+     "png": "frames/4/D3.png"
+    },
+    "D6": {
+     "n_exposures": 24,
+     "mjd_mean": 61041.39583612501,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.3180875966175662,
+     "frame": "frames/4/D6.f32",
+     "variance": "frames/4/D6.var.f32",
+     "mask": "frames/4/D6.mask.u8",
+     "png": "frames/4/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2025W52_2A_0161_2D6",
+     "det": "D6",
+     "mjd": 61035.218053,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0161_2D3",
+     "det": "D3",
+     "mjd": 61035.218053,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0161_3D3",
+     "det": "D3",
+     "mjd": 61035.219545,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0161_3D6",
+     "det": "D6",
+     "mjd": 61035.219545,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0161_4D6",
+     "det": "D6",
+     "mjd": 61035.221038,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0161_4D3",
+     "det": "D3",
+     "mjd": 61035.221038,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_1D6",
+     "det": "D6",
+     "mjd": 61035.555995,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_1D3",
+     "det": "D3",
+     "mjd": 61035.555995,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_2D3",
+     "det": "D3",
+     "mjd": 61035.557488,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_2D6",
+     "det": "D6",
+     "mjd": 61035.557488,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_3D6",
+     "det": "D6",
+     "mjd": 61035.55898,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_3D3",
+     "det": "D3",
+     "mjd": 61035.55898,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_4D6",
+     "det": "D6",
+     "mjd": 61035.56049,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2025W52_2A_0227_4D3",
+     "det": "D3",
+     "mjd": 61035.56049,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_1D3",
+     "det": "D3",
+     "mjd": 61039.152063,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_1D6",
+     "det": "D6",
+     "mjd": 61039.152063,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_2D3",
+     "det": "D3",
+     "mjd": 61039.153555,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_2D6",
+     "det": "D6",
+     "mjd": 61039.153555,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_3D3",
+     "det": "D3",
+     "mjd": 61039.155048,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_3D6",
+     "det": "D6",
+     "mjd": 61039.155048,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_4D6",
+     "det": "D6",
+     "mjd": 61039.15654,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0257_4D3",
+     "det": "D3",
+     "mjd": 61039.15654,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0404_1D3",
+     "det": "D3",
+     "mjd": 61039.898937,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0404_1D6",
+     "det": "D6",
+     "mjd": 61039.898937,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0534_3D3",
+     "det": "D3",
+     "mjd": 61040.581643,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0534_3D6",
+     "det": "D6",
+     "mjd": 61040.581643,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0534_4D3",
+     "det": "D3",
+     "mjd": 61040.583135,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0534_4D6",
+     "det": "D6",
+     "mjd": 61040.583135,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0656_1D3",
+     "det": "D3",
+     "mjd": 61041.189044,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0656_1D6",
+     "det": "D6",
+     "mjd": 61041.189044,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0656_2D6",
+     "det": "D6",
+     "mjd": 61041.190536,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0656_2D3",
+     "det": "D3",
+     "mjd": 61041.190536,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0656_3D3",
+     "det": "D3",
+     "mjd": 61041.192029,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_1A_0656_3D6",
+     "det": "D6",
+     "mjd": 61041.192029,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_2A_0426_1D3",
+     "det": "D3",
+     "mjd": 61043.567307,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_2A_0426_1D6",
+     "det": "D6",
+     "mjd": 61043.567307,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_2A_0426_2D6",
+     "det": "D6",
+     "mjd": 61043.5688,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_2A_0426_2D3",
+     "det": "D3",
+     "mjd": 61043.5688,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_2A_0426_3D6",
+     "det": "D6",
+     "mjd": 61043.570292,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W01_2A_0426_3D3",
+     "det": "D3",
+     "mjd": 61043.570292,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_1D6",
+     "det": "D6",
+     "mjd": 61053.410149,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_1D3",
+     "det": "D3",
+     "mjd": 61053.410149,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_2D6",
+     "det": "D6",
+     "mjd": 61053.411641,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_2D3",
+     "det": "D3",
+     "mjd": 61053.411641,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_3D3",
+     "det": "D3",
+     "mjd": 61053.413133,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_3D6",
+     "det": "D6",
+     "mjd": 61053.413133,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_4D3",
+     "det": "D3",
+     "mjd": 61053.414626,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W03_1A_0304_4D6",
+     "det": "D6",
+     "mjd": 61053.414626,
+     "collection": "spherex_dr1"
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "mjd_start": 61152.331052,
+   "mjd_end": 61154.641382,
+   "mjd_mid": 61153.486217,
+   "date_start": "2026-04-22",
+   "date_end": "2026-04-24",
+   "frames": {
+    "D3": {
+     "n_exposures": 11,
+     "mjd_mean": 61153.13608754545,
+     "lambda_min_um": 1.63,
+     "lambda_max_um": 2.41,
+     "background": 0.44310847371079976,
+     "frame": "frames/5/D3.f32",
+     "variance": "frames/5/D3.var.f32",
+     "mask": "frames/5/D3.mask.u8",
+     "png": "frames/5/D3.png"
+    },
+    "D6": {
+     "n_exposures": 11,
+     "mjd_mean": 61153.13608754545,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.24793361900280259,
+     "frame": "frames/5/D6.f32",
+     "variance": "frames/5/D6.var.f32",
+     "mask": "frames/5/D6.mask.u8",
+     "png": "frames/5/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2026W17_1B_0434_1D3",
+     "det": "D3",
+     "mjd": 61152.331052,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_1D6",
+     "det": "D6",
+     "mjd": 61152.331052,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_2D6",
+     "det": "D6",
+     "mjd": 61152.332544,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_2D3",
+     "det": "D3",
+     "mjd": 61152.332544,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_3D6",
+     "det": "D6",
+     "mjd": 61152.334036,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_3D3",
+     "det": "D3",
+     "mjd": 61152.334036,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_4D6",
+     "det": "D6",
+     "mjd": 61152.335546,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0434_4D3",
+     "det": "D3",
+     "mjd": 61152.335546,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_1D6",
+     "det": "D6",
+     "mjd": 61152.808786,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_1D3",
+     "det": "D3",
+     "mjd": 61152.808786,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_2D3",
+     "det": "D3",
+     "mjd": 61152.810279,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_2D6",
+     "det": "D6",
+     "mjd": 61152.810279,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_3D6",
+     "det": "D6",
+     "mjd": 61152.811771,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_3D3",
+     "det": "D3",
+     "mjd": 61152.811771,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_4D6",
+     "det": "D6",
+     "mjd": 61152.813281,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_1B_0517_4D3",
+     "det": "D3",
+     "mjd": 61152.813281,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_2A_0255_1D3",
+     "det": "D3",
+     "mjd": 61154.638397,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_2A_0255_1D6",
+     "det": "D6",
+     "mjd": 61154.638397,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_2A_0255_2D3",
+     "det": "D3",
+     "mjd": 61154.639889,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_2A_0255_2D6",
+     "det": "D6",
+     "mjd": 61154.639889,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_2A_0255_3D3",
+     "det": "D3",
+     "mjd": 61154.641382,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W17_2A_0255_3D6",
+     "det": "D6",
+     "mjd": 61154.641382,
+     "collection": "spherex_dr1"
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "mjd_start": 61166.253201,
+   "mjd_end": 61183.494982,
+   "mjd_mid": 61174.874091499994,
+   "date_start": "2026-05-06",
+   "date_end": "2026-05-23",
+   "frames": {
+    "D3": {
+     "n_exposures": 24,
+     "mjd_mean": 61175.39085733334,
+     "lambda_min_um": 1.63,
+     "lambda_max_um": 2.41,
+     "background": 0.35416542907593307,
+     "frame": "frames/6/D3.f32",
+     "variance": "frames/6/D3.var.f32",
+     "mask": "frames/6/D3.mask.u8",
+     "png": "frames/6/D3.png"
+    },
+    "D6": {
+     "n_exposures": 25,
+     "mjd_mean": 61175.71496263999,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.22017136193433542,
+     "frame": "frames/6/D6.f32",
+     "variance": "frames/6/D6.var.f32",
+     "mask": "frames/6/D6.mask.u8",
+     "png": "frames/6/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2026W19_1A_0842_1D6",
+     "det": "D6",
+     "mjd": 61166.253201,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_1A_0842_1D3",
+     "det": "D3",
+     "mjd": 61166.253201,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_1A_0842_2D6",
+     "det": "D6",
+     "mjd": 61166.254694,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_1A_0842_2D3",
+     "det": "D3",
+     "mjd": 61166.254694,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_0976_1D3",
+     "det": "D3",
+     "mjd": 61169.988973,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_0976_1D6",
+     "det": "D6",
+     "mjd": 61169.988973,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1286_1D3",
+     "det": "D3",
+     "mjd": 61170.800582,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1286_1D6",
+     "det": "D6",
+     "mjd": 61170.800582,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1286_2D6",
+     "det": "D6",
+     "mjd": 61170.802074,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1286_2D3",
+     "det": "D3",
+     "mjd": 61170.802074,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1339_1D3",
+     "det": "D3",
+     "mjd": 61170.937354,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1339_1D6",
+     "det": "D6",
+     "mjd": 61170.937354,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1339_2D3",
+     "det": "D3",
+     "mjd": 61170.938846,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W19_2A_1339_2D6",
+     "det": "D6",
+     "mjd": 61170.938846,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0101_1D6",
+     "det": "D6",
+     "mjd": 61171.275048,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0101_1D3",
+     "det": "D3",
+     "mjd": 61171.275048,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0101_2D3",
+     "det": "D3",
+     "mjd": 61171.27654,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0101_2D6",
+     "det": "D6",
+     "mjd": 61171.27654,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0101_3D6",
+     "det": "D6",
+     "mjd": 61171.278032,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0101_3D3",
+     "det": "D3",
+     "mjd": 61171.278032,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0795_1D3",
+     "det": "D3",
+     "mjd": 61173.244185,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0795_1D6",
+     "det": "D6",
+     "mjd": 61173.244185,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0795_2D6",
+     "det": "D6",
+     "mjd": 61173.245677,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0795_2D3",
+     "det": "D3",
+     "mjd": 61173.245677,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0795_3D6",
+     "det": "D6",
+     "mjd": 61173.247187,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_1A_0795_3D3",
+     "det": "D3",
+     "mjd": 61173.247187,
+     "collection": "spherex_dr1"
+    },
+    {
+     "id": "2026W20_2A_0294_2D6",
+     "det": "D6",
+     "mjd": 61176.363744,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W20_2A_0294_2D3",
+     "det": "D3",
+     "mjd": 61176.363744,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W20_2A_0294_3D6",
+     "det": "D6",
+     "mjd": 61176.365236,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W20_2A_0294_3D3",
+     "det": "D3",
+     "mjd": 61176.365236,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W20_2A_0294_4D6",
+     "det": "D6",
+     "mjd": 61176.366728,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W20_2A_0294_4D3",
+     "det": "D3",
+     "mjd": 61176.366728,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0035_1D6",
+     "det": "D6",
+     "mjd": 61181.725825,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0035_1D3",
+     "det": "D3",
+     "mjd": 61181.725825,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_1D3",
+     "det": "D3",
+     "mjd": 61182.132553,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_1D6",
+     "det": "D6",
+     "mjd": 61182.132553,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_2D6",
+     "det": "D6",
+     "mjd": 61182.134045,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_2D3",
+     "det": "D3",
+     "mjd": 61182.134045,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_3D3",
+     "det": "D3",
+     "mjd": 61182.135538,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_3D6",
+     "det": "D6",
+     "mjd": 61182.135538,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_4D3",
+     "det": "D3",
+     "mjd": 61182.13703,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0104_4D6",
+     "det": "D6",
+     "mjd": 61182.13703,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_1D6",
+     "det": "D6",
+     "mjd": 61183.490505,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_1D3",
+     "det": "D3",
+     "mjd": 61183.490505,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_2D6",
+     "det": "D6",
+     "mjd": 61183.491997,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_2D3",
+     "det": "D3",
+     "mjd": 61183.491997,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_3D6",
+     "det": "D6",
+     "mjd": 61183.49349,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_4D3",
+     "det": "D3",
+     "mjd": 61183.494982,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W21_2A_0325_4D6",
+     "det": "D6",
+     "mjd": 61183.494982,
+     "collection": "spherex_qr3"
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "mjd_start": 61198.97313,
+   "mjd_end": 61214.453677,
+   "mjd_mid": 61206.7134035,
+   "date_start": "2026-06-07",
+   "date_end": "2026-06-23",
+   "frames": {
+    "D2": {
+     "n_exposures": 19,
+     "mjd_mean": 61213.20926136842,
+     "lambda_min_um": 1.1,
+     "lambda_max_um": 1.62,
+     "background": 0.32330244514715717,
+     "frame": "frames/7/D2.f32",
+     "variance": "frames/7/D2.var.f32",
+     "mask": "frames/7/D2.mask.u8",
+     "png": "frames/7/D2.png"
+    },
+    "D3": {
+     "n_exposures": 9,
+     "mjd_mean": 61201.41506711111,
+     "lambda_min_um": 1.63,
+     "lambda_max_um": 2.41,
+     "background": 0.1909947738670589,
+     "frame": "frames/7/D3.f32",
+     "variance": "frames/7/D3.var.f32",
+     "mask": "frames/7/D3.mask.u8",
+     "png": "frames/7/D3.png"
+    },
+    "D5": {
+     "n_exposures": 19,
+     "mjd_mean": 61213.20926136842,
+     "lambda_min_um": 3.83,
+     "lambda_max_um": 4.41,
+     "background": 0.2970389076892139,
+     "frame": "frames/7/D5.f32",
+     "variance": "frames/7/D5.var.f32",
+     "mask": "frames/7/D5.mask.u8",
+     "png": "frames/7/D5.png"
+    },
+    "D6": {
+     "n_exposures": 9,
+     "mjd_mean": 61201.41506711111,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.1926050299966725,
+     "frame": "frames/7/D6.f32",
+     "variance": "frames/7/D6.var.f32",
+     "mask": "frames/7/D6.mask.u8",
+     "png": "frames/7/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2026W23_2A_0642_4D3",
+     "det": "D3",
+     "mjd": 61198.97313,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W23_2A_0642_4D6",
+     "det": "D6",
+     "mjd": 61198.97313,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_1D3",
+     "det": "D3",
+     "mjd": 61199.579714,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_1D6",
+     "det": "D6",
+     "mjd": 61199.579714,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_2D3",
+     "det": "D3",
+     "mjd": 61199.581206,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_2D6",
+     "det": "D6",
+     "mjd": 61199.581206,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_3D3",
+     "det": "D3",
+     "mjd": 61199.582698,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_3D6",
+     "det": "D6",
+     "mjd": 61199.582698,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_4D3",
+     "det": "D3",
+     "mjd": 61199.584191,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_1A_0125_4D6",
+     "det": "D6",
+     "mjd": 61199.584191,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_1D6",
+     "det": "D6",
+     "mjd": 61203.856428,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_1D3",
+     "det": "D3",
+     "mjd": 61203.856428,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_2D6",
+     "det": "D6",
+     "mjd": 61203.85792,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_2D3",
+     "det": "D3",
+     "mjd": 61203.85792,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_3D6",
+     "det": "D6",
+     "mjd": 61203.859412,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_3D3",
+     "det": "D3",
+     "mjd": 61203.859412,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_4D6",
+     "det": "D6",
+     "mjd": 61203.860905,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W24_2B_0242_4D3",
+     "det": "D3",
+     "mjd": 61203.860905,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_1D2",
+     "det": "D2",
+     "mjd": 61212.142422,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_1D5",
+     "det": "D5",
+     "mjd": 61212.142422,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_2D5",
+     "det": "D5",
+     "mjd": 61212.143915,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_2D2",
+     "det": "D2",
+     "mjd": 61212.143915,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_3D2",
+     "det": "D2",
+     "mjd": 61212.145407,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_3D5",
+     "det": "D5",
+     "mjd": 61212.145407,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_4D5",
+     "det": "D5",
+     "mjd": 61212.146899,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0573_4D2",
+     "det": "D2",
+     "mjd": 61212.146899,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_1D2",
+     "det": "D2",
+     "mjd": 61212.618274,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_1D5",
+     "det": "D5",
+     "mjd": 61212.618274,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_2D5",
+     "det": "D5",
+     "mjd": 61212.619766,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_2D2",
+     "det": "D2",
+     "mjd": 61212.619766,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_3D5",
+     "det": "D5",
+     "mjd": 61212.621259,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_3D2",
+     "det": "D2",
+     "mjd": 61212.621259,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_4D5",
+     "det": "D5",
+     "mjd": 61212.622751,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0661_4D2",
+     "det": "D2",
+     "mjd": 61212.622751,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0674_1D5",
+     "det": "D5",
+     "mjd": 61212.685781,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0674_1D2",
+     "det": "D2",
+     "mjd": 61212.685781,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0674_2D5",
+     "det": "D5",
+     "mjd": 61212.687291,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W25_2A_0674_2D2",
+     "det": "D2",
+     "mjd": 61212.687291,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0047_1D5",
+     "det": "D5",
+     "mjd": 61213.229051,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0047_1D2",
+     "det": "D2",
+     "mjd": 61213.229051,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0047_2D5",
+     "det": "D5",
+     "mjd": 61213.230543,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0047_2D2",
+     "det": "D2",
+     "mjd": 61213.230543,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0242_1D5",
+     "det": "D5",
+     "mjd": 61214.111684,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0242_1D2",
+     "det": "D2",
+     "mjd": 61214.111684,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0242_2D5",
+     "det": "D5",
+     "mjd": 61214.113194,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0242_2D2",
+     "det": "D2",
+     "mjd": 61214.113194,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0274_3D5",
+     "det": "D5",
+     "mjd": 61214.249842,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0274_3D2",
+     "det": "D2",
+     "mjd": 61214.249842,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0274_4D5",
+     "det": "D5",
+     "mjd": 61214.251334,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0274_4D2",
+     "det": "D2",
+     "mjd": 61214.251334,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0324_1D5",
+     "det": "D5",
+     "mjd": 61214.450692,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0324_1D2",
+     "det": "D2",
+     "mjd": 61214.450692,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0324_2D2",
+     "det": "D2",
+     "mjd": 61214.452184,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0324_2D5",
+     "det": "D5",
+     "mjd": 61214.452184,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0324_3D2",
+     "det": "D2",
+     "mjd": 61214.453677,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W26_1A_0324_3D5",
+     "det": "D5",
+     "mjd": 61214.453677,
+     "collection": "spherex_qr3"
+    }
+   ]
+  },
+  {
+   "index": 8,
+   "mjd_start": 61227.484528,
+   "mjd_end": 61237.873234,
+   "mjd_mid": 61232.678881,
+   "date_start": "2026-07-06",
+   "date_end": "2026-07-16",
+   "frames": {
+    "D1": {
+     "n_exposures": 24,
+     "mjd_mean": 61232.32286770834,
+     "lambda_min_um": 0.75,
+     "lambda_max_um": 1.09,
+     "background": 0.265494942131894,
+     "frame": "frames/8/D1.f32",
+     "variance": "frames/8/D1.var.f32",
+     "mask": "frames/8/D1.mask.u8",
+     "png": "frames/8/D1.png"
+    },
+    "D4": {
+     "n_exposures": 23,
+     "mjd_mean": 61232.08154743478,
+     "lambda_min_um": 2.42,
+     "lambda_max_um": 3.82,
+     "background": 0.27951188619079664,
+     "frame": "frames/8/D4.f32",
+     "variance": "frames/8/D4.var.f32",
+     "mask": "frames/8/D4.mask.u8",
+     "png": "frames/8/D4.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "2026W28_1A_0104_1D1",
+     "det": "D1",
+     "mjd": 61227.484528,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_1D4",
+     "det": "D4",
+     "mjd": 61227.484528,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_2D4",
+     "det": "D4",
+     "mjd": 61227.486038,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_2D1",
+     "det": "D1",
+     "mjd": 61227.486038,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_3D4",
+     "det": "D4",
+     "mjd": 61227.48753,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_3D1",
+     "det": "D1",
+     "mjd": 61227.48753,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_4D1",
+     "det": "D1",
+     "mjd": 61227.489022,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0104_4D4",
+     "det": "D4",
+     "mjd": 61227.489022,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0201_1D1",
+     "det": "D1",
+     "mjd": 61227.959562,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0201_1D4",
+     "det": "D4",
+     "mjd": 61227.959562,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0671_2D1",
+     "det": "D1",
+     "mjd": 61229.725628,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0671_2D4",
+     "det": "D4",
+     "mjd": 61229.725628,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0671_3D4",
+     "det": "D4",
+     "mjd": 61229.72712,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_1A_0671_3D1",
+     "det": "D1",
+     "mjd": 61229.72712,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0106_1D4",
+     "det": "D4",
+     "mjd": 61230.946453,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0106_1D1",
+     "det": "D1",
+     "mjd": 61230.946453,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0106_2D4",
+     "det": "D4",
+     "mjd": 61230.947945,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0106_2D1",
+     "det": "D1",
+     "mjd": 61230.947945,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0364_2D1",
+     "det": "D1",
+     "mjd": 61232.372658,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0364_2D4",
+     "det": "D4",
+     "mjd": 61232.372658,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0364_3D1",
+     "det": "D1",
+     "mjd": 61232.37415,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0364_3D4",
+     "det": "D4",
+     "mjd": 61232.37415,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0364_4D4",
+     "det": "D4",
+     "mjd": 61232.375642,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0364_4D1",
+     "det": "D1",
+     "mjd": 61232.375642,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0376_1D1",
+     "det": "D1",
+     "mjd": 61232.441301,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0376_1D4",
+     "det": "D4",
+     "mjd": 61232.441301,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0376_2D4",
+     "det": "D4",
+     "mjd": 61232.442794,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0376_2D1",
+     "det": "D1",
+     "mjd": 61232.442794,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0376_3D1",
+     "det": "D1",
+     "mjd": 61232.444286,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W28_2A_0376_3D4",
+     "det": "D4",
+     "mjd": 61232.444286,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_1D1",
+     "det": "D1",
+     "mjd": 61234.06889,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_1D4",
+     "det": "D4",
+     "mjd": 61234.06889,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_2D1",
+     "det": "D1",
+     "mjd": 61234.070382,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_2D4",
+     "det": "D4",
+     "mjd": 61234.070382,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_3D1",
+     "det": "D1",
+     "mjd": 61234.071874,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_3D4",
+     "det": "D4",
+     "mjd": 61234.071874,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_4D4",
+     "det": "D4",
+     "mjd": 61234.073366,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0015_4D1",
+     "det": "D1",
+     "mjd": 61234.073366,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0364_1D1",
+     "det": "D1",
+     "mjd": 61235.90328,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0364_1D4",
+     "det": "D4",
+     "mjd": 61235.90328,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0430_1D1",
+     "det": "D1",
+     "mjd": 61236.241151,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_1A_0430_1D4",
+     "det": "D4",
+     "mjd": 61236.241151,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_2A_0079_1D4",
+     "det": "D4",
+     "mjd": 61237.870249,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_2A_0079_1D1",
+     "det": "D1",
+     "mjd": 61237.870249,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_2A_0079_2D4",
+     "det": "D4",
+     "mjd": 61237.871742,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_2A_0079_2D1",
+     "det": "D1",
+     "mjd": 61237.871742,
+     "collection": "spherex_qr3"
+    },
+    {
+     "id": "2026W29_2A_0079_3D1",
+     "det": "D1",
+     "mjd": 61237.873234,
+     "collection": "spherex_qr3"
+    }
+   ]
+  }
+ ],
+ "display": {
+  "D3": {
+   "stretch": "asinh",
+   "vmin": -0.4699396637747184,
+   "vmax": 1561.8299728783409
+  },
+  "D6": {
+   "stretch": "asinh",
+   "vmin": -0.2615521609885203,
+   "vmax": 3421.6334140372473
+  },
+  "D1": {
+   "stretch": "asinh",
+   "vmin": -0.1801924205707345,
+   "vmax": 404.1851101141394
+  },
+  "D4": {
+   "stretch": "asinh",
+   "vmin": -0.290105199668882,
+   "vmax": 4301.058748403518
+  },
+  "D2": {
+   "stretch": "asinh",
+   "vmin": -0.34931155484000787,
+   "vmax": 854.2754760711103
+  },
+  "D5": {
+   "stretch": "asinh",
+   "vmin": -0.31407474195485646,
+   "vmax": 1975.3087150861222
+  }
+ },
+ "failed_exposures": [],
+ "target": {
+  "id": "rdra",
+  "name": "R Draconis",
+  "pm_ra_masyr": -20.643,
+  "pm_dec_masyr": 6.149,
+  "ref_mjd": 51544.5,
+  "predicted_positions": [
+   {
+    "epoch": 1,
+    "ra": 248.16724210956866,
+    "dec": 66.75502276430299
+   },
+   {
+    "epoch": 2,
+    "ra": 248.16724053662404,
+    "dec": 66.7550229492182
+   },
+   {
+    "epoch": 3,
+    "ra": 248.16723491549618,
+    "dec": 66.75502361003743
+   },
+   {
+    "epoch": 4,
+    "ra": 248.167232940881,
+    "dec": 66.75502384217297
+   },
+   {
+    "epoch": 5,
+    "ra": 248.1672285982254,
+    "dec": 66.75502435269513
+   },
+   {
+    "epoch": 6,
+    "ra": 248.16722774743965,
+    "dec": 66.75502445271341
+   },
+   {
+    "epoch": 7,
+    "ra": 248.16722648090743,
+    "dec": 66.7550246016068
+   },
+   {
+    "epoch": 8,
+    "ra": 248.1672254480298,
+    "dec": 66.75502472303181
+   }
+  ],
+  "description": "Vari\u00e1vel de longo per\u00edodo (tipo Mira, ~245 dias)"
+ }
+}
