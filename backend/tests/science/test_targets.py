@@ -19,7 +19,7 @@ from pipeline.cache import CachedArchive
 from pipeline.field import Field, build_field
 from pipeline.irsa import IrsaArchive
 from pipeline.targets import Target, load_targets
-from tests.science.measure import aperture_snr, brightest_stars, fit_flux, fit_position
+from tests.science.measure import aperture_snr, brightest_stars, fit_flux, fit_gaussian, fit_position
 
 pytestmark = pytest.mark.science
 
@@ -96,19 +96,29 @@ def test_alvo_se_desloca_entre_epocas_como_previsto(target_id, det):
     assert np.hypot(*(delta_medido - delta_previsto)) < T_MOVIMENTO_PX
 
 
+RAIO_EXCLUSAO_ALVO_PX = 12  # alvos brilhantes (R Dra) têm halo largo: não usar como "estrela de campo"
+
+
 def _estrelas_de_campo(field: Field, target: Target, det: str, n: int = 5) -> list[tuple[int, int]]:
-    """Estrelas brilhantes do campo, longe do alvo e sem pixels mascarados no núcleo."""
-    referencia = max(
-        (e.frames[det] for e in field.epochs if det in e.frames), key=lambda f: f.n_exposures
-    )
+    """Estrelas brilhantes do campo, longe do alvo, sem pixels mascarados no núcleo e
+    com ajuste gaussiano válido em todas as épocas."""
+    frames = [e.frames[det] for e in field.epochs if det in e.frames]
+    referencia = max(frames, key=lambda f: f.n_exposures)
     alvo = [prevista_px(field, target, i, det) for i, e in enumerate(field.epochs) if det in e.frames]
-    candidatas = brightest_stars(referencia.data, n=3 * n, exclude=alvo)
+    candidatas = [
+        (x, y) for x, y in brightest_stars(referencia.data, n=6 * n, exclude=[])
+        if all(np.hypot(x - ax, y - ay) > RAIO_EXCLUSAO_ALVO_PX for ax, ay in alvo)
+    ]
     limpas = []
     for x, y in candidatas:
-        nucleos = [e.frames[det].data[y - 1 : y + 2, x - 1 : x + 2] for e in field.epochs if det in e.frames]
-        if all(np.isfinite(nucleo).all() for nucleo in nucleos):
+        if not all(np.isfinite(f.data[y - 1 : y + 2, x - 1 : x + 2]).all() for f in frames):
+            continue
+        ajustes = [fit_gaussian(f.data, x, y) for f in frames]
+        if all(fl > 0 and np.hypot(gx - x, gy - y) < 1.0 for gx, gy, fl in ajustes):
             limpas.append((x, y))
-    return limpas[:n]
+        if len(limpas) == n:
+            break
+    return limpas
 
 
 @pytest.mark.parametrize("target_id", ["wise0855", "barnard", "epsindib", "rwaur", "rdra"])
@@ -132,34 +142,88 @@ K_VARIAVEL = 5.0  # quantas vezes a dispersão das estrelas de campo
 VARIACAO_MIN = 0.10  # e pelo menos 10% de mudança
 
 
-@pytest.mark.parametrize("target_id", ["rdra", "rwaur"])
-def test_estrela_variavel_muda_de_brilho_entre_epocas(target_id):
-    field, target, det = campo(target_id), TARGETS[target_id], "D2"
+def _maior_variacao(field: Field, det: str, posicao, estrelas) -> tuple[float, float, int, int]:
+    """Maior variação de brilho entre épocas, relativa às estrelas de campo.
+
+    Devolve (log da razão normalizada, dispersão robusta das estrelas de campo, época a, época b).
+    `posicao(i)` dá o pixel do objeto medido na época i.
+    """
     epocas = [i for i, e in enumerate(field.epochs) if det in e.frames and e.frames[det].n_exposures >= 3]
-    estrelas = _estrelas_de_campo(field, target, det)
     assert len(epocas) >= 2 and len(estrelas) >= 3
 
-    def fluxo_alvo(i):
-        return fit_flux(field.epochs[i].frames[det].data, *prevista_px(field, target, i, det))
+    def fluxos(i):
+        data = field.epochs[i].frames[det].data
+        return fit_flux(data, *posicao(i)), np.array([fit_flux(data, x, y) for x, y in estrelas])
 
-    def fluxos_campo(i):
-        return np.array([fit_flux(field.epochs[i].frames[det].data, x, y) for x, y in estrelas])
-
+    medidas = {i: fluxos(i) for i in epocas}
     melhor = None
     for a in epocas:
         for b in epocas:
             if a >= b:
                 continue
-            log_alvo = np.log(fluxo_alvo(b) / fluxo_alvo(a))
-            log_campo = np.log(fluxos_campo(b) / fluxos_campo(a))
-            # Normaliza pela mediana das estrelas de campo (calibração da época).
-            variacao = log_alvo - np.median(log_campo)
-            dispersao = np.std(log_campo - np.median(log_campo))
+            log_campo = np.log(medidas[b][1] / medidas[a][1])
+            calibracao = np.median(log_campo)  # diferença de calibração entre as épocas
+            variacao = np.log(medidas[b][0] / medidas[a][0]) - calibracao
+            # Dispersão robusta (MAD): uma estrela de campo que também varie não infla o critério.
+            dispersao = 1.4826 * np.median(np.abs(log_campo - calibracao))
             if melhor is None or abs(variacao) > abs(melhor[0]):
                 melhor = (variacao, dispersao, a, b)
+    return melhor
 
-    variacao, dispersao, a, b = melhor
-    assert abs(variacao) > np.log(1 + VARIACAO_MIN), f"épocas {a + 1}-{b + 1}: {np.exp(variacao):.2f}x"
-    assert abs(variacao) > K_VARIAVEL * dispersao, (
-        f"épocas {a + 1}-{b + 1}: variação {variacao:.3f} × dispersão do campo {dispersao:.3f}"
+
+def _e_variavel(variacao: float, dispersao: float) -> bool:
+    return abs(variacao) > np.log(1 + VARIACAO_MIN) and abs(variacao) > K_VARIAVEL * dispersao
+
+
+@pytest.mark.parametrize("target_id", ["rdra", "rwaur"])
+def test_estrela_variavel_muda_de_brilho_entre_epocas(target_id):
+    field, target, det = campo(target_id), TARGETS[target_id], "D2"
+    estrelas = _estrelas_de_campo(field, target, det)
+
+    variacao, dispersao, a, b = _maior_variacao(
+        field, det, lambda i: prevista_px(field, target, i, det), estrelas
     )
+
+    assert _e_variavel(variacao, dispersao), (
+        f"épocas {a + 1}-{b + 1}: {np.exp(variacao):.2f}x, dispersão do campo {dispersao:.3f}"
+    )
+
+
+def _significancia(field: Field, det: str, posicao, comparacao) -> float:
+    variacao, dispersao, _, _ = _maior_variacao(field, det, posicao, comparacao)
+    return abs(variacao) / dispersao
+
+
+@pytest.mark.parametrize("target_id", ["rdra", "rwaur"])
+def test_controle_alvo_e_o_objeto_mais_variavel_do_campo(target_id):
+    """O alvo precisa se destacar de TODAS as estrelas de campo, que podem incluir variáveis reais."""
+    field, target, det = campo(target_id), TARGETS[target_id], "D2"
+    estrelas = _estrelas_de_campo(field, target, det, n=8)
+
+    alvo = _significancia(field, det, lambda i: prevista_px(field, target, i, det), estrelas[:5])
+    campo_max = max(
+        _significancia(field, det, lambda i, s=s: s, [e for e in estrelas if e != s]) for s in estrelas
+    )
+
+    assert alvo > campo_max, f"alvo {alvo:.1f}σ × estrela de campo mais variável {campo_max:.1f}σ"
+
+
+FRACAO_MAX_CAMPO_VARIAVEL = 0.20  # observado: 4 de 36 (11%), ver docs/08-resultados.md
+
+
+def test_controle_poucas_estrelas_de_campo_parecem_variaveis():
+    """Controle negativo: se um defeito fizesse 'tudo variar', a fração de estrelas comuns
+    classificadas como variáveis dispararia. Algumas podem ser variáveis reais (ex.: estrela
+    jovem com emissão de raios X no campo de RW Aur; gigantes do bojo no campo da Barnard)."""
+    classificadas, total = [], 0
+    for target_id in ["wise0855", "barnard", "epsindib", "rwaur", "rdra"]:
+        field, target, det = campo(target_id), TARGETS[target_id], "D2"
+        estrelas = _estrelas_de_campo(field, target, det, n=8)
+        for s in estrelas:
+            total += 1
+            variacao, dispersao, _, _ = _maior_variacao(field, det, lambda i, s=s: s, [e for e in estrelas if e != s])
+            if _e_variavel(variacao, dispersao):
+                classificadas.append((target_id, s, round(float(np.exp(variacao)), 2)))
+
+    assert total >= 25
+    assert len(classificadas) / total <= FRACAO_MAX_CAMPO_VARIAVEL, classificadas
