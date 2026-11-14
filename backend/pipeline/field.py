@@ -22,6 +22,9 @@ EPOCH_GAP_DAYS = 10.0
 BAD_PIXEL_BITS = (0, 1, 2, 6, 9, 10, 11, 15, 19)
 BAD_PIXEL_MASK = sum(1 << b for b in BAD_PIXEL_BITS)
 
+# Fração mínima de pixels válidos na vizinhança interpolada para aceitar o valor.
+MIN_VALID_WEIGHT = 0.5
+
 
 @dataclass
 class Frame:
@@ -135,10 +138,24 @@ def _reproject_exposure(hdul, wcs: WCS, n: int) -> tuple[np.ndarray, np.ndarray]
     source_wcs = WCS(image.header)
     # IMAGE inclui a luz zodiacal; ZODI é o modelo dela (docs/02-dados-spherex.md).
     data = (image.data - hdul["ZODI"].data).astype(np.float64)
-    data[(hdul["FLAGS"].data & BAD_PIXEL_MASK) != 0] = np.nan
     variance = hdul["VARIANCE"].data.astype(np.float64)
-    data_out, _ = reproject_interp((data, source_wcs), wcs, shape_out=(n, n))
-    var_out, _ = reproject_interp((variance, source_wcs), wcs, shape_out=(n, n))
+    valid = (
+        ((hdul["FLAGS"].data & BAD_PIXEL_MASK) == 0) & np.isfinite(data) & np.isfinite(variance)
+    )
+
+    # Interpolação normalizada: pixels ruins entram com peso zero em vez de virar NaN,
+    # senão a interpolação bilinear espalharia cada NaN para ~4 pixels vizinhos.
+    def reproject(array: np.ndarray) -> np.ndarray:
+        out, _ = reproject_interp((array, source_wcs), wcs, shape_out=(n, n))
+        return out
+
+    weight = reproject(valid.astype(np.float64))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        data_out = reproject(np.where(valid, data, 0.0)) / weight
+        var_out = reproject(np.where(valid, variance, 0.0)) / weight
+    covered = np.isfinite(weight) & (weight >= MIN_VALID_WEIGHT)
+    data_out[~covered] = np.nan
+    var_out[~covered] = np.nan
     return data_out, var_out
 
 

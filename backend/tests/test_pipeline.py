@@ -249,3 +249,34 @@ def test_grade_do_campo_tem_o_tamanho_do_contrato_da_api(fov, lado):
 
     assert field.n == lado
     assert field.epochs[0].frames["D6"].data.shape == (lado, lado)
+
+
+def test_recortes_reais_do_wise0855_passam_pelo_pipeline():
+    """Dados reais: distorção SIP, big-endian, pixels marcados e NaN de verdade."""
+    from pathlib import Path
+
+    from astropy.io import fits
+
+    from pipeline.archive import Exposure
+
+    fixtures = Path(__file__).parent / "fixtures" / "irsa"
+    reais = {
+        "e1": (Exposure(id="e1", detector="D1", mjd=60801.514), "wise0855_D1_epoca1.fits"),
+        "e4": (Exposure(id="e4", detector="D6", mjd=61171.096), "wise0855_D6_epoca4.fits"),
+    }
+
+    class ArquivoGravado:
+        def query(self, ra, dec):
+            return [exp for exp, _ in reais.values()]
+
+        def fetch_cutout(self, exposure, ra, dec, size_deg):
+            return fits.open(fixtures / reais[exposure.id][1])
+
+    field = build_field(ra=RA0, dec=DEC0, fov_arcmin=6, archive=ArquivoGravado())
+
+    assert [set(e.frames) for e in field.epochs] == [{"D1"}, {"D6"}]
+    for epoch in field.epochs:
+        (frame,) = epoch.frames.values()
+        assert frame.data.shape == (59, 59)
+        assert np.isfinite(frame.data).mean() > 0.95  # quase todo o campo coberto
+    assert all(np.isfinite([lim.vmin, lim.vmax]).all() for lim in field.display.values())
