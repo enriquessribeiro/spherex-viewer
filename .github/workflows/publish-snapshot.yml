@@ -1,0 +1,64 @@
+name: Publicar snapshot
+
+# Publica o site com os dados do branch `data-snapshot`, gerados e validados localmente
+# (pipeline.build_static + pytest -m science). Saída de emergência para quando o IRSA
+# está fora do ar e o workflow normal (update-data.yml) não consegue gerar os dados.
+# A próxima execução bem-sucedida do workflow normal substitui esta publicação.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-snapshot
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dados do snapshot
+        uses: actions/checkout@v4
+        with:
+          ref: data-snapshot
+          path: frontend/public/data
+
+      - name: Conferir e limpar o snapshot
+        run: |
+          test -f frontend/public/data/manifest.json
+          rm -rf frontend/public/data/.git frontend/public/data/README.md
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Construir o site
+        working-directory: frontend
+        env:
+          VITE_API_BASE: ${{ vars.API_BASE }}
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -206,7 +206,7 @@ https://irsa.ipac.caltech.edu/<uri>?center=<ra>,<dec>&size=<tamanho>
 
 | Método | Endereço | Observação |
 |---|---|---|
-| SIA2 | `https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+<ra>+<dec>+<raio>` | Pode atrasar ~1 dia em relação ao TAP; não inclui calibração |
+| SIA2 | `https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+<ra>+<dec>+<raio>` | Pode atrasar ~1 dia em relação ao TAP; não inclui calibração. **Usado como fallback quando o TAP está fora do ar** (`RESPONSEFORMAT=CSV`) |
 | Diretórios (IBE) | `https://irsa.ipac.caltech.edu/ibe/data/spherex/{dr1,qr3,qr2}/` | Padrão `level2/<período>/l2b-v<versão>-<data>/<detector>/` |
 | AWS S3 | <https://irsa.ipac.caltech.edu/cloud_access/#spherex> | Espelho na nuvem (coluna `cloud_access` no SIA) |
 | Data Explorer (GUI) | <https://irsa.ipac.caltech.edu/applications/spherex> | Bom para conferir manualmente o que o nosso pipeline gera |
