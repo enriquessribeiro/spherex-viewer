@@ -61,6 +61,7 @@ class SyntheticExposure:
     flagged: tuple[tuple[float, float, int, float | None], ...] = ()
     variance: float = 1.0  # valor de VARIANCE, (MJy/sr)^2
     bias: float = 0.0  # brilho constante somado à IMAGE (não é luz zodiacal)
+    flux_scale: float = 1.0  # multiplica o brilho das fontes (estrela variável)
 
 
 @dataclass
@@ -98,7 +99,7 @@ class SyntheticArchive:
         yy, xx = np.mgrid[0:n, 0:n]
         for src in self.sources:
             x, y = wcs.world_to_pixel_values(*src.position_at(spec.mjd))
-            image += src.flux * np.exp(
+            image += spec.flux_scale * src.flux * np.exp(
                 -((xx - x) ** 2 + (yy - y) ** 2) / (2 * PSF_SIGMA_PX**2)
             ).astype(np.float32)
 

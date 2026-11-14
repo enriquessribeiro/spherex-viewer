@@ -31,6 +31,14 @@ class Frame:
     n_exposures: int
 
 
+@dataclass(frozen=True)
+class DisplayLimits:
+    """Limites de contraste (MJy/sr) comuns a todas as épocas de um detector."""
+
+    vmin: float
+    vmax: float
+
+
 @dataclass
 class Epoch:
     index: int
@@ -46,6 +54,7 @@ class Field:
     wcs: WCS
     n: int
     epochs: list[Epoch]
+    display: dict[str, DisplayLimits]
 
 
 def field_grid(ra: float, dec: float, fov_arcmin: float) -> tuple[WCS, int]:
@@ -85,7 +94,30 @@ def build_field(ra: float, dec: float, fov_arcmin: float, archive: Archive) -> F
         frames = {det: _coadd(layers) for det, layers in stacks.items()}
         epochs.append(Epoch(index=index, exposures=group, frames=frames))
 
-    return Field(ra=ra, dec=dec, fov_arcmin=fov_arcmin, wcs=wcs, n=n, epochs=epochs)
+    return Field(
+        ra=ra, dec=dec, fov_arcmin=fov_arcmin, wcs=wcs, n=n,
+        epochs=epochs, display=_display_limits(epochs),
+    )
+
+
+def _display_limits(epochs: list[Epoch]) -> dict[str, DisplayLimits]:
+    """Limites por detector calculados juntando todas as épocas.
+
+    vmin = percentil 1 (fundo); vmax = máximo, para não saturar estrelas
+    brilhantes: a variação de brilho de variáveis como R Draconis precisa
+    continuar visível. O frontend aplica esticamento asinh sobre esses limites.
+    """
+    pixels: dict[str, list[np.ndarray]] = defaultdict(list)
+    for epoch in epochs:
+        for det, frame in epoch.frames.items():
+            pixels[det].append(frame.data[np.isfinite(frame.data)])
+    limits = {}
+    for det, chunks in pixels.items():
+        values = np.concatenate(chunks)
+        if values.size == 0:
+            continue
+        limits[det] = DisplayLimits(vmin=float(np.percentile(values, 1)), vmax=float(values.max()))
+    return limits
 
 
 def _reproject_exposure(hdul, wcs: WCS, n: int) -> tuple[np.ndarray, np.ndarray]:

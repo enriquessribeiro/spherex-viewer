@@ -206,3 +206,21 @@ def test_variancia_do_quadro_cai_com_o_numero_de_exposicoes():
 
     # 9 exposições de variância 4 → 4/9 (ruído σ/√N)
     assert np.nanmedian(field.epochs[0].frames["D6"].variance) == approx(4 / 9, abs=1e-6)
+
+
+def test_estrela_variavel_mantem_a_diferenca_de_brilho_com_o_contraste_do_campo():
+    # Estrela variável (como R Draconis): brilho 100 na época 1 e 50 na época 2.
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D6", mjd=60800.0, flux_scale=1.0),
+            SyntheticExposure(det="D6", mjd=60980.0, flux_scale=0.5),
+        ]
+    )
+
+    limites = field.display["D6"]  # um único par de limites para todas as épocas do detector
+
+    def brilho_exibido(epoca):
+        pico = np.nanmax(field.epochs[epoca].frames["D6"].data)
+        return np.clip((pico - limites.vmin) / (limites.vmax - limites.vmin), 0, 1)
+
+    assert brilho_exibido(1) / brilho_exibido(0) == approx(0.5, abs=0.02)
