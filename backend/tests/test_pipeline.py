@@ -192,16 +192,19 @@ def _campo_vazio(exposicoes):
 
 
 def test_soma_pondera_cada_exposicao_pelo_inverso_da_variancia():
-    field = _campo_vazio(
+    # Mesma estrela medida com fluxo 100 (variância 1) e 200 (variância 3).
+    field = _campo_com_exposicoes(
         [
-            SyntheticExposure(det="D6", mjd=60800.0, bias=2.0, variance=1.0),
-            SyntheticExposure(det="D6", mjd=60800.5, bias=4.0, variance=3.0),
+            SyntheticExposure(det="D6", mjd=60800.0, flux_scale=1.0, variance=1.0),
+            SyntheticExposure(det="D6", mjd=60800.5, flux_scale=2.0, variance=3.0),
         ]
     )
 
     frame = field.epochs[0].frames["D6"]
-    # (2/1 + 4/3) / (1/1 + 1/3) = 2,5  (a média simples daria 3)
-    assert np.nanmedian(frame.data) == approx(2.5, abs=1e-6)
+    janela = frame.data[CENTRO_PX - 5 : CENTRO_PX + 6, CENTRO_PX - 5 : CENTRO_PX + 6]
+    # Pico ponderado: (100/1 + 200/3) / (1/1 + 1/3) = 125 (a média simples daria 150).
+    # Medido pelo fluxo total da gaussiana (sigma 1 px): 2*pi*125.
+    assert np.nansum(janela) == approx(2 * math.pi * 125.0, rel=0.02)
     # 1 / (1/1 + 1/3) = 0,75
     assert np.nanmedian(frame.variance) == approx(0.75, abs=1e-6)
 
@@ -368,3 +371,21 @@ def test_campo_falha_se_nenhuma_exposicao_puder_ser_baixada():
 
     with pytest.raises(ArchiveUnavailable):
         build_field(RA0, DEC0, 6, _ArquivoComFalhas(3, falham={0, 1, 2}))
+
+
+def test_fundo_residual_de_cada_epoca_e_removido_e_registrado():
+    # Resíduo de fundo que o modelo ZODI não explica, diferente em cada época
+    # (no WISE 0855 real isso dominava a imagem de diferença em D1).
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D1", mjd=60800.0, bias=0.3),
+            SyntheticExposure(det="D1", mjd=60980.0, bias=-0.2),
+        ]
+    )
+
+    q1, q2 = (e.frames["D1"] for e in field.epochs)
+    assert np.nanmedian(q1.data) == approx(0.0, abs=1e-3)
+    assert np.nanmedian(q2.data) == approx(0.0, abs=1e-3)
+    assert (q1.background, q2.background) == approx((0.3, -0.2), abs=1e-3)
+    # Longe da estrela, a diferença entre épocas fica ~0.
+    assert np.nanmax(np.abs((q2.data - q1.data)[:10, :10])) < 1e-3

@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 import numpy as np
+from astropy.stats import sigma_clipped_stats
 from astropy.wcs import WCS
 from reproject import reproject_interp
 
@@ -38,6 +39,7 @@ class Frame:
     data: np.ndarray
     variance: np.ndarray
     n_exposures: int
+    background: float = 0.0  # fundo residual removido de data (MJy/sr)
 
 
 class NoCoverage(Exception):
@@ -204,4 +206,16 @@ def _coadd(layers: list[tuple[np.ndarray, np.ndarray]]) -> Frame:
         coadd_var = 1.0 / total_weight
     coadd[total_weight == 0] = np.nan
     coadd_var[total_weight == 0] = np.nan
-    return Frame(data=coadd, variance=coadd_var, n_exposures=len(layers))
+    # Fundo residual (o que o modelo ZODI não explica): mediana com corte sigma,
+    # que ignora as estrelas. Sem isso a diferença entre épocas fica dominada pelo desnível.
+    background = _background(coadd)
+    return Frame(data=coadd - background, variance=coadd_var, n_exposures=len(layers),
+                 background=background)
+
+
+def _background(image: np.ndarray) -> float:
+    values = image[np.isfinite(image)]
+    if values.size == 0:
+        return 0.0
+    _, median, _ = sigma_clipped_stats(values, sigma=3.0, maxiters=5)
+    return float(median)

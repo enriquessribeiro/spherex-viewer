@@ -153,6 +153,7 @@ Decisões tomadas durante a implementação (fases 1 e 2), várias forçadas pel
 | **Interpolação normalizada** na reprojeção (imagem e mapa de pixels válidos reprojetados e divididos) | A bilinear comum espalhava cada pixel mascarado para ~4 vizinhos: com dados reais só 91,6% do quadro ficava válido | `field.py` |
 | Bits mascarados: `0, 1, 2, 6, 9, 10, 11, 15, 19` | Lista conferida no cabeçalho `FLAGS` real (ver [02-dados-spherex.md](02-dados-spherex.md)) | `field.py` |
 | Soma ponderada por **1/variância**, com variância propagada | Exposições mais ruidosas pesam menos; a variância do quadro alimenta o espectro e o S/R | `field.py` |
+| **Fundo residual removido** de cada quadro (mediana com corte sigma 3σ), valor guardado em `Frame.background` | No WISE 0855 real, um desnível de fundo entre épocas (resíduo da luz zodiacal) dominava a imagem de diferença em D1 | `field.py` |
 | Contraste: `vmin` = percentil 1, `vmax` = **máximo**, comum a todas as épocas | Variáveis brilhantes (R Dra) não podem saturar, senão a variação some | `field.py` |
 | **4 downloads simultâneos**, 6 tentativas com espera exponencial (2–32 s) | O IRSA responde `503 Server busy` mesmo com 2 pedidos simultâneos | `field.py`, `irsa.py` |
 | **Exposição indisponível é pulada** e listada em `Field.failed_exposures`; o campo só falha se nenhuma exposição vier | Um único `503` persistente derrubou um campo de 258 exposições | `field.py` |
