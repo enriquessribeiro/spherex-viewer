@@ -80,6 +80,7 @@ npm run build          # dist/ (com public/data copiado), pronto para o GitHub P
 ```
 
 - Para buscar coordenadas e nomes fora da lista de alvos, apontar para uma API: `VITE_API_BASE=http://127.0.0.1:8000 npm run dev`. Sem API, o site funciona só com os alvos pré-processados.
+- Mapa do céu inteiro (`src/ui/skymap.ts`): Aladin Lite 3.8.2 carregado sob demanda (~850 KB comprimidos, só quando o mapa chega perto da tela), com o HiPS `https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube` (cubo de 102 canais). O canal é escolhido por frequência (`setFrequency`), porque o `setSliceNumber` do Aladin busca o arquivo errado neste cubo. **O Aladin Lite é GPL-3**: considerar isso na escolha da licença do repositório.
 - Parâmetros da URL (link compartilhável e `embed=1`): [04-api.md](04-api.md) §7.
 - Fixture de contrato do frontend: gerada pelo backend com `backend/scripts/gerar_fixture_frontend.py` (regerar se o formato do `field.json` mudar).
 - Capturas de tela automáticas usam Playwright (`npx playwright install chromium-headless-shell`). No WSL podem faltar `libnss3`, `libnspr4` e `libasound2`: instalar com `sudo apt-get install libnss3 libnspr4 libasound2t64`.
