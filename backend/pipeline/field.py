@@ -31,6 +31,10 @@ class Frame:
     n_exposures: int
 
 
+class NoCoverage(Exception):
+    """Nenhuma exposição do SPHEREx cobre a posição pedida."""
+
+
 @dataclass(frozen=True)
 class DisplayLimits:
     """Limites de contraste (MJy/sr) comuns a todas as épocas de um detector."""
@@ -85,8 +89,12 @@ def build_field(ra: float, dec: float, fov_arcmin: float, archive: Archive) -> F
     # Recorte um pouco maior que o campo para a reprojeção não perder as bordas.
     size_deg = fov_arcmin / 60 * 1.5
 
+    exposures = archive.query(ra, dec)
+    if not exposures:
+        raise NoCoverage(f"nenhuma exposição SPHEREx cobre ra={ra}, dec={dec}")
+
     epochs: list[Epoch] = []
-    for index, group in enumerate(group_epochs(archive.query(ra, dec)), start=1):
+    for index, group in enumerate(group_epochs(exposures), start=1):
         stacks: dict[str, list[tuple[np.ndarray, np.ndarray]]] = defaultdict(list)
         for exp in group:
             hdul = archive.fetch_cutout(exp, ra, dec, size_deg)

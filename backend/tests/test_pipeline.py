@@ -4,9 +4,10 @@ import math
 
 import numpy as np
 
+import pytest
 from pytest import approx
 
-from pipeline.field import build_field
+from pipeline.field import NoCoverage, build_field
 from tests.helpers import centroid
 from tests.synthetic import SyntheticArchive, SyntheticExposure, SyntheticSource
 
@@ -224,3 +225,21 @@ def test_estrela_variavel_mantem_a_diferenca_de_brilho_com_o_contraste_do_campo(
         return np.clip((pico - limites.vmin) / (limites.vmax - limites.vmin), 0, 1)
 
     assert brilho_exibido(1) / brilho_exibido(0) == approx(0.5, abs=0.02)
+
+
+def test_posicao_sem_exposicoes_gera_erro_de_cobertura():
+    archive = SyntheticArchive(sources=[], exposures=[])
+
+    with pytest.raises(NoCoverage):
+        build_field(ra=RA0, dec=DEC0, fov_arcmin=6, archive=archive)
+
+
+@pytest.mark.parametrize("fov, lado", [(1, 10), (6, 59), (30, 293)])
+def test_grade_do_campo_tem_o_tamanho_do_contrato_da_api(fov, lado):
+    field = build_field(
+        ra=RA0, dec=DEC0, fov_arcmin=fov,
+        archive=SyntheticArchive(sources=[], exposures=[SyntheticExposure(det="D6", mjd=60800.0)]),
+    )
+
+    assert field.n == lado
+    assert field.epochs[0].frames["D6"].data.shape == (lado, lado)
