@@ -4,6 +4,8 @@
 
 Projeto do [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/2026/), desafio **Planet X and SPHEREx**.
 
+**Abrir o site: <https://enriquessribeiro.github.io/spherex-viewer/>**
+
 ![WISE 0855 no SPHEREx Viewer: placa em negativo, mira fixa e círculo de lápis na posição prevista](docs/img/marco2-wise0855.png)
 
 O SPHEREx (NASA) mapeia o céu inteiro a cada seis meses em 102 bandas do infravermelho. Estrelas distantes ficam paradas de um mapeamento para o outro; o que está **perto** se desloca, e estrelas **variáveis** mudam de brilho. Foi comparando duas placas fotográficas assim que Clyde Tombaugh achou Plutão em 1930.
@@ -129,10 +131,12 @@ Tecnologias: Python 3.12, Astropy, reproject, FastAPI, TypeScript, Vite, Vitest.
 | 2 | Dados reais do IRSA e validação científica dos 5 alvos | ✅ |
 | 3 | Contrato de dados, dados estáticos e API | ✅ |
 | 4 | Site | ✅ |
-| 5 | Publicação: GitHub Pages, API no Render, atualização automática | Pendente |
+| 5 | Publicação: GitHub Pages, API no Render, atualização automática | ✅ site e API no ar; a atualização automática ainda não rodou com sucesso (ver abaixo) |
 | 6 | Extras: espectro sob demanda, catálogos Gaia/WISE, falsa cor | Pendente |
 
-O site ainda não tem endereço público; por enquanto roda localmente.
+O site está publicado em <https://enriquessribeiro.github.io/spherex-viewer/>. Exemplos: [WISE 0855 em Diferença](https://enriquessribeiro.github.io/spherex-viewer/?target=wise0855&mode=diff) e [Barnard's Star em Piscar](https://enriquessribeiro.github.io/spherex-viewer/?target=barnard&mode=blink).
+
+Os dados no ar são um *snapshot* gerado e validado localmente em 14/11/2026, porque os serviços de consulta do IRSA estavam fora do ar na hora da primeira publicação. O workflow de atualização automática substitui o snapshot assim que rodar com sucesso. A busca por nome ou coordenada fora da lista de alvos usa a API e também depende do IRSA.
 
 ## Documentação
 

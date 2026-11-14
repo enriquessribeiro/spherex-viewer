@@ -70,7 +70,9 @@ Branch: `fase-4/frontend`
 Branch: `fase-5/deploy`
 
 - [x] Workflow `update-data.yml`: pipeline → validação científica → GitHub Pages
-- [ ] Deploy da API no Render (blueprint `render.yaml` pronto; falta criar o serviço na conta do Render)
+- [x] Deploy da API no Render (`https://spherex-viewer-api.onrender.com`)
+- [x] Site publicado em <https://enriquessribeiro.github.io/spherex-viewer/> (snapshot validado localmente; IRSA fora do ar em 14/11/2026)
+- [ ] Primeira execução bem-sucedida de `update-data.yml` no GitHub (depende do IRSA voltar)
 - [x] Frontend usando a API para coordenadas fora da lista (via variável `API_BASE`; ativa quando a API estiver no ar)
 - [x] Extras: `SPHEREX_FOV_MAX` (limite de memória), `fov=nan` responde 400
 
