@@ -29,6 +29,29 @@ O `.drawio` é gerado por script, não desenhado à mão:
 python3 docs/diagramas/gerar.py     # reescreve fluxo-do-sistema.drawio ao lado
 ```
 
+### PNG
+
+Se só precisa da imagem, os três arquivos abaixo já estão aqui — gerados do `.drawio`, em 2×:
+
+| Página | Arquivo |
+|---|---|
+| Consulta ao vivo | [`01-consulta-ao-vivo.png`](01-consulta-ao-vivo.png) (6900×2880) |
+| Atualização agendada | [`02-atualizacao-agendada.png`](02-atualizacao-agendada.png) (6900×3220) |
+| Legenda e números | [`03-legenda-e-numeros.png`](03-legenda-e-numeros.png) (2200×1440) |
+
+![Página 1 — consulta ao vivo](01-consulta-ao-vivo.png)
+
+Não é screenshot: o viewer do diagrams.net entrega cada página como um `<svg>` em
+coordenadas de modelo, e esse SVG é rasterizado com o tamanho exato da página. Por isso o
+texto sai vetorial e qualquer escala funciona.
+
+```bash
+python3 docs/diagramas/para-png.py --scale 2
+```
+
+Precisa de um Chrome/Chromium headless no `PATH` (ou `CHROME_BIN`). **Não** precisa do app do
+draw.io.
+
 O gerador usa só a biblioteca padrão e calcula todas as coordenadas (raias de altura fixa, colunas
 de passo 240 px, âncoras explícitas nas arestas). Mudar o texto de um nó ou mover uma raia é editar
 uma linha em Python e rodar de novo — em vez de arrastar 52 KB de XML. Se preferir editar no
