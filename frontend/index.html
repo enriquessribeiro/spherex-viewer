@@ -48,6 +48,7 @@
         </figure>
 
         <div class="transport" role="group" aria-label="Animação">
+          <h2 class="section-title transport-title">Épocas</h2>
           <button type="button" class="button icon-button" id="prev" aria-label="Época anterior"><span data-icon="ChevronLeft"></span></button>
           <button type="button" class="button button-primary" id="play"><span data-icon="Pause" aria-hidden="true"></span><span class="label">Pausar</span></button>
           <button type="button" class="button icon-button" id="next" aria-label="Próxima época"><span data-icon="ChevronRight"></span></button>
@@ -59,8 +60,8 @@
         </div>
 
         <div class="ruler-wrap">
-          <h2 class="section-title">Épocas <span class="hint">posição = data real · altura = nº de exposições</span></h2>
-          <div id="ruler" class="ruler" role="group" aria-label="Linha do tempo das épocas"></div>
+          <div id="ruler" class="ruler" role="group" aria-label="Linha do tempo das épocas: posição = data real, altura = número de exposições"></div>
+          <p class="ruler-note"><span id="ruler-note"></span> <span class="hint">Posição = data real · altura = nº de exposições.</span></p>
         </div>
       </section>
 

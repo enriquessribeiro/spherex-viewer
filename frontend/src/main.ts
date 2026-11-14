@@ -255,9 +255,10 @@ function renderInscription(epochIndex: number | undefined) {
   const el = $("plate-inscription");
   if (!epoch) { el.textContent = ""; return; }
   const plate = state.mode === "blink" ? (epochIndex === state.a ? "A · " : "B · ") : "";
+  const fov = `${doc.fov_arcmin}′ × ${doc.fov_arcmin}′`;
   el.textContent = state.mode === "diff"
-    ? `${state.det} · diferença em σ`
-    : `${plate}${state.det} · ${formatDate(epoch.date_start)}`;
+    ? `${state.det} · diferença em σ · ${fov}`
+    : `${plate}${state.det} · ${formatDate(epoch.date_start)} · ${fov}`;
 }
 
 function renderLabel(epochIndex: number | undefined) {
@@ -277,7 +278,6 @@ function renderLabel(epochIndex: number | undefined) {
     if (epoch?.frames[det]) facts.push(["Exposições", String(epoch.frames[det]!.n_exposures)]);
   }
   facts.push(["Detector", `${det} · ${um(DET_RANGE[det][0])}–${um(DET_RANGE[det][1])} µm`]);
-  facts.push(["Campo", `${doc.fov_arcmin}′ × ${doc.fov_arcmin}′`]);
   $("label-facts").innerHTML = facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -320,9 +320,12 @@ function drawThumbnail(t: ManifestTarget, el: HTMLCanvasElement) {
       const frame = await loadFrame(handle, Number(match[1]), match[2] as Detector);
       const display = handle.doc.display[match[2] as Detector];
       if (!frame || !display) return null;
-      const vmax = display.vmin + (display.vmax - display.vmin) * 0.08;
+      // Contraste pelos percentis do próprio quadro: cada miniatura lê como um campo de estrelas,
+      // inclusive em D6 (WISE 0855), onde uma fração fixa do intervalo estourava o fundo.
+      const finite = Array.from(frame.data.values).filter(Number.isFinite).sort((x, y) => x - y);
+      const at = (q: number) => finite[Math.min(finite.length - 1, Math.floor(q * finite.length))];
       const n = handle.doc.grid.n;
-      return new ImageData(new Uint8ClampedArray(renderGray(frame.data, frame.mask, display.vmin, vmax, "asinh", true)), n, n);
+      return new ImageData(new Uint8ClampedArray(renderGray(frame.data, frame.mask, at(0.5), at(0.995), "linear", true)), n, n);
     })().catch(() => null);
     thumbCache.set(t.id, pending);
   }
@@ -397,7 +400,7 @@ function renderRuler() {
   const all = doc.epochs;
   const t0 = Math.min(...all.map((e) => e.mjd_start)), t1 = Math.max(...all.map((e) => e.mjd_end));
   const span = Math.max(t1 - t0, 1);
-  const pos = (mjd: number) => 3 + ((mjd - t0) / span) * 94;
+  const pos = (mjd: number) => 5 + ((mjd - t0) / span) * 90; // folga nas pontas para os rótulos
 
   // marcas de mês na régua
   const start = new Date(Date.UTC(1858, 10, 17) + t0 * 864e5);
@@ -440,6 +443,10 @@ function renderRuler() {
     ruler.append(button);
   }
   declutterRuler();
+  const missing = all.filter((e) => !(state.det! in e.frames)).length;
+  $("ruler-note").textContent = missing
+    ? `Marcas claras: ${missing} ${missing === 1 ? "época" : "épocas"} sem imagens em ${state.det}.`
+    : "";
 }
 
 /** Esconde rótulos de épocas próximas demais, priorizando as que têm o detector atual. */
