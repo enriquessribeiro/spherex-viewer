@@ -8,7 +8,7 @@ Decisões de infraestrutura do projeto. Restrição principal: **tudo deve ser 1
 |---|---|---|
 | Frontend + alvos pré-processados | **GitHub Pages** | Grátis, publicação nativa pelo GitHub Actions, tudo no mesmo lugar |
 | Backend ao vivo (coordenadas quaisquer) | **Render (plano free)** | Único plano gratuito viável para Python + Astropy |
-| Atualização dos alvos pré-processados | **GitHub Actions agendado** (semanal) | Grátis em repositório público; atende ao item "fácil de atualizar" do desafio |
+| Atualização dos alvos pré-processados | **GitHub Actions agendado** (a cada 3 dias) | Grátis em repositório público; atende ao item "fácil de atualizar" do desafio |
 | Armazenamento de imagens | **Arquivos (cache), sem banco de dados** | Imagens são arquivos; a busca de "quais imagens existem" é feita pelo próprio IRSA |
 | Repositório | **Público** | Exigência usual do Space Apps e condição para Pages e Actions gratuitos |
 
@@ -25,7 +25,7 @@ Decisões de infraestrutura do projeto. Restrição principal: **tudo deve ser 1
                      │ Backend FastAPI (Render free) │ ───▶ │ IRSA │
                      │  cache temporário em disco    │      └──────┘
                      └───────────────────────────────┘
-   GitHub Actions (semanal) ── roda o mesmo pipeline ──▶ republica o GitHub Pages
+   GitHub Actions (a cada 3 dias) ── roda o mesmo pipeline ──▶ republica o GitHub Pages
 ```
 
 Há dois caminhos de dados:
@@ -95,7 +95,7 @@ Os itens em que a Vercel ganha (prévias, redirects, funções) não são necess
 
 ### 6.1 Funcionamento
 
-Toda semana (o SPHEREx recebe dados semanalmente), o Action:
+A cada 3 dias (o SPHEREx recebe dados semanalmente; o intervalo menor mantém o cache do Actions vivo), o Action:
 
 1. Sobe uma máquina Linux temporária.
 2. Faz checkout do código.
@@ -219,7 +219,7 @@ O download é lento porque o serviço de recortes do IRSA sempre inclui a extens
 > *"New SPHEREx data is arriving fast! Make sure to design a tool that's easy to update with the latest data releases."*
 
 - Backend ao vivo: sempre consulta o estado atual do arquivo.
-- Alvos pré-processados: atualização automática semanal, sem intervenção.
+- Alvos pré-processados: atualização automática a cada 3 dias, sem intervenção.
 - Adicionar alvo: uma linha em `targets.yaml` (qualquer pessoa pode sugerir por Pull Request).
 - Novo release: alterar a configuração de coleções, sem mudar código.
 - Histórico de cada atualização visível e auditável na aba *Actions*.
