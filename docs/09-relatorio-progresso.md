@@ -1,4 +1,4 @@
-# Relatório de progresso — fases 0 a 5
+# Relatório de progresso — fases 0 a 6
 
 > Situação em **14/11/2026**, primeiro dia do NASA Space Apps Challenge 2026.
 > Site publicado: <https://enriquessribeiro.github.io/spherex-viewer/>
@@ -22,9 +22,10 @@ Este relatório consolida o que foi construído até agora, como foi construído
 
 - **O backend está completo para o MVP.** Os dados de cada campo são gravados num formato formal (JSON Schema), os 5 alvos são gerados como dados estáticos (5 MB no total) e há uma API que processa qualquer coordenada sob demanda.
 - **O site está no ar** em <https://enriquessribeiro.github.io/spherex-viewer/>, com os 5 alvos do desafio: Animar, Piscar e Diferença, detectores D1–D6, régua do tempo, link compartilhável. A API está no Render.
-- **O que ainda não funciona**: os serviços de consulta do IRSA (TAP e depois SIA) caíram durante a publicação. Os dados no ar são um *snapshot* validado localmente; a atualização automática nunca rodou com sucesso no GitHub, e a busca por coordenada ou nome fora da lista de alvos dá erro enquanto o IRSA estiver fora.
-- **A revisão de código independente não foi feita** (interrompida pelo limite de uso, sem achados).
-- Números: 13 PRs mergeados, 75 commits, 128 testes (72 rápidos do backend + 16 científicos + 8 de serviços reais + 32 do frontend), ~2.800 linhas de Python, ~2.100 de TypeScript/CSS, 11 documentos e 3 diagramas.
+- **A publicação está completa.** O IRSA ficou fora do ar durante a primeira publicação (o site foi ao ar com um *snapshot* validado localmente); quando voltou, o workflow *Atualizar dados e publicar* passou a rodar com sucesso a cada merge, com a validação científica como portão.
+- **Fase 6 (extras) entregue**: espectro de 0,75 a 5 µm dos alvos, medido exposição por exposição; mapa do céu inteiro com catálogos Gaia DR3 e AllWISE; falsa cor; soma de épocas; flags de contaminação na placa; campo de 3′, 6′ ou 10′; coordenadas do desafio em sexagesimal e de outra época abrindo o alvo certo.
+- **Uma revisão de código independente foi feita** depois da fase 6 começar; os achados válidos foram corrigidos (PRs #16 e #17) e um achado foi refutado com observação no navegador.
+- Números: 22 PRs mergeados, 93 commits, 179 testes (88 rápidos do backend + 16 científicos + 8 de serviços reais + 67 do frontend), 11 documentos e 4 diagramas.
 
 ## 2. Linha do tempo
 
@@ -40,6 +41,15 @@ Este relatório consolida o que foi construído até agora, como foi construído
 | Diagramas e README | Fluxo do sistema em diagramas de raia; README na raiz do repositório | **PRs #8, #9, #10** |
 | Fase 5 | Workflow de publicação, blueprint do Render, limite de campo configurável | **PR #11** |
 | Queda do IRSA | Primeira publicação falhou (TAP com 502). Fallback de consulta para o SIA e publicação de snapshot | **PRs #12, #13**; site no ar |
+| Relatório | Este documento (versão até a fase 5) | **PR #14** |
+| Fase 6 — mapa | Mapa do céu inteiro com Aladin Lite e o HiPS do SPHEREx | **PR #15** |
+| Revisão de código | Correções da revisão independente: zoom fixo no céu, corrida ao trocar de campo, busca por nome com movimento próprio, limite de tempo dos trabalhos, erros do IRSA | **PRs #16, #17** |
+| Fase 6 — desafio | Coordenada do desafio (sexagesimal, outra época) abre o WISE 0855 | **PR #18** |
+| Fase 6 — visualização | Somar épocas, falsa cor, flags na placa, escolha do campo | **PR #19** |
+| Fase 6 — catálogos | Gaia DR3 e AllWISE no mapa | **PR #20** |
+| Fase 6 — contraste | Contraste inicial ajustado no alvo, para o WISE 0855 aparecer | **PR #21** |
+| Fase 6 — espectro | Espectro dos alvos, medido em cada exposição | **PR #22**; IRSA de volta, publicação automática com sucesso |
+| API ocupada | `429` vira espera com aviso, não erro; busca nova volta ao campo padrão | **PR #23** |
 
 ## 3. O que foi construído
 
@@ -60,7 +70,8 @@ spherex-viewer/
     │   ├── cache.py         ← cache em disco de consultas e recortes
     │   ├── field.py         ← o pipeline: build_field (épocas, alinhamento, soma)
     │   ├── targets.py       ← alvos e propagação por movimento próprio
-    │   ├── output.py        ← write_field: field.json + quadros binários + PNG
+    │   ├── output.py        ← write_field: field.json + quadros binários + PNG + espectro
+│   ├── spectrum.py      ← espectro: fotometria por exposição e estrelas vizinhas
     │   └── build_static.py  ← dados estáticos dos alvos (manifest.json + campos)
     ├── api/
     │   ├── app.py           ← create_app: rotas, erros, CORS
@@ -80,6 +91,8 @@ frontend/                    ← o site (Vite + TypeScript, sem framework)
 │                               renderização, WCS, épocas, estado na URL, fonte dos dados
 ├── src/main.ts, data.ts     ← controlador da tela e carregamento (estático ou API)
 ├── src/ui/marks.ts          ← marcas de lápis (círculo e seta)
+├── src/ui/skymap.ts         ← mapa do céu inteiro (Aladin Lite) e catálogos Gaia/AllWISE
+├── src/ui/spectrum.ts       ← gráfico do espectro (SVG) e tabela
 └── tests/                   ← Vitest; fixture de contrato gravada pelo backend
 
 .github/workflows/
@@ -171,10 +184,26 @@ Erros padronizados: `400` (parâmetros), `404 NO_COVERAGE`, `429 BUSY` (+ `Retry
 | Peça | Estado |
 |---|---|
 | GitHub Pages (origem: GitHub Actions) | ✅ no ar |
-| `publish-snapshot.yml` | ✅ rodou com sucesso; é o que está publicado |
-| `update-data.yml` (pipeline → validação científica → Pages) | ⚠️ escrito e simulado localmente passo a passo; **falhou as duas vezes no GitHub**, na consulta ao IRSA |
-| API no Render (`render.yaml`, um campo por vez de até 10′) | ✅ `/health`, `/config` e `/resolve` respondem; **nenhum campo foi processado por ela** (depende do IRSA) |
+| `publish-snapshot.yml` | ✅ publicou o site enquanto o IRSA estava fora; fica como reserva |
+| `update-data.yml` (pipeline → validação científica → Pages) | ✅ falhou duas vezes com o IRSA fora do ar; desde que ele voltou, roda com sucesso a cada merge na `main` (~4–5 min com cache) e publica o espectro |
+| API no Render (`render.yaml`, um campo por vez de até 10′) | ✅ processa campos sob demanda; com a fila cheia responde `429` e o site espera |
 | Variável `API_BASE` no repositório | ✅ embutida no site publicado |
+
+### 3.9 Extras (fase 6)
+
+| Extra | Como funciona |
+|---|---|
+| **Espectro dos alvos** | Cada exposição do SPHEREx vê o alvo num comprimento de onda diferente (filtro de variação linear). O pipeline mede o fluxo numa abertura de 2 px (12″) com fundo num anel de 5–8 px, em µJy, e lê o comprimento de onda da tabela `WCS-WAVE`. O site desenha os pontos de 0,75 a 5 µm com a mediana por faixa e avisa quando uma estrela vizinha (S/R > 5) cai na abertura. WISE 0855: 241 de 258 exposições medidas, vizinha a ~8″ em D1, D2 e D4 |
+| **Mapa do céu inteiro** | Aladin Lite com o HiPS do SPHEREx DR1, troca de detector, alvos marcados; clique abre o ponto na placa |
+| **Catálogos** | Gaia DR3 e AllWISE pelo VizieR (espelho de Harvard primeiro), até 2.000 fontes num campo de até 1°, recarregados ao mover o mapa |
+| **Falsa cor** | D6, D3 e D1 nos canais vermelho, verde e azul (`color=1`) |
+| **Somar épocas** | Soma por 1/variância de todas as épocas: mais profundidade, sem movimento |
+| **Flags na placa** | Opcional: pinta em tom de papel os pixels saturados ou de baixa qualidade (flags suspeitas usadas por falta de alternativa limpa) e conta quantos são |
+| **Campo variável** | 3′, 6′ ou 10′; os alvos abrem no campo publicado, os outros tamanhos vão pela API |
+| **Coordenadas do desafio** | RA/Dec em graus ou sexagesimal; uma coordenada de outra época que cai a menos de 1′ do caminho de um alvo abre o alvo (a do WISE 0855 no texto do desafio abre o WISE 0855) |
+| **Contraste no alvo** | O contraste inicial é ajustado no pico do alvo, não no pixel mais brilhante do campo |
+
+As posições previstas foram conferidas contra o Gaia DR3 (≤ 0,13″) e, para o WISE 0855, que não está no Gaia, contra o AllWISE (1,3″ da posição de 2010, coerente com o movimento próprio).
 
 ## 4. Processo de trabalho
 
@@ -203,12 +232,12 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 
 | Fronteira | Situação |
 |---|---|
-| 1. Pipeline com céu sintético (+ recortes reais gravados) | ✅ 32 testes |
-| 2. Adaptador do IRSA (respostas gravadas, fallback para o SIA) + cache | ✅ 11 testes |
+| 1. Pipeline com céu sintético (+ recortes reais gravados), incluindo o espectro | ✅ 42 testes |
+| 2. Adaptador do IRSA (respostas gravadas, fallback para o SIA) + cache | ✅ 15 testes |
 | Alvos (propagação × Gaia DR3, `targets.yaml`) | ✅ 2 testes |
-| 3. API HTTP | ✅ 17 testes (+ 8 `live` do SIMBAD) |
-| 4. Contrato de dados (JSON Schema) | ✅ 10 testes (gravação + dados estáticos) |
-| 5. Núcleo do frontend | ✅ 32 testes (Vitest) |
+| 3. API HTTP | ✅ 18 testes (+ 8 `live` do SIMBAD) |
+| 4. Contrato de dados (JSON Schema) | ✅ 11 testes (gravação + dados estáticos) |
+| 5. Núcleo do frontend | ✅ 67 testes (Vitest) |
 | 6. Validação científica (dados reais) | ✅ 16 testes |
 | 7. Ponta a ponta no navegador | Não automatizado. O site local e o publicado foram abertos num navegador sem interface para capturas e checagem de erros |
 
@@ -314,7 +343,14 @@ Definidas antes do código ([06-testes.md](06-testes.md)); até agora implementa
 | 19 | `API_BASE` criado como *Secret* | O workflow lê uma *Variable* | Recriado como variável (a URL é pública de qualquer forma) | 5 |
 | 20 | Primeira publicação falhou na primeira consulta | TAP do IRSA com 502 (sync, async e availability) | Fallback para o SIA + publicação de snapshot | 5 |
 | 21 | Segunda execução falhou mesmo com o fallback | O SIA também passou a responder 502 | Sem solução do nosso lado; site segue no snapshot | 5 |
-| 22 | Revisão de código não aconteceu | Limite de uso de 5 horas atingido no início | Pendente | — |
+| 22 | Revisão de código adiada | Limite de uso de 5 horas atingido no início | Feita no começo da fase 6; achados válidos corrigidos | 6 |
+| 23 | "Failed to fetch" no console do mapa | Telemetria do Aladin Lite | `log: false` | 6 |
+| 24 | VizieR principal fora do ar; Gaia lento | Instabilidade do CDS; colunas demais | Espelho de Harvard primeiro; só as colunas usadas | 6 |
+| 25 | Pontos vermelhos falsos na soma em falsa cor | Máscara de saturado juntada com OU entre épocas | Saturado só onde nenhuma época tem dado | 6 |
+| 26 | WISE 0855 quase invisível ao abrir | Contraste pelo pixel mais brilhante do campo | Limites ajustados no pico do alvo (topo = pico / 0,8) | 6 |
+| 27 | Espectro do WISE 0855 contaminado | Abertura de 3 px pegava uma estrela a ~8″ | Abertura de 2 px (12″) + aviso de vizinhas por detector | 6 |
+| 28 | Erro "API ocupada" ao testar o site | `429` tratado como erro; teste no site publicado disparou um campo de 10′ | `429` vira espera com aviso; testes só no site local | 6 |
+
 
 ## 7. Resultados
 
@@ -332,17 +368,18 @@ Achados com valor para a apresentação:
 
 ## 8. Limitações conhecidas
 
-- **Variabilidade por quadro de detector é aproximada**: o quadro soma exposições em comprimentos de onda diferentes (filtro de variação linear). A análise rigorosa compara espectros (espectro sob demanda, fase 6).
+- **Variabilidade por quadro de detector é aproximada**: o quadro soma exposições em comprimentos de onda diferentes (filtro de variação linear). O espectro (fase 6) separa os comprimentos de onda, mas só para os 5 alvos; campos novos pela API ainda não têm espectro.
+- **Espectro de fonte fraca**: R Draconis e Barnard's Star saturam e quase não têm pontos; vizinhas a menos de ~12″ entram na abertura (o site avisa por detector).
 - **Pixel grande (6,15″)**: movimentos de alguns ″/ano são sutis (~1 px/ano); o site precisa de zoom, blink e mira fixa.
 - **Épocas com poucas exposições** são ruidosas (ex.: WISE 0855 em mai/2025).
 - **`WCS-WAVE` é "para visualização"** segundo a documentação do SPHEREx; suficiente para o espectro do site, não para ciência de precisão.
 - **Primeiro download é lento** (~60 min para os 5 alvos), por causa da extensão PSF que o IRSA sempre envia. Execuções seguintes usam o cache.
 - **SIMBAD principal (CDS) estava fora do ar**; usado o espelho de Harvard.
 - **Dependência do IRSA no caminho ao vivo**: sem os serviços de consulta, a API não processa campos novos e o robô não atualiza os alvos. Os 5 alvos publicados não são afetados.
-- **A primeira execução completa do `update-data.yml` nunca rodou no GitHub**: foi simulada localmente com o cache cheio, mas o download de ~1.950 recortes a partir do runner não foi exercitado.
+- **A API no Render processa um campo por vez**: com a fila cheia, o visitante espera (`Retry-After`). Um campo frio leva minutos.
 - **Memória do pipeline cresce com (nº de exposições × área do campo)**: todas as exposições reprojetadas ficam na memória até a soma. Contornado com o limite de 10′ no Render; a solução é acumular as somas em fluxo.
 - **O "σ" da diferença é aproximado**: a variância é interpolada junto com a imagem na reprojeção, o que tende a superestimá-la. A diferença fica conservadora (mostra menos pixels do que deveria), o que não foi medido.
-- **O código não passou por revisão independente**; só a interface foi revisada (design).
+- **A posição prevista não inclui paralaxe**: o efeito é menor que 0,1 px para os alvos.
 
 ## 9. Onde estamos e próximos passos
 
@@ -350,12 +387,11 @@ Achados com valor para a apresentação:
 |---|---|---|
 | 0–3 | Pipeline, dados reais, validação científica, contrato e API | ✅ |
 | 4 | Site (**Marco 2**) | ✅ |
-| 5 | Publicação | ✅ site e API no ar · ⚠️ atualização automática sem nenhuma execução bem-sucedida |
-| 6 | Extras | Não iniciada |
+| 5 | Publicação | ✅ site, API e atualização automática |
+| 6 | Extras | ✅ espectro, mapa e catálogos, falsa cor, soma, flags, campo variável, embed |
 
 Pendências, em ordem sugerida:
 
-1. **Quando o IRSA voltar**: rodar *Atualizar dados e publicar* (botão *Run workflow*) e acompanhar a primeira execução completa (~1 h); testar um campo novo pela API publicada; conferir no Render se o último deploy inclui o fallback do SIA (commit `0932573` ou posterior).
-2. **Revisão de código** do backend e do frontend.
-3. **Fase 6**, em ordem de valor: espectro sob demanda; Aladin Lite com Gaia/WISE; overlay de flags de contaminação; falsa cor; soma de épocas na interface; roteiro do pitch (`11-apresentacao.md`).
-4. Itens do Space Apps fora do código: licença de código aberto no repositório e a página do projeto no site do evento.
+1. Roteiro do pitch (`docs/11-apresentacao.md`) com os resultados da validação científica e o diagrama de [visão geral](diagramas/atividade-visao-geral.png).
+2. Licença de código aberto no repositório, compatível com a GPL-3 do Aladin Lite, e a página do projeto no site do evento.
+3. Espectro também para campos novos pela API.

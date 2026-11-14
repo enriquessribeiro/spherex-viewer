@@ -46,7 +46,7 @@ Não usamos banco de dados. Tudo é arquivo:
 | Camada | Conteúdo | Tamanho | Validade |
 |---|---|---|---|
 | `cache/queries/` | Resultado da consulta TAP para uma posição (datas, detectores, URIs), em JSON | poucos KB | ~1 dia (dados novos chegam semanalmente) |
-| `cache/exposures/` | Recorte já reduzido de cada exposição: só `IMAGE`, `FLAGS`, `VARIANCE`, `ZODI` + cabeçalho WCS, em `.npz` | ~60 KB cada → ~15 MB por alvo | Permanente (exposições não mudam dentro de um release) |
+| `cache/exposures/` | Recorte de cada exposição em FITS, sem a extensão PSF: `IMAGE`, `FLAGS`, `VARIANCE`, `ZODI` e a tabela `WCS-WAVE` (comprimento de onda, usada pelo espectro) | ~60 KB cada → ~15 MB por alvo | Permanente (exposições não mudam dentro de um release) |
 | `cache/renders/` | PNG por época/detector, diferenças, espectros | poucos KB cada | Até mudar o conjunto de exposições |
 
 O FITS bruto baixado (~4 MB) **é descartado** após a extração. Quase todo o seu tamanho vem da extensão PSF, que não usamos; a imagem útil em 0,1° tem só ~60×60 pixels (pixel de ~6″).

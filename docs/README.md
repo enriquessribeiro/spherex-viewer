@@ -12,9 +12,9 @@
 | [06-testes.md](06-testes.md) | Estratégia de testes: 7 fronteiras, critérios de aceitação científica dos 5 alvos e integração com o GitHub Actions |
 | [07-plano-desenvolvimento.md](07-plano-desenvolvimento.md) | Fases, marcos de entrega, prioridades e fluxo de git (branch por fase + Pull Requests) |
 | [08-resultados.md](08-resultados.md) | Resultados com dados reais: Marco 1 (WISE 0855 andando), astrometria, validação científica e lições para o produto |
-| [09-relatorio-progresso.md](09-relatorio-progresso.md) | Relatório consolidado das fases 0 a 5: o que foi construído, processo, decisões técnicas, problemas e resultados |
+| [09-relatorio-progresso.md](09-relatorio-progresso.md) | Relatório consolidado das fases 0 a 6: o que foi construído, processo, decisões técnicas, problemas e resultados |
 | [10-desenvolvimento.md](10-desenvolvimento.md) | Como rodar localmente: instalação, testes, geração dos dados estáticos e API |
-| [diagramas/](diagramas/README.md) | Fluxo do sistema em diagrama de raia, três páginas editáveis, com a análise: atores, máquina de estados do trabalho, falhas e ordem de grandeza |
+| [diagramas/](diagramas/README.md) | Diagrama de atividade da visão geral (PlantUML) e fluxo do sistema em diagrama de raia, três páginas editáveis, com a análise: atores, máquina de estados do trabalho, falhas e ordem de grandeza |
 
 Documentos planejados (criar conforme o projeto avança):
 

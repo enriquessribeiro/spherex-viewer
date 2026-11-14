@@ -91,6 +91,11 @@ Lógica pura em JavaScript, sem DOM, testada com Vitest e valores literais:
 | Coordenada ↔ pixel | Centro do campo → pixel central; 1 pixel a leste → coluna −1 (leste à esquerda) |
 | Estado na URL | `parse(serialize(estado)) == estado`; parâmetros inválidos → padrões + aviso |
 | Escolha da fonte | Alvo presente no `manifest.json` → estático; senão → API |
+| Coordenadas | `08h55m10.83s −07d14m42.5s` → graus; coordenada de outra época a menos de 1′ do caminho de um alvo → o alvo |
+| Movimento próprio | Posição de J2000 propagada para a data da época |
+| Contraste no alvo | Pico do alvo com S/R ≥ 5 → topo em pico / 0,8; sem detecção → limites do campo |
+| Espectro | Mediana por faixa de resolução 40 com lacunas separadas; marcas do eixo; detectores com vizinhas |
+| Falsa cor e soma | Três detectores nos canais R, G, B; saturado só onde nenhuma época tem dado |
 
 ### 2.6 Fronteira 6: validação científica (aceitação)
 
@@ -149,20 +154,26 @@ backend/
   tests/
     fixtures/irsa/            ← respostas reais gravadas (TAP CSV, recortes sem PSF)
     synthetic.py              ← SyntheticArchive (gerador de FITS falsos)
-    test_pipeline.py          ← fronteira 1
-    test_irsa_archive.py      ← fronteira 2
-    test_api.py               ← fronteira 3
-    test_schemas.py           ← fronteira 4 (backend)
-    science/
-      test_targets.py         ← fronteira 6 (@pytest.mark.science)
+    helpers.py                ← utilitários comuns dos testes
+    test_pipeline.py          ← fronteira 1 (32 testes)
+    test_spectrum.py          ← fronteira 1, espectro (10)
+    test_irsa_archive.py      ← fronteira 2 (12)
+    test_cache.py             ← fronteira 2, cache (3)
+    test_targets.py           ← alvos e propagação × Gaia (2)
+    test_api.py               ← fronteira 3 (18)
+    test_simbad_live.py       ← fronteira 3, SIMBAD real (8, @pytest.mark.live)
+    test_output.py            ← fronteira 4, gravação (7)
+    test_build_static.py      ← fronteira 4, dados estáticos (4)
+    science/                  ← fronteira 6 (16, @pytest.mark.science)
 frontend/
-  tests/
-    viewer-core.test.js       ← fronteira 5
-    schemas.test.js           ← fronteira 4 (frontend)
-    e2e/                      ← fronteira 7
+  tests/                      ← fronteira 5 (67 testes, Vitest)
+    contract.test.ts          ← fronteira 4 no frontend: fixture gravada pelo backend × JSON Schema
+    frames, render, visual, contrast, coords, crop, motion, sky, spectrum, state .test.ts
+    fixtures/
 schemas/
   field.schema.json
   manifest.schema.json
+  spectrum.schema.json
 ```
 
 ## 4. Como rodar

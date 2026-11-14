@@ -1,4 +1,32 @@
-# Fluxo do sistema — diagrama de raia
+# Fluxo do sistema — diagramas
+
+## Visão geral (diagrama de atividade)
+
+Uma página só, para quem chega agora: o que o visitante faz, o que o site, a API e o IRSA fazem
+em resposta, e as decisões no caminho (alvo pré-processado? servidor ocupado? IRSA respondeu?).
+
+[![Diagrama de atividade: visão geral](atividade-visao-geral.png)](atividade-visao-geral.png)
+
+| Arquivo | O que é |
+|---|---|
+| [`atividade-visao-geral.puml`](atividade-visao-geral.puml) | Fonte editável em PlantUML |
+| [`atividade-visao-geral.svg`](atividade-visao-geral.svg) | O mesmo desenho em vetor |
+| [`atividade-visao-geral.png`](atividade-visao-geral.png) | PNG em 2× (2920×3240) |
+| [`visao-geral.py`](visao-geral.py) | Desenha o SVG e o PNG |
+
+O projeto não depende de Java, então o PNG não sai do PlantUML: o `visao-geral.py` desenha o
+mesmo diagrama no estilo do PlantUML (raias coloridas, caixas arredondadas, losangos sim/não) com
+a biblioteca padrão e rasteriza com o Chrome headless, como o `para-png.py`:
+
+```bash
+python3 docs/diagramas/visao-geral.py          # SVG + PNG
+plantuml docs/diagramas/atividade-visao-geral.puml   # alternativa, se tiver o PlantUML
+```
+
+Ao mudar um passo, mude o `.puml` e a lista de passos do `visao-geral.py`. Os casos que não
+cabem na visão geral estão na nota do rodapé e no diagrama detalhado abaixo.
+
+## Fluxo detalhado (diagrama de raia)
 
 Análise do caminho completo de uma requisição, do clique no navegador até o pixel na tela, e do
 caminho paralelo que mantém os alvos prontos antes de alguém pedir. O desenho está em
@@ -158,10 +186,12 @@ GET /field ──▶ field_id ──▶ job existe e está pronto? ──sim─�
 `stage` é `querying`, `downloading`, `ready` ou `error`. Depois de `ready`, o `field.json` fica em
 disco e o pedido seguinte é `200` direto, sem fila.
 
-## 5. Caminho agendado (página 2) — planejado
+## 5. Caminho agendado (página 2)
 
-Hoje **não existe** `update-data.yml`; só o `test.yml` roda. A página 2 desenha o que a fase 5
-pretende, e usa borda tracejada para dizer isso.
+A página 2 foi desenhada antes da fase 5 e usa borda tracejada para "ainda não existe". **Hoje
+tudo existe**: o `update-data.yml` roda a cada 3 dias e a cada merge na `main` que mexe no
+código, e publicou com sucesso depois que o IRSA voltou (14/11/2026). Quando o IRSA inteiro cai,
+o `publish-snapshot.yml` (manual) publica dados gerados e validados localmente.
 
 O gatilho é `cron 0 6 */3 * *` (a cada 3 dias, 6 h UTC — intervalo escolhido porque o GitHub
 apaga cache sem uso há 7 dias). O runner faz `checkout` + `setup-python` + `restore actions/cache`,
@@ -184,8 +214,8 @@ Simplificações conscientes, para o diagrama caber numa tela e continuar legív
 |---|---|
 | `/api/v1/health`, `/api/v1/config` | `backend/api/app.py` |
 | `/api/v1/fields/{path}` — serve os binários do campo | `backend/api/app.py` |
-| Espectro sob demanda (102 bandas), PNG, FITS | fase 6 |
-| Aladin Lite + Gaia/WISE | fase 6 |
+| Espectro dos alvos (`spectrum.json`), falsa cor, soma, flags | fase 6 — `pipeline/spectrum.py`, `src/ui/spectrum.ts`, `src/core/render.ts` |
+| Mapa do céu (Aladin Lite) + Gaia/AllWISE | fase 6 — `src/ui/skymap.ts` |
 | `unavailable` do `chooseSource` (sem manifesto e sem API) | `core/source.ts` |
 | Ramo de ligação entre `field_id` e o cache de renders | `backend/pipeline/cache.py` |
 
@@ -197,7 +227,8 @@ Simplificações conscientes, para o diagrama caber numa tela e continuar legív
 | `fov` acima/abaixo do limite | `400 FOV_TOO_SMALL` / `FOV_TOO_LARGE` | idem |
 | Nenhuma exposição cobre o ponto | `404 NO_COVERAGE` | "não há dados aqui", não é bug |
 | IRSA responde `503` em todas as tentativas | `502 UPSTREAM_ERROR` | mensagem de instabilidade |
-| Fila cheia | `429 BUSY` + `Retry-After: 30` | o frontend espera e repete |
+| Fila cheia | `429 BUSY` + `Retry-After: 30` | o site mostra "servidor ocupado", espera e repete |
+| Trabalho passa de 30 min | `502 UPSTREAM_ERROR` (`SPHEREX_JOB_TIMEOUT_S`) | mensagem; o próximo pedido começa de novo |
 | **Uma** exposição indisponível | é pulada, entra em `failed_exposures` | campo completo, com uma lacuna declarada |
 | Erro transitório do IRSA | nada é memorizado | o próximo pedido tenta de novo |
 | Alvo estático ausente e sem API | `unavailable` | o site abre, mas sem dados daquele ponto |

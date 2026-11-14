@@ -23,6 +23,12 @@ O SPHEREx Viewer faz essa comparação com dados reais da missão: você escolhe
 | **Mira e posição prevista** | Mira fixa no centro e círculo de lápis onde o catálogo diz que o objeto deveria estar |
 | **Régua do tempo** | Cada época na sua data real, com o número de exposições |
 | **Mapa do céu inteiro** | O mosaico do SPHEREx como uma esfera que gira, com zoom, troca de detector (D1–D6) e os alvos marcados; um clique leva qualquer ponto para a placa |
+| **Somar** | Soma todas as épocas por 1/variância: mais profundo, sem movimento |
+| **Falsa cor** | D6, D3 e D1 nos canais vermelho, verde e azul |
+| **Espectro** | Brilho do alvo de 0,75 a 5 µm, medido em cada exposição, com aviso quando uma estrela vizinha entra na medida |
+| **Catálogos** | Gaia DR3 e AllWISE sobre o mapa do céu |
+| **Flags** | Mostra na placa os pixels saturados ou de baixa qualidade |
+| **Campo e coordenadas** | Campo de 3′, 6′ ou 10′; busca por nome, RA/Dec em graus ou sexagesimal. A coordenada do texto do desafio abre o WISE 0855 |
 | **Link compartilhável** | Todo o estado fica na URL (`?target=wise0855&mode=diff`), com modo `embed=1` para iframe |
 
 ![Modo Diferença: o céu parado desaparece e sobra o WISE 0855](docs/img/marco2-wise0855-diferenca.png)
@@ -50,6 +56,8 @@ Um pixel do SPHEREx tem 6,15″. Detalhes, imagens e limitações em [docs/08-re
 
 ## Como funciona
 
+[![Diagrama de atividade: visão geral do SPHEREx Viewer](docs/diagramas/atividade-visao-geral.png)](docs/diagramas/atividade-visao-geral.png)
+
 Os alvos do desafio são pré-processados e publicados como arquivos estáticos, então abrem na hora. Para qualquer outra coordenada, uma API processa o campo sob demanda.
 
 ```
@@ -68,11 +76,11 @@ Do link no navegador até o pixel na tela, com o que acontece em cada camada e n
 
 ### Atualização agendada
 
-O fluxo que vai manter os alvos atualizados: pipeline, validação científica e publicação. Se a validação falha, o site não é publicado. **As bordas tracejadas indicam o que ainda não existe** (fase 5).
+O fluxo que mantém os alvos atualizados: pipeline, validação científica e publicação, a cada 3 dias e a cada mudança no código. Se a validação falha, o site não é publicado. As bordas tracejadas vêm de quando o desenho foi feito, antes da fase 5; hoje tudo existe.
 
 [![Diagrama de raia: atualização agendada](docs/diagramas/02-atualizacao-agendada.png)](docs/diagramas/02-atualizacao-agendada.png)
 
-Os diagramas são grandes: clique para abrir em tamanho real. A legenda, os números de referência e o arquivo editável (`.drawio`) estão em [docs/diagramas/](docs/diagramas/README.md).
+Os diagramas são grandes: clique para abrir em tamanho real. A legenda, os números de referência e os arquivos editáveis (`.puml` e `.drawio`) estão em [docs/diagramas/](docs/diagramas/README.md).
 
 ## Rodar localmente
 
@@ -101,12 +109,12 @@ cd frontend && VITE_API_BASE=http://127.0.0.1:8000 npm run dev
 
 ```bash
 cd backend
-uv run pytest               # 67 testes rápidos, sem rede
+uv run pytest               # 88 testes rápidos, sem rede
 uv run pytest -m science    # 16 testes com dados reais dos 5 alvos
 uv run pytest -m live       # 8 testes contra o SIMBAD
 
 cd frontend
-npm test                    # 32 testes do núcleo do site
+npm test                    # 67 testes do núcleo do site
 ```
 
 O guia completo está em [docs/10-desenvolvimento.md](docs/10-desenvolvimento.md).
@@ -115,18 +123,19 @@ O guia completo está em [docs/10-desenvolvimento.md](docs/10-desenvolvimento.md
 
 ```
 backend/
-  pipeline/    ciência: consulta ao IRSA, cache, alinhamento, soma por época, gravação
+  pipeline/    ciência: consulta ao IRSA, cache, alinhamento, soma por época, espectro, gravação
   api/         API FastAPI: campo sob demanda, arquivos do campo, resolução de nomes
   tests/       testes por fronteira, respostas reais gravadas e validação científica
 frontend/
-  src/core/    lógica pura e testada: quadros, contraste, diferença, coordenadas, URL
+  src/core/    lógica pura e testada: quadros, contraste, diferença, soma, falsa cor, coordenadas, espectro, URL
+  src/ui/      mapa do céu e catálogos, gráfico do espectro, marcas de lápis
   src/         interface: controlador, carregamento de dados, estilos
 schemas/       contrato de dados entre backend e frontend (JSON Schema)
 targets.yaml   os alvos pré-processados (posição e movimento próprio do SIMBAD)
 docs/          documentação e diagramas
 ```
 
-Tecnologias: Python 3.12, Astropy, reproject, FastAPI, TypeScript, Vite, Vitest.
+Tecnologias: Python 3.12, Astropy, reproject, FastAPI, TypeScript, Vite, Vitest, Aladin Lite.
 
 ## Situação
 
@@ -136,12 +145,12 @@ Tecnologias: Python 3.12, Astropy, reproject, FastAPI, TypeScript, Vite, Vitest.
 | 2 | Dados reais do IRSA e validação científica dos 5 alvos | ✅ |
 | 3 | Contrato de dados, dados estáticos e API | ✅ |
 | 4 | Site | ✅ |
-| 5 | Publicação: GitHub Pages, API no Render, atualização automática | ✅ site e API no ar; a atualização automática ainda não rodou com sucesso (ver abaixo) |
-| 6 | Extras: mapa do céu inteiro ✅; espectro sob demanda, catálogos Gaia/WISE, falsa cor | Em andamento |
+| 5 | Publicação: GitHub Pages, API no Render, atualização automática | ✅ |
+| 6 | Extras: mapa do céu inteiro, catálogos Gaia/AllWISE, espectro dos alvos, falsa cor, soma, flags, campo variável | ✅ |
 
 O site está publicado em <https://enriquessribeiro.github.io/spherex-viewer/>. Exemplos: [WISE 0855 em Diferença](https://enriquessribeiro.github.io/spherex-viewer/?target=wise0855&mode=diff) e [Barnard's Star em Piscar](https://enriquessribeiro.github.io/spherex-viewer/?target=barnard&mode=blink).
 
-Os dados no ar são um *snapshot* gerado e validado localmente em 14/11/2026, porque os serviços de consulta do IRSA estavam fora do ar na hora da primeira publicação. O workflow de atualização automática substitui o snapshot assim que rodar com sucesso. A busca por nome ou coordenada fora da lista de alvos usa a API e também depende do IRSA.
+Os dados no ar são gerados pelo workflow *Atualizar dados e publicar*, que só publica se a validação científica passar. A busca por nome ou por coordenada fora da lista de alvos usa a API no Render, que processa um campo por vez: com outro campo em andamento, o site avisa que o servidor está ocupado e tenta de novo sozinho.
 
 ## Documentação
 
@@ -157,12 +166,12 @@ Os dados no ar são um *snapshot* gerado e validado localmente em 14/11/2026, po
 | [08-resultados](docs/08-resultados.md) | Resultados com dados reais |
 | [09-relatorio-progresso](docs/09-relatorio-progresso.md) | Relatório consolidado: decisões e problemas resolvidos |
 | [10-desenvolvimento](docs/10-desenvolvimento.md) | Como rodar e testar |
-| [diagramas](docs/diagramas/README.md) | Fluxo do sistema em diagramas de raia |
+| [diagramas](docs/diagramas/README.md) | Visão geral (diagrama de atividade) e fluxo do sistema em diagramas de raia |
 | [PRODUCT.md](PRODUCT.md) · [DESIGN.md](DESIGN.md) | Registro do produto e do sistema visual |
 
 ## Créditos
 
-Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx, obtidos pelo [IRSA](https://irsa.ipac.caltech.edu/Missions/spherex.html) (releases DR1 e QR3). Posições e movimentos próprios: [SIMBAD](https://simbad.cds.unistra.fr/simbad/) (CDS, Estrasburgo) e Gaia DR3.
+Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx, obtidos pelo [IRSA](https://irsa.ipac.caltech.edu/Missions/spherex.html) (releases DR1 e QR3). Posições e movimentos próprios: [SIMBAD](https://simbad.cds.unistra.fr/simbad/) (CDS, Estrasburgo) e Gaia DR3. Catálogos do mapa: Gaia DR3 (ESA) e AllWISE (NASA/IPAC), pelo [VizieR](https://vizier.cds.unistra.fr/).
 
 Mapa do céu: [Aladin Lite](https://aladin.cds.unistra.fr/AladinLite/) (CDS, Estrasburgo), distribuído sob a licença GPL-3.
 
