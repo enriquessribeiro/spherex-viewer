@@ -176,6 +176,15 @@ Configuração única no GitHub:
 
 Simulação local feita em 14/11/2026 com o cache cheio: alvos em 2 min 18 s, validação científica em 2 min 34 s (16 testes), site de 5,4 MB; o site construído abre num subcaminho (`/spherex-viewer/`) sem erros.
 
+### 6.3.1 Quando o IRSA está fora do ar
+
+Em 14/11/2026 a primeira publicação falhou: o serviço TAP do IRSA respondia `502` (sync, async e availability), embora o SIA e os recortes estivessem no ar. Duas defesas saíram disso:
+
+- **Consulta com fallback**: depois de 2 tentativas no TAP, `IrsaArchive.query` refaz a consulta pelo **SIA2** (`/SIA?COLLECTION=…&POS=circle …`), que devolveu exatamente as mesmas exposições. Assim o workflow normal funciona com o TAP fora.
+- **Publicação de snapshot** ([`publish-snapshot.yml`](../.github/workflows/publish-snapshot.yml), manual): constrói o site com os dados do branch `data-snapshot`, gerados localmente por `build_static` e validados por `pytest -m science`. Serve para ter o site no ar quando o IRSA inteiro estiver indisponível. A próxima execução bem-sucedida do workflow normal substitui essa publicação.
+
+Para atualizar o snapshot: gerar os dados, rodar a validação científica e regravar o branch `data-snapshot` com o conteúdo de `frontend/public/data`.
+
 ### 6.4 Atualização incremental
 
 - O script grava `frontend/public/data/manifest.json` com, por alvo, a data da exposição mais recente e o horário de geração.
