@@ -1,0 +1,137 @@
+{
+ "schema_version": 1,
+ "field_id": "133.7951-7.2451_1",
+ "data_version": "2ef8b07e03b6",
+ "status": "ready",
+ "generated_at": "2026-11-14T00:00:00Z",
+ "center": {
+  "ra": 133.79513,
+  "dec": -7.24515
+ },
+ "fov_arcmin": 1,
+ "grid": {
+  "n": 10,
+  "pixel_scale_arcsec": 6.15,
+  "row_order": "north_first",
+  "wcs": {
+   "CTYPE1": "RA---TAN",
+   "CTYPE2": "DEC--TAN",
+   "CRVAL1": 133.79513,
+   "CRVAL2": -7.24515,
+   "CRPIX1": 5.5,
+   "CRPIX2": 5.5,
+   "CDELT1": -0.0017083333333333334,
+   "CDELT2": 0.0017083333333333334
+  }
+ },
+ "collections": [],
+ "latest_exposure_mjd": 60980.0,
+ "base_url": "fields/133.7951-7.2451_1/2ef8b07e03b6/",
+ "epochs": [
+  {
+   "index": 1,
+   "mjd_start": 60800.0,
+   "mjd_end": 60800.1,
+   "mjd_mid": 60800.05,
+   "date_start": "2025-05-05",
+   "date_end": "2025-05-05",
+   "frames": {
+    "D1": {
+     "n_exposures": 1,
+     "mjd_mean": 60800.1,
+     "lambda_min_um": 0.75,
+     "lambda_max_um": 1.09,
+     "background": 0.013606596046715106,
+     "frame": "frames/1/D1.f32",
+     "variance": "frames/1/D1.var.f32",
+     "mask": "frames/1/D1.mask.u8",
+     "png": "frames/1/D1.png"
+    },
+    "D6": {
+     "n_exposures": 1,
+     "mjd_mean": 60800.0,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.013622949219837567,
+     "frame": "frames/1/D6.f32",
+     "variance": "frames/1/D6.var.f32",
+     "mask": "frames/1/D6.mask.u8",
+     "png": "frames/1/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "syn0000_D6",
+     "det": "D6",
+     "mjd": 60800.0
+    },
+    {
+     "id": "syn0001_D1",
+     "det": "D1",
+     "mjd": 60800.1
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "mjd_start": 60980.0,
+   "mjd_end": 60980.0,
+   "mjd_mid": 60980.0,
+   "date_start": "2025-11-01",
+   "date_end": "2025-11-01",
+   "frames": {
+    "D6": {
+     "n_exposures": 1,
+     "mjd_mean": 60980.0,
+     "lambda_min_um": 4.42,
+     "lambda_max_um": 5.0,
+     "background": 0.010105775779655263,
+     "frame": "frames/2/D6.f32",
+     "variance": "frames/2/D6.var.f32",
+     "mask": "frames/2/D6.mask.u8",
+     "png": "frames/2/D6.png"
+    }
+   },
+   "exposures": [
+    {
+     "id": "syn0002_D6",
+     "det": "D6",
+     "mjd": 60980.0
+    }
+   ]
+  }
+ ],
+ "display": {
+  "D6": {
+   "stretch": "asinh",
+   "vmin": -0.013620072985696972,
+   "vmax": 64.85943062399488
+  },
+  "D1": {
+   "stretch": "asinh",
+   "vmin": -0.013603726123054511,
+   "vmax": 64.52324528674707
+  }
+ },
+ "failed_exposures": [],
+ "target": {
+  "id": "sintetico",
+  "name": "Alvo sint\u00e9tico",
+  "pm_ra_masyr": -12300,
+  "pm_dec_masyr": 0.0,
+  "ref_mjd": 60800.0,
+  "predicted_positions": [
+   {
+    "epoch": 1,
+    "ra": 133.79512952851934,
+    "dec": -7.24515
+   },
+   {
+    "epoch": 2,
+    "ra": 133.79343266965014,
+    "dec": -7.24515
+   }
+  ],
+  "description": "Fixture gerada por scripts do backend"
+ }
+}
