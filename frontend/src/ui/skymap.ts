@@ -85,6 +85,7 @@ export class SkyMap {
           showZoomControl: true,
           showCooLocation: true,
           showFrame: false,
+          log: false, // sem estatística de uso enviada ao CDS a cada visita
         });
         if (import.meta.env.DEV) (window as any).__skymap = this; // inspeção nos testes de navegador
         this.drawTargets();

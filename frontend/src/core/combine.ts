@@ -1,5 +1,5 @@
 // Operações entre quadros de épocas diferentes, feitas no navegador.
-import { Grid } from "./frames";
+import { Grid, MaskGrid, MASK_SATURATED } from "./frames";
 
 /** b − a, pixel a pixel (NaN se faltar dado em qualquer um). */
 export function difference(a: Grid, b: Grid): Grid {
@@ -39,4 +39,25 @@ export function significance(a: Grid, b: Grid, varA: Grid, varB: Grid): Grid {
     out[i] = noise > 0 ? (b.values[i] - a.values[i]) / noise : NaN;
   }
   return new Grid(a.n, out);
+}
+
+/** Várias épocas de um detector somadas (média por 1/variância), com a variância e a máscara juntas. */
+export function sumFrames(frames: { data: Grid; variance: Grid; mask: MaskGrid }[]): { data: Grid; variance: Grid; mask: MaskGrid } {
+  if (frames.length === 1) return frames[0];
+  const n = frames[0].data.n;
+  const data = weightedMean(frames.map((f) => f.data), frames.map((f) => f.variance));
+  const variance = new Float32Array(n * n);
+  const mask = new Uint8Array(n * n);
+  for (let i = 0; i < n * n; i++) {
+    let w = 0;
+    for (const f of frames) {
+      const s2 = f.variance.values[i];
+      if (Number.isFinite(f.data.values[i]) && Number.isFinite(s2) && s2 > 0) w += 1 / s2;
+      mask[i] |= f.mask.values[i];
+    }
+    variance[i] = w > 0 ? 1 / w : NaN;
+    // Saturado só onde nenhuma época trouxe valor: se uma época mediu o pixel, ele tem dado na soma.
+    if (Number.isFinite(data.values[i])) mask[i] &= ~MASK_SATURATED;
+  }
+  return { data, variance: new Grid(n, variance), mask: new MaskGrid(n, mask) };
 }

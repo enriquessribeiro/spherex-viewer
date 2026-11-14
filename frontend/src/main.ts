@@ -4,7 +4,9 @@ import "./style.css";
 import { createElement, ChevronLeft, ChevronRight, Link, Pause, Play, Search } from "lucide";
 import { significance } from "./core/combine";
 import { defaultDiffPair } from "./core/epochs";
-import { renderDiff, renderGray } from "./core/render";
+import { overlayFlags, renderDiff, renderGray, renderRgb, type ColorChannel } from "./core/render";
+import { sumFrames } from "./core/combine";
+import type { MaskGrid } from "./core/frames";
 import { chooseSource, type Manifest, type ManifestTarget } from "./core/source";
 import { parseState, serializeState, type Mode, type ViewState } from "./core/state";
 import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
@@ -35,6 +37,7 @@ const MODE_HELP: Record<Mode, string> = {
   play: "Passa pelas épocas em ordem, como um filme curto.",
   blink: "Alterna entre duas épocas, como o comparador que achou Plutão em 1930.",
   diff: "Subtrai uma época da outra: o que ficou parado some.",
+  sum: "Soma todas as épocas: o céu fica mais profundo, e o que se move vira um rastro.",
 };
 const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
@@ -42,7 +45,9 @@ const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "
 
 const parsed = parseState(location.search);
 let state: ViewState = parsed.state;
-const view = { zoom: 1, gain: 0, negative: true, marks: true, playing: true, cursor: 0 };
+const view = { zoom: 1, gain: 0, negative: true, marks: true, flags: false, playing: true, cursor: 0, flagged: 0 };
+/** Falsa cor: o detector mais longo no vermelho, como no céu visível. */
+const COLOR_DETS: [Detector, Detector, Detector] = ["D6", "D3", "D1"];
 let manifest: Manifest | null = null;
 let field: FieldHandle | null = null;
 let currentTarget: ManifestTarget | null = null;
@@ -109,11 +114,12 @@ async function openFromState() {
     const near = nearbyTarget({ ra: state.ra, dec: state.dec }, await movingTargets());
     if (signal.aborted) return;
     const t = near && manifest.targets.find((x) => x.id === near.id);
-    if (t && near.distanceDeg * 3600 > 1) {
+    if (t && t.fov_arcmin === state.fov && near.distanceDeg * 3600 > 1) {
       notice = `A coordenada digitada fica a ${(near.distanceDeg * 60).toFixed(1).replace(".", ",")}′ de ${t.name}, ` +
         "que se move rápido: mostrando o objeto onde ele está nas imagens do SPHEREx.";
     }
-    if (t) state = { ...state, target: t.id, ra: undefined, dec: undefined, fov: t.fov_arcmin };
+    // Só troca pelo pré-processado no mesmo tamanho de campo; outro tamanho em volta do alvo vem da API.
+    if (t && t.fov_arcmin === state.fov) state = { ...state, target: t.id, ra: undefined, dec: undefined, fov: t.fov_arcmin };
     updateUrl();
   }
 
@@ -178,6 +184,7 @@ const skyMap = new SkyMap($("skymap"), $("skymap-status"), { onTarget: openTarge
 
 function setupField() {
   const doc = field!.doc;
+  state.fov = doc.fov_arcmin; // a URL diz o tamanho do campo que está na tela
   const available = DETECTORS.filter((d) => doc.epochs.some((e) => d in e.frames));
   if (!state.det || !available.includes(state.det)) {
     const preferred = currentTarget?.default_detector;
@@ -190,6 +197,7 @@ function setupField() {
   renderPairSelects();
   renderModes();
   renderRuler();
+  renderFovs();
   updateUrl();
   restartTimer();
   draw();
@@ -212,10 +220,19 @@ function currentEpochIndex(): number | undefined {
   if (epochs.length === 0) return undefined;
   if (state.mode === "blink") return view.cursor % 2 === 0 ? state.a : state.b;
   if (state.mode === "diff") return state.b;
+  if (state.mode === "sum") return undefined;
   return epochs[view.cursor % epochs.length].index;
 }
 
-async function draw() {
+/** Desenha a placa. Chamado sem await de vários lugares: um quadro que não baixa vira aviso, não erro solto. */
+function draw(): void {
+  const token = drawToken + 1;
+  drawPlate().catch((err: Error) => {
+    if (token === drawToken && field) setStatus(`Não foi possível baixar esta época: ${err.message}.`, "error");
+  });
+}
+
+async function drawPlate() {
   if (!field || !state.det) return;
   const token = ++drawToken;
   const doc = field.doc;
@@ -226,7 +243,9 @@ async function draw() {
   let rgba: Uint8ClampedArray;
   let shownEpoch: number | undefined;
 
-  if (state.mode === "diff" && state.a !== undefined && state.b !== undefined) {
+  let flagMask: MaskGrid | null = null;
+  if (state.mode === "diff") {
+    if (state.a === undefined || state.b === undefined) return;
     const [fa, fb] = await Promise.all([loadFrame(field, state.a, det), loadFrame(field, state.b, det)]);
     if (token !== drawToken || !fa || !fb) return;
     // Em unidades de ruído: abaixo de 2σ o céu parado some; a partir de 5σ, cor cheia.
@@ -234,11 +253,32 @@ async function draw() {
     shownEpoch = state.b;
   } else {
     shownEpoch = currentEpochIndex();
-    if (shownEpoch === undefined) return;
-    const frame = await loadFrame(field, shownEpoch, det);
-    if (token !== drawToken || !frame) return;
-    rgba = renderGray(frame.data, frame.mask, display.vmin, vmax, display.stretch, view.negative);
+    if (state.mode !== "sum" && shownEpoch === undefined) return;
+    // Uma época, ou todas somadas (modo Somar).
+    const epochsFor = (d: Detector) => state.mode === "sum"
+      ? doc.epochs.filter((e) => d in e.frames).map((e) => e.index)
+      : (shownEpoch !== undefined && doc.epochs.find((e) => e.index === shownEpoch)?.frames[d] ? [shownEpoch] : []);
+    const plate = async (d: Detector) => {
+      const frames = (await Promise.all(epochsFor(d).map((i) => loadFrame(field!, i, d)))).filter((f) => f !== null);
+      return frames.length ? sumFrames(frames) : null;
+    };
+    if (state.color) {
+      const planes = await Promise.all(COLOR_DETS.map(plate));
+      if (token !== drawToken) return;
+      rgba = renderRgb(COLOR_DETS.map((d, k) => {
+        const lim = doc.display[d];
+        const top = lim ? lim.vmin + (lim.vmax - lim.vmin) * Math.pow(10, -view.gain) : 1;
+        return { grid: planes[k]?.data ?? null, mask: planes[k]?.mask ?? null, vmin: lim?.vmin ?? 0, vmax: top };
+      }) as [ColorChannel, ColorChannel, ColorChannel], display.stretch, n);
+      flagMask = planes[COLOR_DETS.indexOf(det)]?.mask ?? null;
+    } else {
+      const frame = await plate(det);
+      if (token !== drawToken || !frame) return;
+      rgba = renderGray(frame.data, frame.mask, display.vmin, vmax, display.stretch, view.negative);
+      flagMask = frame.mask;
+    }
   }
+  view.flagged = view.flags && flagMask ? overlayFlags(rgba, flagMask) : 0;
 
   offscreen.width = n;
   offscreen.height = n;
@@ -299,14 +339,17 @@ function drawMarks(crop: { x: number; y: number; w: number }, epochIndex: number
 /** Inscrição no canto da placa, como as anotações das placas de vidro; no Piscar, diz qual placa (A ou B) está no ocular. */
 function renderInscription(epochIndex: number | undefined) {
   const doc = field!.doc;
-  const epoch = doc.epochs.find((e) => e.index === epochIndex);
+  const epoch = doc.epochs.find((e) => e.index === epochIndex) ?? (state.mode === "sum" ? doc.epochs[0] : undefined);
   const el = $("plate-inscription");
   if (!epoch) { el.textContent = ""; return; }
   const plate = state.mode === "blink" ? (epochIndex === state.a ? "A · " : "B · ") : "";
   const fov = `${doc.fov_arcmin}′ × ${doc.fov_arcmin}′`;
+  const dets = state.color && state.mode !== "diff" ? "D1·D3·D6" : state.det;
   el.textContent = state.mode === "diff"
     ? `${state.det} · diferença em σ · ${fov}`
-    : `${plate}${state.det} · ${formatDate(epoch.date_start)} · ${fov}`;
+    : state.mode === "sum"
+      ? `${dets} · soma de ${epochsWithDet().length} épocas · ${fov}`
+      : `${plate}${dets} · ${formatDate(epoch.date_start)} · ${fov}`;
 }
 
 function renderLabel(epochIndex: number | undefined) {
@@ -320,12 +363,20 @@ function renderLabel(epochIndex: number | undefined) {
     const a = doc.epochs.find((e) => e.index === state.a), b = epoch;
     $("label-epoch").textContent = a && b ? `${formatDate(a.date_start)} → ${formatDate(b.date_start)}` : "";
     if (a && b) facts.push(["Intervalo", `${Math.round(b.mjd_mid - a.mjd_mid)} dias`]);
+  } else if (state.mode === "sum") {
+    const all = epochsWithDet();
+    $("label-epoch").textContent = all.length ? `${formatDate(all[0].date_start)} – ${formatDate(all[all.length - 1].date_end)}` : "";
+    facts.push(["Épocas", String(all.length)]);
+    facts.push(["Exposições", String(all.reduce((s, e) => s + e.frames[det]!.n_exposures, 0))]);
   } else {
     $("label-epoch").textContent = epoch ? epochSpan(epoch) : "";
     if (epoch) facts.push(["Placa", `${epochsWithDet().findIndex((e) => e.index === epoch.index) + 1} de ${epochsWithDet().length}`]);
     if (epoch?.frames[det]) facts.push(["Exposições", String(epoch.frames[det]!.n_exposures)]);
   }
-  facts.push(["Detector", `${det} · ${um(DET_RANGE[det][0])}–${um(DET_RANGE[det][1])} µm`]);
+  facts.push(state.color && state.mode !== "diff"
+    ? ["Cor", "D1 azul · D3 verde · D6 vermelho"]
+    : ["Detector", `${det} · ${um(DET_RANGE[det][0])}–${um(DET_RANGE[det][1])} µm`]);
+  if (view.flags) facts.push(["Pixels marcados", String(view.flagged)]);
   $("label-facts").innerHTML = facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -453,9 +504,12 @@ function renderModes() {
     b.setAttribute("aria-checked", String(b.dataset.mode === state.mode));
   }
   $("mode-help").textContent = MODE_HELP[state.mode];
-  $("pair").hidden = state.mode === "play";
+  $("pair").hidden = state.mode === "play" || state.mode === "sum";
   $("diff-legend").hidden = state.mode !== "diff";
-  for (const id of ["play", "prev", "next", "speed"]) $(id).hidden = state.mode === "diff";
+  const still = state.mode === "diff" || state.mode === "sum";
+  for (const id of ["play", "prev", "next", "speed"]) $(id).hidden = still;
+  // a diferença é em σ de um detector só; a falsa cor vale nos outros modos
+  $<HTMLInputElement>("color").disabled = state.mode === "diff";
 }
 
 function renderPairSelects() {
@@ -544,8 +598,21 @@ function highlightRuler(epochIndex: number | undefined) {
   for (const b of document.querySelectorAll<HTMLButtonElement>(".ruler-epoch")) {
     const i = Number(b.dataset.epoch);
     b.classList.toggle("current", i === epochIndex);
-    b.classList.toggle("pair", state.mode !== "play" && (i === state.a || i === state.b));
+    b.classList.toggle("pair", (state.mode === "blink" || state.mode === "diff") && (i === state.a || i === state.b));
   }
+}
+
+function renderFovs() {
+  const shown = field?.doc.fov_arcmin;
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-fov]")) {
+    const fov = Number(b.dataset.fov);
+    b.setAttribute("aria-checked", String(fov === shown));
+    // Sem API, só existe o tamanho pré-processado.
+    b.disabled = fov !== shown && !API_BASE;
+  }
+  $("fov-help").textContent = API_BASE
+    ? "Campo maior pega objetos mais rápidos, mas é processado na hora pela API (alguns minutos)."
+    : "Outros tamanhos de campo precisam da API, que não está configurada neste site.";
 }
 
 function renderZoom() {
@@ -569,7 +636,7 @@ function stopTimer() {
 
 function restartTimer() {
   stopTimer();
-  if (!view.playing || state.mode === "diff" || !field) return;
+  if (!view.playing || state.mode === "diff" || state.mode === "sum" || !field) return;
   timer = window.setInterval(() => {
     view.cursor++;
     draw();
@@ -649,6 +716,32 @@ function wire() {
     view.gain = Number(gain.value);
     draw();
   });
+  const color = $<HTMLInputElement>("color");
+  color.checked = state.color;
+  color.addEventListener("change", () => {
+    state.color = color.checked;
+    updateUrl();
+    draw();
+  });
+  $<HTMLInputElement>("flags").addEventListener("change", (ev) => {
+    view.flags = (ev.target as HTMLInputElement).checked;
+    $("flags-help").hidden = !view.flags;
+    draw();
+  });
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-fov]")) {
+    b.addEventListener("click", () => {
+      const fov = Number(b.dataset.fov);
+      if (!field || fov === field.doc.fov_arcmin || b.disabled) return;
+      // Um alvo em outro tamanho de campo vem da API, centrado onde o campo pré-processado está.
+      const t = currentTarget && fov === currentTarget.fov_arcmin ? currentTarget : null;
+      const { ra, dec } = field.doc.center;
+      state = t
+        ? { ...state, target: t.id, ra: undefined, dec: undefined, fov, a: undefined, b: undefined }
+        : { ...state, target: undefined, name: undefined, ra, dec, fov, a: undefined, b: undefined };
+      updateUrl();
+      openFromState();
+    });
+  }
   $<HTMLInputElement>("marks").addEventListener("change", (ev) => {
     view.marks = (ev.target as HTMLInputElement).checked;
     draw();

@@ -77,6 +77,7 @@
             <button type="button" role="radio" data-mode="play">Animar</button>
             <button type="button" role="radio" data-mode="blink">Piscar</button>
             <button type="button" role="radio" data-mode="diff">Diferença</button>
+            <button type="button" role="radio" data-mode="sum">Somar</button>
           </div>
           <p class="mode-help" id="mode-help"></p>
           <div class="pair" id="pair" hidden>
@@ -105,7 +106,19 @@
             <button type="button" role="radio" data-negative="1">Negativo</button>
             <button type="button" role="radio" data-negative="0">Positivo</button>
           </div>
+          <label class="check"><input type="checkbox" id="color" /> Falsa cor <span class="hint">D1 azul · D3 verde · D6 vermelho</span></label>
+          <label class="check"><input type="checkbox" id="flags" /> Marcar pixels pouco confiáveis</label>
+          <p class="det-help" id="flags-help" hidden>Em manila: núcleo saturado (o SPHEREx não entrega o valor) ou pixel que só tinha medidas com aviso de qualidade.</p>
           <label class="check"><input type="checkbox" id="marks" checked /> Mira e posição prevista</label>
+          <div class="field-size">
+            <span class="slider-label">Campo</span>
+            <div class="segmented" role="radiogroup" aria-label="Tamanho do campo" id="fovs">
+              <button type="button" role="radio" data-fov="3">3′</button>
+              <button type="button" role="radio" data-fov="6">6′</button>
+              <button type="button" role="radio" data-fov="10">10′</button>
+            </div>
+          </div>
+          <p class="det-help" id="fov-help"></p>
         </section>
 
         <section class="control-group about">

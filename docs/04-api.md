@@ -342,12 +342,13 @@ Não é API do backend, mas é o "contrato público" para links e embed. Todo o 
 | `target` | `target=wise0855` | Alternativa a ra/dec: alvo da lista |
 | `name` | `name=Barnard's%20star` | Alternativa: resolve via `/resolve` |
 | `fov` | `fov=6` | Campo em arcmin |
-| `det` | `det=D6` ou `det=D1,D3,D6` | Detector, ou três para falsa cor (R,G,B) |
-| `mode` | `play`, `blink`, `diff`, `sum` | Modo de visualização |
+| `det` | `det=D6` | Detector |
+| `color` | `color=1` | Falsa cor: D6, D3 e D1 nos canais R, G e B |
+| `mode` | `play`, `blink`, `diff`, `sum` | Modo: animar, piscar, diferença em σ ou soma de todas as épocas |
 | `a`, `b` | `a=1&b=4` | Épocas usadas em blink/diff |
 | `fps` | `fps=2` | Velocidade da animação |
 | `stretch` | `asinh` | Esticamento |
-| `overlay` | `gaia,wise,flags,pm` | Camadas ligadas |
+| `overlay` | `gaia,wise,flags,pm` | Camadas ligadas (planejado) |
 | `embed` | `embed=1` | Interface mínima para iframe |
 
 Exemplo:
