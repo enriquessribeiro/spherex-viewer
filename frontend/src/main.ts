@@ -9,6 +9,7 @@ import { chooseSource, type Manifest, type ManifestTarget } from "./core/source"
 import { parseState, serializeState, type Mode, type ViewState } from "./core/state";
 import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
+import { cropAnchor, zoomCrop } from "./core/crop";
 import { loadApiField, loadFrame, loadManifest, loadStaticField, type FieldHandle } from "./data";
 import { pencilArrow, pencilCircle } from "./ui/marks";
 import { SkyMap } from "./ui/skymap";
@@ -96,6 +97,8 @@ async function openFromState() {
   const signal = loadAbort.signal;
   stopTimer();
   field = null;
+  drawToken++; // um draw() em andamento do campo anterior não pode terminar sem campo
+
   const source = chooseSource(state, manifest, API_BASE);
   currentTarget = source.kind === "static" ? manifest!.targets.find((t) => t.id === source.targetId) ?? null : null;
   renderTargets();
@@ -231,12 +234,11 @@ async function draw() {
   highlightRuler(shownEpoch);
 }
 
-/** Recorte da placa conforme o zoom, centrado na posição do alvo (ou no centro do campo). */
+/** Recorte da placa conforme o zoom: fixo no céu (meio da trajetória prevista), igual em todas as épocas. */
 function cropRect(n: number) {
-  const w = n / view.zoom;
-  const center = targetPixel(currentEpochIndex() ?? state.b) ?? { row: (n - 1) / 2, col: (n - 1) / 2 };
-  const clamp = (v: number) => Math.min(Math.max(v, 0), n - w);
-  return { x: clamp(center.col + 0.5 - w / 2), y: clamp(center.row + 0.5 - w / 2), w };
+  const doc = field!.doc;
+  const positions = (doc.target?.predicted_positions ?? []).map((p) => worldToPixel(doc.grid.wcs, n, p.ra, p.dec));
+  return zoomCrop(n, view.zoom, cropAnchor(n, positions));
 }
 
 function targetPixel(epochIndex: number | undefined) {
