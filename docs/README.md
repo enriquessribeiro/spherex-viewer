@@ -16,7 +16,9 @@
 
 | [08-resultados.md](08-resultados.md) | Resultados com dados reais: Marco 1 (WISE 0855 andando), astrometria, validação científica e lições para o produto |
 
+| [09-relatorio-progresso.md](09-relatorio-progresso.md) | Relatório consolidado das fases 0 a 2: o que foi construído, processo, decisões técnicas, problemas e resultados |
+
 Documentos planejados (criar conforme o projeto avança):
 
-- `09-desenvolvimento.md` — como rodar localmente
-- `10-apresentacao.md` — roteiro do pitch / demo para os jurados
+- `10-desenvolvimento.md` — como rodar localmente
+- `11-apresentacao.md` — roteiro do pitch / demo para os jurados
