@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spherex-viewer/schemas/field.schema.json",
+  "title": "Campo SPHEREx (field.json)",
+  "description": "Manifesto de um campo processado. Mesmo formato na API e nos dados estáticos. Ver docs/04-api.md §5.",
+  "type": "object",
+  "required": ["schema_version", "field_id", "data_version", "status", "generated_at", "center",
+               "fov_arcmin", "grid", "collections", "latest_exposure_mjd", "base_url", "epochs",
+               "display", "failed_exposures"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": 1 },
+    "field_id": { "type": "string", "pattern": "^[0-9]+\\.[0-9]{4}[+-][0-9]+\\.[0-9]{4}_[0-9.]+$" },
+    "data_version": { "type": "string", "pattern": "^[0-9a-f]{8,}$" },
+    "status": { "const": "ready" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "center": {
+      "type": "object", "required": ["ra", "dec"], "additionalProperties": false,
+      "properties": {
+        "ra": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
+        "dec": { "type": "number", "minimum": -90, "maximum": 90 }
+      }
+    },
+    "fov_arcmin": { "type": "number", "exclusiveMinimum": 0 },
+    "grid": {
+      "type": "object", "required": ["n", "pixel_scale_arcsec", "wcs"], "additionalProperties": false,
+      "properties": {
+        "n": { "type": "integer", "minimum": 1 },
+        "pixel_scale_arcsec": { "type": "number", "exclusiveMinimum": 0 },
+        "row_order": { "const": "north_first" },
+        "wcs": {
+          "type": "object",
+          "required": ["CTYPE1", "CTYPE2", "CRVAL1", "CRVAL2", "CRPIX1", "CRPIX2", "CDELT1", "CDELT2"],
+          "properties": {
+            "CTYPE1": { "const": "RA---TAN" }, "CTYPE2": { "const": "DEC--TAN" },
+            "CRVAL1": { "type": "number" }, "CRVAL2": { "type": "number" },
+            "CRPIX1": { "type": "number" }, "CRPIX2": { "type": "number" },
+            "CDELT1": { "type": "number" }, "CDELT2": { "type": "number" }
+          }
+        }
+      }
+    },
+    "collections": { "type": "array", "items": { "type": "string" } },
+    "latest_exposure_mjd": { "type": "number" },
+    "base_url": { "type": "string", "pattern": "^fields/.+/$" },
+    "epochs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/epoch" } },
+    "display": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/detector" },
+      "additionalProperties": {
+        "type": "object", "required": ["stretch", "vmin", "vmax"], "additionalProperties": false,
+        "properties": {
+          "stretch": { "enum": ["linear", "log", "asinh", "sqrt"] },
+          "vmin": { "type": "number" }, "vmax": { "type": "number" }
+        }
+      }
+    },
+    "failed_exposures": { "type": "array", "items": { "type": "string" } },
+    "target": { "$ref": "#/$defs/target" }
+  },
+  "$defs": {
+    "detector": { "enum": ["D1", "D2", "D3", "D4", "D5", "D6"] },
+    "epoch": {
+      "type": "object",
+      "required": ["index", "mjd_start", "mjd_end", "mjd_mid", "date_start", "date_end", "frames", "exposures"],
+      "additionalProperties": false,
+      "properties": {
+        "index": { "type": "integer", "minimum": 1 },
+        "mjd_start": { "type": "number" }, "mjd_end": { "type": "number" }, "mjd_mid": { "type": "number" },
+        "date_start": { "type": "string", "format": "date" }, "date_end": { "type": "string", "format": "date" },
+        "frames": {
+          "type": "object", "minProperties": 1,
+          "propertyNames": { "$ref": "#/$defs/detector" },
+          "additionalProperties": { "$ref": "#/$defs/frame" }
+        },
+        "exposures": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["id", "det", "mjd"], "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" }, "det": { "$ref": "#/$defs/detector" },
+              "mjd": { "type": "number" }, "collection": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "required": ["n_exposures", "mjd_mean", "lambda_min_um", "lambda_max_um", "background",
+                   "frame", "variance", "mask", "png"],
+      "additionalProperties": false,
+      "properties": {
+        "n_exposures": { "type": "integer", "minimum": 1 },
+        "mjd_mean": { "type": "number" },
+        "lambda_min_um": { "type": "number" }, "lambda_max_um": { "type": "number" },
+        "background": { "type": "number" },
+        "frame": { "type": "string", "pattern": "\\.f32$" },
+        "variance": { "type": "string", "pattern": "\\.var\\.f32$" },
+        "mask": { "type": "string", "pattern": "\\.mask\\.u8$" },
+        "png": { "type": "string", "pattern": "\\.png$" }
+      }
+    },
+    "target": {
+      "type": "object", "required": ["id", "name", "pm_ra_masyr", "pm_dec_masyr", "ref_mjd", "predicted_positions"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" }, "name": { "type": "string" }, "description": { "type": "string" },
+        "pm_ra_masyr": { "type": "number" }, "pm_dec_masyr": { "type": "number" }, "ref_mjd": { "type": "number" },
+        "predicted_positions": {
+          "type": "array",
+          "items": {
+            "type": "object", "required": ["epoch", "ra", "dec"], "additionalProperties": false,
+            "properties": { "epoch": { "type": "integer" }, "ra": { "type": "number" }, "dec": { "type": "number" } }
+          }
+        }
+      }
+    }
+  }
+}

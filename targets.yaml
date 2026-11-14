@@ -31,6 +31,7 @@ targets:
     pm_ra_masyr: -8123.7
     pm_dec_masyr: 673.2
     fov_arcmin: 6
+    default_detector: D6  # a 285 K só aparece em 4–5 µm
 
   - id: rwaur
     name: "RW Aurigae"

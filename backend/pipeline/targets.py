@@ -26,6 +26,7 @@ class Target:
     ref_mjd: float = 51544.5  # J2000
     fov_arcmin: float = 6.0
     description: str = ""
+    default_detector: str = "D2"  # detector em que o site abre (anãs frias: D6)
 
     def field_center(self) -> tuple[float, float]:
         """Centro do campo publicado: posição propagada até REFERENCE_MJD."""
