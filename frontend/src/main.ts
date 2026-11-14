@@ -2,7 +2,7 @@
 import "@fontsource-variable/archivo/wdth.css";
 import "./style.css";
 import { createElement, ChevronLeft, ChevronRight, Link, Pause, Play, Search } from "lucide";
-import { difference, diffScale } from "./core/combine";
+import { significance } from "./core/combine";
 import { defaultDiffPair } from "./core/epochs";
 import { renderDiff, renderGray } from "./core/render";
 import { chooseSource, type Manifest, type ManifestTarget } from "./core/source";
@@ -180,9 +180,8 @@ async function draw() {
   if (state.mode === "diff" && state.a !== undefined && state.b !== undefined) {
     const [fa, fb] = await Promise.all([loadFrame(field, state.a, det), loadFrame(field, state.b, det)]);
     if (token !== drawToken || !fa || !fb) return;
-    const diff = difference(fa.data, fb.data);
-    // O controle de contraste também realça a diferença.
-    rgba = renderDiff(diff, diffScale(diff) * Math.pow(10, -view.gain));
+    // Em unidades de ruído: abaixo de 2σ o céu parado some; a partir de 5σ, cor cheia.
+    rgba = renderDiff(significance(fa.data, fb.data, fa.variance, fb.variance), 2, 5);
     shownEpoch = state.b;
   } else {
     shownEpoch = currentEpochIndex();
@@ -203,6 +202,7 @@ async function draw() {
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(offscreen, crop.x, crop.y, crop.w, crop.w, 0, 0, size, size);
   drawMarks(crop, shownEpoch);
+  renderInscription(shownEpoch);
   renderLabel(shownEpoch);
   highlightRuler(shownEpoch);
 }
@@ -239,10 +239,25 @@ function drawMarks(crop: { x: number; y: number; w: number }, epochIndex: number
         if (before) parts.push(`<path class="pencil pencil-ghost" d="${pencilCircle(before.col + 0.5, before.row + 0.5, r, 2)}"/>`);
       }
       const arrow = pencilArrow(x, y, r);
-      parts.push(`<path class="pencil" d="${pencilCircle(x, y, r, 1)}"/><path class="pencil" d="${arrow.shaft}"/><path class="pencil" d="${arrow.head}"/>`);
+      const strokes = [pencilCircle(x, y, r, 1), arrow.shaft, arrow.head];
+      // Halo de vidro por baixo: o lápis não se confunde com os pixels vermelhos da diferença.
+      parts.push(...strokes.map((d) => `<path class="pencil-halo" d="${d}"/>`));
+      parts.push(...strokes.map((d) => `<path class="pencil" d="${d}"/>`));
     }
   }
   marks.innerHTML = parts.join("");
+}
+
+/** Inscrição no canto da placa, como as anotações das placas de vidro; no Piscar, diz qual placa (A ou B) está no ocular. */
+function renderInscription(epochIndex: number | undefined) {
+  const doc = field!.doc;
+  const epoch = doc.epochs.find((e) => e.index === epochIndex);
+  const el = $("plate-inscription");
+  if (!epoch) { el.textContent = ""; return; }
+  const plate = state.mode === "blink" ? (epochIndex === state.a ? "A · " : "B · ") : "";
+  el.textContent = state.mode === "diff"
+    ? `${state.det} · diferença em σ`
+    : `${plate}${state.det} · ${formatDate(epoch.date_start)}`;
 }
 
 function renderLabel(epochIndex: number | undefined) {
@@ -258,7 +273,7 @@ function renderLabel(epochIndex: number | undefined) {
     if (a && b) facts.push(["Intervalo", `${Math.round(b.mjd_mid - a.mjd_mid)} dias`]);
   } else {
     $("label-epoch").textContent = epoch ? epochSpan(epoch) : "";
-    if (epoch) facts.push(["Época", `${epochsWithDet().findIndex((e) => e.index === epoch.index) + 1} de ${epochsWithDet().length}`]);
+    if (epoch) facts.push(["Placa", `${epochsWithDet().findIndex((e) => e.index === epoch.index) + 1} de ${epochsWithDet().length}`]);
     if (epoch?.frames[det]) facts.push(["Exposições", String(epoch.frames[det]!.n_exposures)]);
   }
   facts.push(["Detector", `${det} · ${um(DET_RANGE[det][0])}–${um(DET_RANGE[det][1])} µm`]);
@@ -277,7 +292,7 @@ function renderTargets() {
     button.type = "button";
     button.className = "target";
     button.setAttribute("aria-pressed", String(currentTarget?.id === t.id));
-    button.innerHTML = `<img src="data/${t.thumbnail}" alt="" width="64" height="64" loading="lazy" />
+    button.innerHTML = `<canvas class="thumb" width="64" height="64" aria-hidden="true"></canvas>
       <span class="target-text"><span class="target-name">${t.name}</span><span class="target-desc">${t.description ?? ""}</span></span>`;
     button.addEventListener("click", () => {
       state = { ...state, target: t.id, ra: undefined, dec: undefined, name: undefined, det: undefined, a: undefined, b: undefined, fov: t.fov_arcmin };
@@ -288,7 +303,39 @@ function renderTargets() {
     });
     li.append(button);
     list.append(li);
+    drawThumbnail(t, button.querySelector("canvas")!);
   }
+}
+
+const thumbCache = new Map<string, Promise<ImageData | null>>();
+
+/** Miniatura do alvo nas cores da placa (negativo), com contraste realçado para caber em 64 px. */
+function drawThumbnail(t: ManifestTarget, el: HTMLCanvasElement) {
+  let pending = thumbCache.get(t.id);
+  if (!pending) {
+    pending = (async () => {
+      const match = t.thumbnail.match(/frames\/(\d+)\/(D\d)\.png$/);
+      if (!match) return null;
+      const handle = await loadStaticField("data/" + t.field);
+      const frame = await loadFrame(handle, Number(match[1]), match[2] as Detector);
+      const display = handle.doc.display[match[2] as Detector];
+      if (!frame || !display) return null;
+      const vmax = display.vmin + (display.vmax - display.vmin) * 0.08;
+      const n = handle.doc.grid.n;
+      return new ImageData(new Uint8ClampedArray(renderGray(frame.data, frame.mask, display.vmin, vmax, "asinh", true)), n, n);
+    })().catch(() => null);
+    thumbCache.set(t.id, pending);
+  }
+  pending.then((image) => {
+    if (!image) return;
+    const tmp = document.createElement("canvas");
+    tmp.width = image.width;
+    tmp.height = image.height;
+    tmp.getContext("2d")!.putImageData(image, 0, 0);
+    const ctx = el.getContext("2d")!;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(tmp, 0, 0, el.width, el.height);
+  });
 }
 
 function renderDetectors() {
@@ -330,8 +377,7 @@ function renderModes() {
   $("mode-help").textContent = MODE_HELP[state.mode];
   $("pair").hidden = state.mode === "play";
   $("diff-legend").hidden = state.mode !== "diff";
-  const transport = state.mode !== "diff";
-  for (const id of ["play", "prev", "next"]) ($(id) as HTMLButtonElement).disabled = !transport;
+  for (const id of ["play", "prev", "next", "speed"]) $(id).hidden = state.mode === "diff";
 }
 
 function renderPairSelects() {
@@ -377,7 +423,8 @@ function renderRuler() {
     button.disabled = !has;
     button.style.left = `${pos(e.mjd_mid)}%`;
     const n = has ? e.frames[state.det!]!.n_exposures : 0;
-    button.innerHTML = `<span class="tick" style="height:${Math.min(100, 30 + n * 3)}%"></span><span class="ruler-date">${MONTHS[Number(e.date_start.slice(5, 7)) - 1]} ${e.date_start.slice(2, 4)}</span>`;
+    const count = has ? `${n} exp.` : `sem ${state.det}`;
+    button.innerHTML = `<span class="tick" style="height:${Math.min(60, 12 + n * 2)}%"></span><span class="ruler-date">${MONTHS[Number(e.date_start.slice(5, 7)) - 1]} ${e.date_start.slice(2, 4)}<span class="ruler-count">${count}</span></span>`;
     button.setAttribute("aria-label", `${epochSpan(e)}${has ? `, ${n} exposições` : ", sem este detector"}`);
     button.addEventListener("click", () => {
       if (state.mode === "play") {
@@ -391,6 +438,23 @@ function renderRuler() {
       draw();
     });
     ruler.append(button);
+  }
+  declutterRuler();
+}
+
+/** Esconde rótulos de épocas próximas demais, priorizando as que têm o detector atual. */
+function declutterRuler() {
+  const ruler = $("ruler");
+  const width = ruler.clientWidth || 1;
+  const buttons = [...ruler.querySelectorAll<HTMLButtonElement>(".ruler-epoch")];
+  const order = [...buttons].sort((a, b) => Number(a.disabled) - Number(b.disabled));
+  const placed: number[] = [];
+  const minGap = 64; // px entre rótulos
+  for (const b of order) {
+    const x = (parseFloat(b.style.left) / 100) * width;
+    const free = placed.every((p) => Math.abs(p - x) >= minGap);
+    b.classList.toggle("unlabeled", !free);
+    if (free) placed.push(x);
   }
 }
 
@@ -541,6 +605,7 @@ function wire() {
   });
 
   new ResizeObserver(() => draw()).observe(canvas);
+  new ResizeObserver(() => declutterRuler()).observe($("ruler"));
 }
 
 // ---------------------------------------------------------------------------- início

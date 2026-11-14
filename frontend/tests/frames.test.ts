@@ -2,8 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { decodeF32, decodeMask } from "../src/core/frames";
 import { normalize } from "../src/core/stretch";
-import { difference, diffScale, weightedMean } from "../src/core/combine";
-import { Grid } from "../src/core/frames";
+import { difference, significance, weightedMean } from "../src/core/combine";
 
 function f32le(values: number[]): ArrayBuffer {
   const view = new DataView(new ArrayBuffer(values.length * 4));
@@ -69,15 +68,10 @@ describe("operações entre épocas", () => {
   });
 });
 
-describe("escala da diferença", () => {
-  it("vem da própria diferença (percentil 99,5 do valor absoluto), ignorando NaN", () => {
-    const d = decodeF32(f32le([1, -2, 3, -4]), 2);
-    expect(diffScale(d)).toBe(4);
-    const muitos = new Grid(20, Float32Array.from({ length: 400 }, (_, i) => (i % 2 ? -1 : 1) * (i + 1)));
-    expect(diffScale(muitos)).toBe(398); // descarta só os 0,5% mais extremos (400 e 399)
-  });
-
-  it("diferença nula ou sem dado → escala 1 (evita divisão por zero)", () => {
-    expect(diffScale(decodeF32(f32le([0, 0, NaN, NaN]), 2))).toBe(1);
+describe("significância da diferença (em unidades de ruído)", () => {
+  it("(b − a) / √(var_a + var_b)", () => {
+    const g = (vs: number[]) => decodeF32(f32le(vs), 1);
+    // b − a = 6, var_a + var_b = 4 + 5 = 9 → 6 / 3 = 2
+    expect(significance(g([1]), g([7]), g([4]), g([5])).at(0, 0)).toBe(2);
   });
 });

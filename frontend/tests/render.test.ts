@@ -27,12 +27,17 @@ describe("renderização (mundo das placas: negativo sobre vidro)", () => {
     expect(pixel(rgba, 1)).toEqual(VIDRO);
   });
 
-  it("diferença: vermelho-lápis = apareceu, azul-tinta = sumiu, sem mudança = vidro", () => {
-    const rgba = renderDiff(grade([2, -2, 0, NaN]), 2);
+  it("diferença em σ: abaixo de 2σ some (vidro); a partir de 5σ cor cheia; vermelho = apareceu, azul = sumiu", () => {
+    const rgba = renderDiff(grade([5, -6, 1.9, NaN]), 2, 5);
     expect(pixel(rgba, 0)).toEqual(LAPIS);
     expect(pixel(rgba, 1)).toEqual(AZUL);
-    expect(pixel(rgba, 2)).toEqual(VIDRO);
+    expect(pixel(rgba, 2)).toEqual(VIDRO); // ruído: o céu parado desaparece
     expect(pixel(rgba, 3)).toEqual(VIDRO);
+  });
+
+  it("entre os limites a cor cresce linearmente (3,5σ = metade do caminho)", () => {
+    const [r, g, b] = pixel(renderDiff(grade([3.5]), 2, 5), 0);
+    expect([r, g, b]).toEqual([219, 144, 137]); // ponto médio entre vidro (242,239,231) e lápis (196,48,43)
   });
 });
 

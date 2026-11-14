@@ -38,13 +38,16 @@ export function renderGray(
   return out;
 }
 
-/** Diferença b − a sobre o vidro: lápis vermelho = apareceu/ficou mais brilhante, azul-tinta = sumiu. */
-export function renderDiff(diff: Grid, scale: number): Uint8ClampedArray {
-  const out = new Uint8ClampedArray(diff.values.length * 4);
-  for (let i = 0; i < diff.values.length; i++) {
-    const d = diff.values[i];
-    const t = Number.isFinite(d) ? Math.min(1, Math.abs(d) / Math.max(scale, 1e-12)) : 0;
-    out.set(mix(PLATE.glass, d > 0 ? PLATE.pencil : PLATE.inkBlue, t), i * 4);
+/**
+ * Diferença em unidades de ruído (σ) sobre o vidro: abaixo de `low` some (é ruído), a partir de
+ * `high` cor cheia. Lápis vermelho = apareceu/ficou mais brilhante, azul-tinta = sumiu.
+ */
+export function renderDiff(sigma: Grid, low = 2, high = 5): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(sigma.values.length * 4);
+  for (let i = 0; i < sigma.values.length; i++) {
+    const s = sigma.values[i];
+    const t = Number.isFinite(s) ? Math.min(1, Math.max(0, (Math.abs(s) - low) / (high - low))) : 0;
+    out.set(mix(PLATE.glass, s > 0 ? PLATE.pencil : PLATE.inkBlue, t), i * 4);
   }
   return out;
 }

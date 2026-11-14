@@ -29,15 +29,14 @@ export function weightedMean(frames: Grid[], variances: Grid[]): Grid {
 }
 
 /**
- * Escala de cor da diferença: percentil 99,5 de |b − a|, ignorando NaN.
- * Vem da própria diferença, não do brilho máximo do campo: no WISE 0855 as mudanças
- * são pequenas perto da estrela mais brilhante e a diferença saía quase em branco.
+ * Significância da diferença em unidades de ruído: (b − a) / √(var_a + var_b).
+ * Permite apagar o que é só ruído (céu parado) e realçar o que mudou de verdade.
  */
-export function diffScale(diff: Grid, quantile = 0.995): number {
-  const values: number[] = [];
-  for (const v of diff.values) if (Number.isFinite(v)) values.push(Math.abs(v));
-  if (values.length === 0) return 1;
-  values.sort((x, y) => x - y);
-  const scale = values[Math.max(0, Math.ceil(quantile * values.length) - 1)];
-  return scale > 0 ? scale : 1;
+export function significance(a: Grid, b: Grid, varA: Grid, varB: Grid): Grid {
+  const out = new Float32Array(a.values.length);
+  for (let i = 0; i < out.length; i++) {
+    const noise = Math.sqrt(varA.values[i] + varB.values[i]);
+    out[i] = noise > 0 ? (b.values[i] - a.values[i]) / noise : NaN;
+  }
+  return new Grid(a.n, out);
 }
