@@ -6,6 +6,8 @@ Variáveis de ambiente:
     SPHEREX_CACHE_DIR  pasta do cache de recortes e consultas (padrão: cache)
     SPHEREX_DATA_DIR   pasta dos campos gerados (padrão: <cache>/fields-data)
     SPHEREX_MAX_JOBS   campos processados ao mesmo tempo (padrão: 2)
+    SPHEREX_FOV_MAX    lado máximo do campo em arcmin (padrão: 30). A memória cresce com o
+                       quadrado do campo: em servidores de 512 MB, usar 10.
 """
 
 import os
@@ -22,4 +24,5 @@ app = create_app(
     data_dir=Path(os.environ.get("SPHEREX_DATA_DIR", _cache / "fields-data")),
     resolver=simbad_resolver,
     max_jobs=int(os.environ.get("SPHEREX_MAX_JOBS", "2")),
+    fov_max=float(os.environ.get("SPHEREX_FOV_MAX", "30")),
 )

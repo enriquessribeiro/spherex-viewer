@@ -176,3 +176,18 @@ def test_resolve_nome_usa_o_resolvedor_e_404_se_desconhecido(tmp_path):
 
     r = cliente.get("/api/v1/resolve", params={"name": "objeto inexistente"})
     assert r.status_code == 404 and r.json()["error"]["code"] == "NOT_FOUND"
+
+
+def test_campo_maximo_e_configuravel_para_servidores_com_pouca_memoria(tmp_path):
+    cliente = _cliente(tmp_path, ArquivoControlado(), fov_max=10)
+
+    r = cliente.get("/api/v1/field", params={**PARAMS, "fov": 12})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "FOV_TOO_LARGE"
+    assert "10" in r.json()["error"]["message"]
+    assert cliente.get("/api/v1/config").json()["fov_arcmin"]["max"] == 10
+    assert cliente.get("/api/v1/field", params={**PARAMS, "fov": 10}).status_code == 202
+
+
+def test_fov_que_nao_e_um_numero_finito_responde_400(tmp_path):
+    r = _cliente(tmp_path, ArquivoControlado()).get("/api/v1/field", params={**PARAMS, "fov": "nan"})
+    assert r.status_code == 400 and r.json()["error"]["code"] == "INVALID_PARAM"

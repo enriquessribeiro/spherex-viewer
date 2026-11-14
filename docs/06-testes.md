@@ -186,23 +186,18 @@ Em `pytest.ini`/`pyproject.toml`, `live` e `science` ficam excluídos por padrã
 | `test.yml` | Todo push e PR | pytest rápido + Vitest |
 | `update-data.yml` | A cada 3 dias, manual e push na `main` | pipeline dos alvos → `pytest -m science` → **deploy só se passar** |
 
-Trecho de `update-data.yml` (complementa [05-hospedagem.md](05-hospedagem.md)):
+Em `update-data.yml` a validação roda depois de processar os alvos e antes de construir o site (ver [05-hospedagem.md](05-hospedagem.md) §6.3):
 
 ```yaml
-      - name: Processar alvos
-        run: python -m pipeline.build_static --targets targets.yaml --out frontend/data
-      - name: Validação científica (bloqueia publicação)
-        run: pytest -m science --data frontend/data --report science-report.json
-      - name: Guardar relatório
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: science-report
-          path: science-report.json
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: frontend/
+      - name: Processar os alvos
+        working-directory: backend
+        run: uv run python -m pipeline.build_static --targets ../targets.yaml --out ../frontend/public/data
+      - name: Validação científica (bloqueia a publicação)
+        working-directory: backend
+        run: uv run pytest -m science --junitxml=science-report.xml
 ```
+
+Os testes científicos processam os campos de novo a partir do mesmo cache de recortes (sem rede adicional, ~2,5 min). O relatório `science-report.xml` fica como artefato da execução.
 
 ## 6. Ordem das primeiras fatias (TDD)
 

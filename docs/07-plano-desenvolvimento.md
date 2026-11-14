@@ -69,9 +69,10 @@ Branch: `fase-4/frontend`
 
 Branch: `fase-5/deploy`
 
-- [ ] Workflow `update-data.yml`: pipeline → validação científica → GitHub Pages
-- [ ] Deploy da API no Render
-- [ ] Frontend usando a API para coordenadas fora da lista
+- [x] Workflow `update-data.yml`: pipeline → validação científica → GitHub Pages
+- [ ] Deploy da API no Render (blueprint `render.yaml` pronto; falta criar o serviço na conta do Render)
+- [x] Frontend usando a API para coordenadas fora da lista (via variável `API_BASE`; ativa quando a API estiver no ar)
+- [x] Extras: `SPHEREX_FOV_MAX` (limite de memória), `fov=nan` responde 400
 
 ### Fase 6 — Extras
 
