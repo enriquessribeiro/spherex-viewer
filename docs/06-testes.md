@@ -103,11 +103,24 @@ Roda o pipeline completo com **dados reais** do IRSA nos 5 alvos do desafio. Os 
 | Epsilon Indi B | Deslocamento compatível com ~4,7″/ano; direção igual à de ε Indi A | SIMBAD / Gaia DR3 |
 | R Draconis | Variação de brilho entre épocas > K₁ × incerteza | Variável Mira (AAVSO) |
 | RW Aurigae | Variação de brilho entre épocas > K₂ × incerteza | T Tauri variável (AAVSO) |
-| Estrelas de campo (todos os alvos) | Na diferença entre épocas, resíduo RMS das estrelas paradas < K₃ × ruído (prova de alinhamento) | Estrelas paradas do Gaia |
+| Estrelas de campo (todos os alvos) | As 5 estrelas mais brilhantes fora do alvo (sem pixels mascarados no núcleo) mantêm a posição entre épocas (prova de alinhamento) | Estrelas distantes não se movem |
 
-**Tolerâncias** (T₁, R₁, K₁, K₂, K₃) a calibrar na primeira execução real e registrar aqui com justificativa. Ponto de partida: T₁ = 0,5 px (~3″), K = 3σ.
+**Tolerâncias calibradas com dados reais** (14/11/2026; detalhes em [08-resultados.md](08-resultados.md)):
 
-> ⚠️ Antes da primeira execução, confirmar no SIMBAD as coordenadas, o movimento próprio e a época de referência de cada alvo (ver [01-projeto.md](01-projeto.md)).
+| Tolerância | Valor | Justificativa |
+|---|---|---|
+| Posição medida × prevista | < 0,5 px (3″) | Observado: 0,12–0,27 px (WISE 0855), 0,00–0,10 px (Barnard). Inclui ~1″ de desvio sistemático de catálogo |
+| Deslocamento medido × previsto entre épocas | < 0,25 px (1,5″) | Observado: 0,09 px (WISE 0855, 0,6 px de movimento), ~0,02 px (Barnard, 1,8 px). O desvio sistemático cancela |
+| Movimento mínimo para o teste ter sentido | > 2 × 0,25 px | Abaixo disso o teste não distinguiria movimento de erro |
+| Detecção para entrar na astrometria | S/R ≥ 5 na abertura | WISE 0855 em D6 na época 1 (S/R 3) fica de fora |
+| Estrelas de campo paradas | < 0,3 px | Observado: 0,02–0,04 px |
+| Variável | mudança > 10% **e** > 5 × dispersão das estrelas de campo | Fotometria relativa às estrelas de campo (cancela calibração entre épocas) |
+
+**Método de medida:** posição e fluxo por **ajuste de gaussiana 2D usando só pixels válidos** (`tests/science/measure.py`). O centroide simples tratava o núcleo saturado da Barnard's Star como zero e criava uma tendência falsa de 0,3 px/ano.
+
+**Detector de cada alvo:** WISE 0855 em D6 (só aparece em 4–5 µm); Barnard's Star, variáveis e estrelas de campo em D2 (mais exposições por época).
+
+> Coordenadas e movimentos próprios: SIMBAD, em [`targets.yaml`](../targets.yaml) (ver [01-projeto.md](01-projeto.md)).
 
 **Bloqueia a publicação:** no GitHub Action, a validação roda depois do pipeline e **antes** do deploy. Se falhar:
 

@@ -54,3 +54,34 @@ Animação em D6: [`img/marco1-wise0855-D6.gif`](img/marco1-wise0855-D6.gif).
 | A época 1 tem só 3 exposições em D6 (S/R 2,4); a diferença com ela vira ruído | A diferença padrão deve usar as **épocas com mais sinal**, não necessariamente a primeira e a última |
 | Anãs marrons frias só aparecem em D5–D6 | Abrir em **D6** por padrão; explicar no site por que o objeto "some" nos outros detectores |
 | O IRSA fica ocupado (`503`) por dezenas de segundos | Novas tentativas com espera de até ~1 min; exposição que falha é pulada e registrada |
+
+## Barnard's Star e estrelas brilhantes (14/11/2026)
+
+Campo de 6′ centrado na posição propagada até nov/2025; **358 exposições em 7 épocas** (DR1 + QR3, ago/2025 a set/2026), nenhuma falhou.
+
+### Problema encontrado: estrela brilhante virava "buraco"
+
+A Barnard's Star satura o detector. Nos recortes reais:
+
+- os 1–4 pixels centrais vêm **`NaN` no `IMAGE`**, com OVERFLOW: o SPHEREx não entrega o núcleo;
+- o anel em volta tem **valores bons** (ex.: 1875 e 665 MJy/sr), mas vem marcado com TRANSIENT/SUR_ERROR **em todas as exposições**.
+
+Com a máscara antiga, o anel também era removido: a estrela aparecia como um buraco 3×3 e o erro de posição era de 1–3 px.
+
+**Correção** (detalhes em [03-arquitetura.md](03-arquitetura.md) §7): flags em dois níveis (suspeitos só são excluídos se houver alternativa limpa) e núcleo sem dado marcado como `saturated`, para o frontend pintar com o brilho máximo.
+
+### Astrometria em D2
+
+| Época | Data | Exposições | Resíduo (ajuste gaussiano) |
+|---|---|---|---|
+| 1 | ago/2025 | 18 | (−0,03; +0,09) px |
+| 3 | mar/2026 | 18 | (−0,05; 0,00) px |
+| 6 | ago/2026 | 24 | (−0,04; −0,01) px |
+| 7 | set/2026 | 1 | (−0,05; +0,10) px |
+
+- Deslocamento previsto entre ago/2025 e set/2026: **1,81 px (~11″) para o norte**; erro da medida: **~0,02 px**.
+- Lição de medida: o **centroide simples** tratava o núcleo saturado como zero e criava uma tendência falsa de 0,3 px/ano. O **ajuste de gaussiana usando só pixels válidos** resolve. Uma futura ferramenta de "medir movimento" no site deve usar o mesmo método.
+
+### Estrelas de campo
+
+No campo do WISE 0855, as 5 estrelas de campo mais brilhantes variam **0,02–0,04 px** (0,1–0,25″) entre épocas: o alinhamento com dados reais é ~25× melhor que um pixel.
