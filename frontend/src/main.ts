@@ -10,7 +10,8 @@ import { parseState, serializeState, type Mode, type ViewState } from "./core/st
 import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
 import { cropAnchor, zoomCrop } from "./core/crop";
-import { loadApiField, loadFrame, loadManifest, loadStaticField, type FieldHandle } from "./data";
+import { fetchJson, loadApiField, loadFrame, loadManifest, loadStaticField, type FieldHandle } from "./data";
+import { propagate } from "./core/motion";
 import { pencilArrow, pencilCircle } from "./ui/marks";
 import { SkyMap } from "./ui/skymap";
 
@@ -109,10 +110,13 @@ async function openFromState() {
     }
     if (source.kind === "resolve") {
       setStatus(`Procurando “${state.name}” no catálogo SIMBAD…`);
-      const r = await fetch(source.resolveUrl, { signal });
-      const body = await r.json();
-      if (!r.ok) throw new Error(body?.error?.message ?? "objeto não encontrado");
-      state = { ...state, name: undefined, target: undefined, ra: body.ra, dec: body.dec };
+      const body = await fetchJson(source.resolveUrl, signal);
+      // O SIMBAD devolve a posição J2000; objetos próximos andam vários ″/ano (WISE 0855: ~3,5′
+      // até a época dos dados). Propagar para o centro do campo cair onde o objeto está agora.
+      const pos = Number.isFinite(body.pm_ra_masyr) && Number.isFinite(body.pm_dec_masyr)
+        ? propagate(body.ra, body.dec, body.pm_ra_masyr, body.pm_dec_masyr)
+        : { ra: body.ra, dec: body.dec };
+      state = { ...state, name: undefined, target: undefined, ra: Number(pos.ra.toFixed(6)), dec: Number(pos.dec.toFixed(6)) };
       updateUrl();
       return openFromState();
     }

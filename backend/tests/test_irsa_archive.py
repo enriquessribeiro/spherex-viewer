@@ -179,3 +179,45 @@ def test_tap_e_sia_fora_do_ar_geram_erro_de_arquivo_indisponivel():
 
     with pytest.raises(ArchiveUnavailable):
         _irsa_com_tap_fora([], sia_status=502).query(133.76002, -7.24221)
+
+
+def test_erro_definitivo_do_recorte_vira_arquivo_indisponivel():
+    """404/403 não se repete, mas também não pode escapar como erro desconhecido (derrubaria o campo)."""
+    from pipeline.irsa import ArchiveUnavailable
+
+    archive = IrsaArchive(client=_cliente(lambda r: httpx.Response(404, content=b"Not Found")), sleep=lambda s: None)
+    with pytest.raises(ArchiveUnavailable):
+        archive.fetch_cutout(_exposicao_d1(), RA0, DEC0, 0.15)
+
+
+def test_recorte_que_nao_e_fits_vira_arquivo_indisponivel():
+    from pipeline.irsa import ArchiveUnavailable
+
+    html = b"<!DOCTYPE html><html><body>Service temporarily unavailable</body></html>"
+    archive = IrsaArchive(client=_cliente(lambda r: httpx.Response(200, content=html)), sleep=lambda s: None)
+    with pytest.raises(ArchiveUnavailable):
+        archive.fetch_cutout(_exposicao_d1(), RA0, DEC0, 0.15)
+
+
+def test_tap_respondendo_html_com_200_cai_para_o_sia_em_vez_de_virar_sem_cobertura():
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/TAP/sync":
+            return httpx.Response(200, content=b"<html>\n<body>erro interno</body>\n</html>\n")
+        if request.url.params["COLLECTION"] == "spherex_dr1":
+            return httpx.Response(200, content=(FIXTURES / "wise0855_sia_dr1.csv").read_bytes())
+        return httpx.Response(200, content=SIA_HEADER.encode())
+
+    exposicoes = IrsaArchive(client=_cliente(handler), sleep=lambda s: None).query(133.76002, -7.24221)
+    assert len(exposicoes) == 258
+
+
+def test_sia_respondendo_html_com_200_e_arquivo_indisponivel():
+    from pipeline.irsa import ArchiveUnavailable
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/TAP/sync":
+            return httpx.Response(502, content=b"Proxy Error")
+        return httpx.Response(200, content=b"<html>\n<body>erro</body>\n</html>\n")
+
+    with pytest.raises(ArchiveUnavailable):
+        IrsaArchive(client=_cliente(handler), sleep=lambda s: None).query(133.76002, -7.24221)

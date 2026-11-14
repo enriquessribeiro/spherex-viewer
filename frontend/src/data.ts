@@ -38,14 +38,39 @@ export async function loadStaticField(fieldUrl: string): Promise<FieldHandle> {
   return { doc, base: fieldUrl.slice(0, fieldUrl.lastIndexOf("/") + 1) };
 }
 
+/** Lê a resposta como JSON sem confundir uma página de erro (ex.: 502 do proxy em HTML) com dado. */
+async function readJson(response: Response): Promise<any> {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(response.ok
+      ? "o servidor respondeu algo que não é JSON"
+      : `servidor indisponível (${response.status}); a API pode estar acordando, tente em 1 minuto`);
+  }
+}
+
+/** GET de JSON da API, com a mensagem de erro do contrato ({ error: { message } }) quando houver. */
+export async function fetchJson(url: string, signal: AbortSignal): Promise<any> {
+  const response = await fetch(url, { signal });
+  const body = await readJson(response);
+  if (!response.ok) throw new Error(body?.error?.message ?? `erro ${response.status}`);
+  return body;
+}
+
+/** Tempo máximo esperando um campo novo; o servidor desiste em 30 min (SPHEREX_JOB_TIMEOUT_S). */
+export const MAX_FIELD_WAIT_MS = 35 * 60 * 1000;
+
 /** Campo pela API: repete o pedido enquanto o servidor processa (202), informando o progresso. */
 export async function loadApiField(
   fieldUrl: string, onProgress: (p: Progress) => void, signal: AbortSignal,
 ): Promise<FieldHandle> {
   const apiRoot = fieldUrl.slice(0, fieldUrl.indexOf("/api/v1/") + "/api/v1/".length);
+  const giveUpAt = Date.now() + MAX_FIELD_WAIT_MS;
   for (;;) {
+    if (Date.now() > giveUpAt) throw new Error("o processamento passou de 35 minutos");
     const response = await fetch(fieldUrl, { signal });
-    const body = await response.json();
+    const body = await readJson(response);
     if (response.status === 202) {
       onProgress({ stage: body.stage, done: body.progress.done, total: body.progress.total });
       await sleep(body.poll_after_ms ?? 2000, signal);
@@ -82,10 +107,14 @@ export function loadFrame(field: FieldHandle, epochIndex: number, det: Detector)
 
 function sleep(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(resolve, ms);
-    signal.addEventListener("abort", () => {
+    const onAbort = () => {
       clearTimeout(timer);
       reject(new DOMException("cancelado", "AbortError"));
-    });
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort); // sem acumular um listener por consulta
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", onAbort, { once: true });
   });
 }

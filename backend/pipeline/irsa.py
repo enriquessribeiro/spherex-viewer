@@ -72,10 +72,12 @@ class IrsaArchive:
                 data={"QUERY": adql, "LANG": "ADQL", "FORMAT": "csv"},
                 max_attempts=TAP_ATTEMPTS_BEFORE_SIA,
             )
+            rows = _csv_rows(response.text, TAP_COLUMNS, "TAP")
         except ArchiveUnavailable:
-            # O TAP do IRSA pode cair sozinho (14/11/2026: TAP com 502, SIA e recortes no ar).
+            # O TAP do IRSA pode cair sozinho (14/11/2026: TAP com 502, SIA e recortes no ar),
+            # ou responder 200 com uma página de erro em HTML.
             return self._query_sia(ra, dec)
-        return [_exposure_from_row(row) for row in csv.DictReader(io.StringIO(response.text))]
+        return [_exposure_from_row(row) for row in rows]
 
     def _query_sia(self, ra: float, dec: float) -> list[Exposure]:
         """Mesma consulta pelo serviço SIA2: uma requisição por coleção."""
@@ -89,7 +91,7 @@ class IrsaArchive:
                     "RESPONSEFORMAT": "CSV",
                 },
             )
-            for row in csv.DictReader(io.StringIO(response.text)):
+            for row in _csv_rows(response.text, SIA_COLUMNS, "SIA"):
                 if row["dataproduct_subtype"] != "science":
                     continue
                 exposures.append(_exposure_from_row({
@@ -107,7 +109,11 @@ class IrsaArchive:
             "GET", f"{self._base_url}/{exposure.uri}",
             params={"center": f"{ra},{dec}d", "size": f"{size_deg:g}"},
         )
-        hdul = fits.open(io.BytesIO(response.content))
+        try:
+            hdul = fits.open(io.BytesIO(response.content))
+            hdul.verify("silentfix")
+        except Exception as exc:  # noqa: BLE001 — qualquer resposta que não seja FITS
+            raise ArchiveUnavailable(f"{exposure.uri}: o recorte não é um FITS válido ({exc})") from exc
         for name in DROPPED_EXTENSIONS:
             if name in hdul:
                 del hdul[name]
@@ -128,9 +134,25 @@ class IrsaArchive:
             if response.status_code in RETRYABLE_STATUS:
                 last_error = f"HTTP {response.status_code}: {response.text[:100]}"
                 continue
-            response.raise_for_status()
+            if response.is_error:
+                # Erro definitivo (404, 403...): não adianta repetir, mas é falha do arquivo,
+                # não do nosso código — vira ArchiveUnavailable para a exposição ser pulada.
+                raise ArchiveUnavailable(f"{url}: HTTP {response.status_code}: {response.text[:100]}")
             return response
         raise ArchiveUnavailable(f"{url}: {last_error} após {attempts} tentativas")
+
+
+TAP_COLUMNS = {"collection", "energy_bandpassname", "time_bounds_lower", "uri"}
+SIA_COLUMNS = {"dataproduct_subtype", "access_url", "energy_bandpassname", "t_min", "obs_collection"}
+
+
+def _csv_rows(text: str, required: set[str], service: str) -> list[dict[str, str]]:
+    """Linhas do CSV; uma resposta sem as colunas esperadas (ex.: HTML de erro) é falha do arquivo,
+    não "nenhuma cobertura"."""
+    reader = csv.DictReader(io.StringIO(text))
+    if not required <= set(reader.fieldnames or ()):
+        raise ArchiveUnavailable(f"{service}: resposta inesperada ({text[:80]!r})")
+    return list(reader)
 
 
 def _exposure_from_row(row: dict[str, str]) -> Exposure:
