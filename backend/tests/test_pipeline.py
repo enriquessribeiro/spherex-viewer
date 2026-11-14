@@ -85,3 +85,47 @@ def test_estrela_com_movimento_proprio_aparece_deslocada_entre_epocas():
     x2, y2 = centroid(field.epochs[1].frames["D6"].data)
     assert (x1, y1) == approx((CENTRO_PX, CENTRO_PX), abs=0.1)
     assert (x2, y2) == approx((CENTRO_PX - 1, CENTRO_PX + 2), abs=0.1)
+
+
+def _campo_com_exposicoes(exposicoes):
+    archive = SyntheticArchive(sources=[SyntheticSource(ra=RA0, dec=DEC0)], exposures=exposicoes)
+    return build_field(ra=RA0, dec=DEC0, fov_arcmin=6, archive=archive)
+
+
+def test_exposicoes_proximas_no_tempo_formam_uma_epoca_em_ordem_cronologica():
+    # Chegam fora de ordem, como pode acontecer numa consulta ao arquivo.
+    field = _campo_com_exposicoes(
+        [SyntheticExposure(det="D6", mjd=m) for m in (60981.0, 60800.0, 60802.0, 60980.0, 60801.0)]
+    )
+
+    assert [e.index for e in field.epochs] == [1, 2]
+    assert [[x.mjd for x in e.exposures] for e in field.epochs] == [
+        [60800.0, 60801.0, 60802.0],
+        [60980.0, 60981.0],
+    ]
+    assert [e.frames["D6"].n_exposures for e in field.epochs] == [3, 2]
+
+
+def test_intervalo_igual_ao_limite_de_10_dias_nao_separa_epocas():
+    juntas = _campo_com_exposicoes(
+        [SyntheticExposure(det="D6", mjd=60800.0), SyntheticExposure(det="D6", mjd=60810.0)]
+    )
+    separadas = _campo_com_exposicoes(
+        [SyntheticExposure(det="D6", mjd=60800.0), SyntheticExposure(det="D6", mjd=60810.01)]
+    )
+
+    assert len(juntas.epochs) == 1
+    assert len(separadas.epochs) == 2
+
+
+def test_epoca_sem_algum_detector_contem_apenas_os_detectores_observados():
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D1", mjd=60800.0),
+            SyntheticExposure(det="D6", mjd=60800.1),
+            SyntheticExposure(det="D6", mjd=60980.0),
+        ]
+    )
+
+    assert set(field.epochs[0].frames) == {"D1", "D6"}
+    assert set(field.epochs[1].frames) == {"D6"}
