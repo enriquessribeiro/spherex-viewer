@@ -128,7 +128,11 @@ Lista **conferida no cabeçalho de recortes reais do DR1** (`MSKNnnnn` = nome, `
 | 27 | SNOWBALL | Artefato "snowball" (raio cósmico) | Overlay |
 | 28 | HALO | Halo transiente | Overlay |
 
-Bits mascarados no pipeline: `0, 1, 2, 6, 9, 10, 11, 15, 19`.
+Tratamento no pipeline (ver [03-arquitetura.md](03-arquitetura.md) §7):
+
+- **Graves**, sempre excluídos: `1, 6, 9, 10, 11` (OVERFLOW, NONFUNC, MISSING_DATA, HOT, COLD).
+- **Suspeitos**, excluídos só se outra exposição tiver aquele ponto limpo: `0, 2, 15, 19` (TRANSIENT, SUR_ERROR, NONLINEAR, OUTLIER). Em volta de estrelas brilhantes **todas** as exposições vêm com TRANSIENT/SUR_ERROR, mas os valores são bons.
+- **Núcleo de estrelas muito brilhantes**: o `IMAGE` vem `NaN` com OVERFLOW. O SPHEREx não entrega esses pixels, que são marcados como saturados.
 
 ### 3.2 All-Sky Cube (só DR1)
 

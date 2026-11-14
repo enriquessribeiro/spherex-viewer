@@ -17,12 +17,18 @@ from pipeline.archive import Archive, ArchiveUnavailable, Exposure
 PIXEL_SCALE_ARCSEC = 6.15
 EPOCH_GAP_DAYS = 10.0
 
-# Bits de FLAGS que indicam pixel inutilizável (docs/02-dados-spherex.md), conferidos
-# no cabeçalho de recortes reais: TRANSIENT, OVERFLOW, SUR_ERROR, NONFUNC, MISSING_DATA,
-# HOT, COLD, NONLINEAR, OUTLIER. SOURCE (21) não é mascarado (marca estrelas);
-# PERSIST (17), CROSSTALK (20) e fantasmas/artefatos (22-28) viram overlay.
-BAD_PIXEL_BITS = (0, 1, 2, 6, 9, 10, 11, 15, 19)
-BAD_PIXEL_MASK = sum(1 << b for b in BAD_PIXEL_BITS)
+# Bits de FLAGS (docs/02-dados-spherex.md), conferidos no cabeçalho de recortes reais.
+# Defeito grave — sempre excluído: OVERFLOW, NONFUNC, MISSING_DATA, HOT, COLD.
+HARD_BITS = (1, 6, 9, 10, 11)
+# Suspeito — excluído se outra exposição tiver aquele ponto limpo; senão usado e marcado
+# como low_quality. Em volta de estrelas brilhantes (Barnard's Star) TODAS as exposições
+# vêm com TRANSIENT/SUR_ERROR, mas os valores são bons: mascarar apagaria a estrela.
+SOFT_BITS = (0, 2, 15, 19)  # TRANSIENT, SUR_ERROR, NONLINEAR, OUTLIER
+# SOURCE (21) não é mascarado (marca estrelas); PERSIST (17), CROSSTALK (20) e
+# fantasmas/artefatos (22-28) viram overlay.
+HARD_MASK = sum(1 << b for b in HARD_BITS)
+SOFT_MASK = sum(1 << b for b in SOFT_BITS)
+OVERFLOW_BIT = 1
 
 # Downloads simultâneos do arquivo. O IRSA responde 503 com poucos pedidos paralelos,
 # então o limite é baixo e o adaptador repete com espera (pipeline/irsa.py).
@@ -40,6 +46,20 @@ class Frame:
     variance: np.ndarray
     n_exposures: int
     background: float = 0.0  # fundo residual removido de data (MJy/sr)
+    # Pixels que só tinham dados com flag suspeito (ex.: anel de estrela brilhante).
+    low_quality: np.ndarray | None = None
+    # Núcleo de estrela brilhante que o SPHEREx não entrega (OVERFLOW): data é NaN.
+    # O frontend deve pintá-lo com o brilho máximo, não como buraco.
+    saturated: np.ndarray | None = None
+
+
+@dataclass
+class _Layer:
+    """Uma exposição reprojetada: versão só com pixels limpos e versão aceitando suspeitos."""
+
+    clean: tuple[np.ndarray, np.ndarray]  # (dados, variância)
+    soft: tuple[np.ndarray, np.ndarray]
+    overflow: np.ndarray  # fração de pixels OVERFLOW na vizinhança interpolada
 
 
 class NoCoverage(Exception):
@@ -111,7 +131,7 @@ def build_field(
     if not exposures:
         raise NoCoverage(f"nenhuma exposição SPHEREx cobre ra={ra}, dec={dec}")
 
-    def load(exp: Exposure) -> tuple[np.ndarray, np.ndarray] | None:
+    def load(exp: Exposure) -> _Layer | None:
         # Uma exposição indisponível é pulada; não deve derrubar o campo inteiro.
         try:
             return _reproject_exposure(archive.fetch_cutout(exp, ra, dec, size_deg), wcs, n)
@@ -125,7 +145,7 @@ def build_field(
         epochs: list[Epoch] = []
         failed: list[Exposure] = []
         for group in groups:
-            stacks: dict[str, list[tuple[np.ndarray, np.ndarray]]] = defaultdict(list)
+            stacks: dict[str, list[_Layer]] = defaultdict(list)
             loaded: list[Exposure] = []
             for exp in group:
                 layer = next(layers)
@@ -167,50 +187,72 @@ def _display_limits(epochs: list[Epoch]) -> dict[str, DisplayLimits]:
     return limits
 
 
-def _reproject_exposure(hdul, wcs: WCS, n: int) -> tuple[np.ndarray, np.ndarray]:
-    """Imagem (sem luz zodiacal, pixels ruins = NaN) e variância na grade do campo."""
+def _reproject_exposure(hdul, wcs: WCS, n: int) -> _Layer:
+    """Exposição na grade do campo, sem luz zodiacal, com máscaras de qualidade."""
     image = hdul["IMAGE"]
     source_wcs = WCS(image.header)
     # IMAGE inclui a luz zodiacal; ZODI é o modelo dela (docs/02-dados-spherex.md).
     data = (image.data - hdul["ZODI"].data).astype(np.float64)
     variance = hdul["VARIANCE"].data.astype(np.float64)
-    valid = (
-        ((hdul["FLAGS"].data & BAD_PIXEL_MASK) == 0) & np.isfinite(data) & np.isfinite(variance)
-    )
+    flags = hdul["FLAGS"].data
+    finite = np.isfinite(data) & np.isfinite(variance)
+    usable = finite & ((flags & HARD_MASK) == 0)
+    clean = usable & ((flags & SOFT_MASK) == 0)
 
-    # Interpolação normalizada: pixels ruins entram com peso zero em vez de virar NaN,
-    # senão a interpolação bilinear espalharia cada NaN para ~4 pixels vizinhos.
     def reproject(array: np.ndarray) -> np.ndarray:
         out, _ = reproject_interp((array, source_wcs), wcs, shape_out=(n, n))
         return out
 
-    weight = reproject(valid.astype(np.float64))
-    with np.errstate(invalid="ignore", divide="ignore"):
-        data_out = reproject(np.where(valid, data, 0.0)) / weight
-        var_out = reproject(np.where(valid, variance, 0.0)) / weight
-    covered = np.isfinite(weight) & (weight >= MIN_VALID_WEIGHT)
-    data_out[~covered] = np.nan
-    var_out[~covered] = np.nan
-    return data_out, var_out
+    def normalized(valid: np.ndarray, required_weight: np.ndarray | float):
+        # Interpolação normalizada: pixels inválidos entram com peso zero em vez de virar
+        # NaN, senão a interpolação bilinear espalharia cada NaN para ~4 pixels vizinhos.
+        weight = reproject(valid.astype(np.float64))
+        with np.errstate(invalid="ignore", divide="ignore"):
+            data_out = reproject(np.where(valid, data, 0.0)) / weight
+            var_out = reproject(np.where(valid, variance, 0.0)) / weight
+        covered = np.isfinite(weight) & (weight >= MIN_VALID_WEIGHT) & (weight >= required_weight - 1e-9)
+        data_out[~covered] = np.nan
+        var_out[~covered] = np.nan
+        return (data_out, var_out), np.nan_to_num(weight)
+
+    soft, soft_weight = normalized(usable, MIN_VALID_WEIGHT)
+    # O valor limpo só vale onde nenhum pixel suspeito entra na interpolação; senão
+    # pixels de borda usariam só os vizinhos limpos (mais fracos, na asa de uma estrela).
+    clean_layer, _ = normalized(clean, soft_weight)
+    overflow = reproject((((flags >> OVERFLOW_BIT) & 1) == 1).astype(np.float64))
+    return _Layer(clean=clean_layer, soft=soft, overflow=np.nan_to_num(overflow))
 
 
-def _coadd(layers: list[tuple[np.ndarray, np.ndarray]]) -> Frame:
-    """Média ponderada pelo inverso da variância, ignorando NaN."""
-    data = np.stack([d for d, _ in layers])
-    variance = np.stack([v for _, v in layers])
+def _weighted_mean(pairs: list[tuple[np.ndarray, np.ndarray]]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Média ponderada por 1/variância ignorando NaN; devolve (média, variância, peso total)."""
+    data = np.stack([d for d, _ in pairs])
+    variance = np.stack([v for _, v in pairs])
     valid = np.isfinite(data) & np.isfinite(variance) & (variance > 0)
     weights = np.where(valid, 1.0 / np.where(valid, variance, 1.0), 0.0)
     total_weight = weights.sum(axis=0)
     with np.errstate(invalid="ignore", divide="ignore"):
-        coadd = (np.where(valid, data, 0.0) * weights).sum(axis=0) / total_weight
-        coadd_var = 1.0 / total_weight
-    coadd[total_weight == 0] = np.nan
-    coadd_var[total_weight == 0] = np.nan
+        mean = (np.where(valid, data, 0.0) * weights).sum(axis=0) / total_weight
+        mean_var = 1.0 / total_weight
+    mean[total_weight == 0] = np.nan
+    mean_var[total_weight == 0] = np.nan
+    return mean, mean_var, total_weight
+
+
+def _coadd(layers: list[_Layer]) -> Frame:
+    """Soma ponderada por 1/variância; pixels suspeitos só onde não há dado limpo."""
+    data, variance, clean_weight = _weighted_mean([layer.clean for layer in layers])
+    soft_data, soft_var, soft_weight = _weighted_mean([layer.soft for layer in layers])
+    low_quality = (clean_weight == 0) & (soft_weight > 0)
+    data[low_quality] = soft_data[low_quality]
+    variance[low_quality] = soft_var[low_quality]
+    saturated = np.isnan(data) & (np.max([layer.overflow for layer in layers], axis=0) >= MIN_VALID_WEIGHT)
     # Fundo residual (o que o modelo ZODI não explica): mediana com corte sigma,
     # que ignora as estrelas. Sem isso a diferença entre épocas fica dominada pelo desnível.
-    background = _background(coadd)
-    return Frame(data=coadd - background, variance=coadd_var, n_exposures=len(layers),
-                 background=background)
+    background = _background(data)
+    return Frame(
+        data=data - background, variance=variance, n_exposures=len(layers),
+        background=background, low_quality=low_quality, saturated=saturated,
+    )
 
 
 def _background(image: np.ndarray) -> float:

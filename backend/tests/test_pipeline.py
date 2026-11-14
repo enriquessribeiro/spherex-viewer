@@ -389,3 +389,44 @@ def test_fundo_residual_de_cada_epoca_e_removido_e_registrado():
     assert (q1.background, q2.background) == approx((0.3, -0.2), abs=1e-3)
     # Longe da estrela, a diferença entre épocas fica ~0.
     assert np.nanmax(np.abs((q2.data - q1.data)[:10, :10])) < 1e-3
+
+
+TRANSIENT, OVERFLOW = 0, 1
+VIZINHANCA_3X3 = [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1)]
+
+
+def test_anel_de_estrela_brilhante_com_flag_suspeito_em_todas_as_exposicoes_e_mantido():
+    # Como na Barnard's Star real: os pixels em volta de uma estrela brilhante vêm com
+    # TRANSIENT/SUR_ERROR em TODAS as exposições, mas os valores são bons.
+    suspeitos = tuple((dx, dy, TRANSIENT, None) for dx, dy in VIZINHANCA_3X3)
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D2", mjd=60800.0, flagged=suspeitos),
+            SyntheticExposure(det="D2", mjd=60800.5, flagged=suspeitos),
+        ]
+    )
+
+    frame = field.epochs[0].frames["D2"]
+    janela = frame.data[CENTRO_PX - 5 : CENTRO_PX + 6, CENTRO_PX - 5 : CENTRO_PX + 6]
+    assert np.nansum(janela) == approx(2 * math.pi * 100.0, rel=0.02)  # a estrela inteira volta
+    assert frame.low_quality[CENTRO_PX, CENTRO_PX]
+    assert not frame.low_quality[5, 5]
+
+
+def test_nucleo_saturado_sem_dado_fica_marcado_como_saturado():
+    # Núcleo que o SPHEREx não entrega: IMAGE = NaN com OVERFLOW; anel com TRANSIENT.
+    nucleo = tuple((dx, dy, OVERFLOW, float("nan")) for dx, dy in [(0, 0), (1, 0), (0, 1), (1, 1)])
+    anel = tuple((dx, dy, TRANSIENT, None) for dx, dy in VIZINHANCA_3X3 if (dx, dy) not in
+                 [(0, 0), (1, 0), (0, 1), (1, 1)])
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D2", mjd=60800.0, flagged=nucleo + anel),
+            SyntheticExposure(det="D2", mjd=60800.5, flagged=nucleo + anel),
+        ]
+    )
+
+    frame = field.epochs[0].frames["D2"]
+    perto = frame.saturated[CENTRO_PX - 2 : CENTRO_PX + 3, CENTRO_PX - 2 : CENTRO_PX + 3]
+    assert perto.any()
+    assert np.isnan(frame.data[frame.saturated]).all()
+    assert not frame.saturated[:10, :10].any()
