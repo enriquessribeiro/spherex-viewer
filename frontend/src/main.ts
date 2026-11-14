@@ -8,7 +8,7 @@ import { overlayFlags, renderDiff, renderGray, renderRgb, type ColorChannel } fr
 import { sumFrames } from "./core/combine";
 import type { MaskGrid } from "./core/frames";
 import { chooseSource, type Manifest, type ManifestTarget } from "./core/source";
-import { parseState, serializeState, type Mode, type ViewState } from "./core/state";
+import { DEFAULT_STATE, parseState, serializeState, type Mode, type ViewState } from "./core/state";
 import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
 import { cropAnchor, zoomCrop } from "./core/crop";
@@ -150,9 +150,11 @@ async function openFromState() {
     field = source.kind === "static"
       ? await loadStaticField(source.fieldUrl)
       : await loadApiField(source.fieldUrl, (p) => {
-          setStatus(p.total
-            ? `Baixando imagens do SPHEREx: ${p.done} de ${p.total}. Na primeira vez pode levar alguns minutos.`
-            : "Consultando o arquivo da NASA (IRSA)…");
+          setStatus(p.stage === "busy"
+            ? "O servidor está processando o campo de outra pessoa (um por vez, no plano gratuito). Tentando de novo em instantes…"
+            : p.total
+              ? `Baixando imagens do SPHEREx: ${p.done} de ${p.total}. Na primeira vez pode levar alguns minutos.`
+              : "Consultando o arquivo da NASA (IRSA)…");
         }, signal);
     if (signal.aborted) return;
     setupField();
@@ -796,7 +798,8 @@ function wire() {
     if (!q) return;
     const known = manifest?.targets.find((t) => t.id === q.toLowerCase() || t.name.toLowerCase() === q.toLowerCase());
     const coords = parseCoordinates(q); // graus ou sexagesimal, sem precisar da API
-    const base = { ...state, target: undefined, ra: undefined, dec: undefined, name: undefined, det: undefined, a: undefined, b: undefined };
+    // Busca nova começa no campo padrão: herdar um 10′ escolhido antes impedia de reconhecer o alvo (6′).
+    const base = { ...state, target: undefined, ra: undefined, dec: undefined, name: undefined, det: undefined, a: undefined, b: undefined, fov: DEFAULT_STATE.fov };
     if (known) state = { ...base, target: known.id, fov: known.fov_arcmin };
     else if (coords) state = { ...base, ...coords };
     else state = { ...base, name: q };
