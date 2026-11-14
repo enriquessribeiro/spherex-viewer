@@ -46,7 +46,17 @@ def brightest_stars(image: np.ndarray, n: int, exclude: list[tuple[float, float]
 
 
 def fit_position(image: np.ndarray, x0: float, y0: float, radius: int = 4) -> tuple[float, float]:
-    """Posição (x, y) por ajuste de gaussiana 2D + fundo, usando só pixels válidos.
+    x, y, _ = fit_gaussian(image, x0, y0, radius)
+    return x, y
+
+
+def fit_flux(image: np.ndarray, x0: float, y0: float, radius: int = 4) -> float:
+    """Fluxo do perfil gaussiano ajustado (2*pi*A*sigma^2), robusto a núcleo saturado."""
+    return fit_gaussian(image, x0, y0, radius)[2]
+
+
+def fit_gaussian(image: np.ndarray, x0: float, y0: float, radius: int = 4) -> tuple[float, float, float]:
+    """Ajuste de gaussiana 2D + fundo usando só pixels válidos → (x, y, fluxo).
 
     Diferente do centroide simples, ignora pixels faltantes (NaN) em vez de tratá-los
     como zero: o núcleo saturado de estrelas brilhantes (Barnard's Star) não vicia a medida.
@@ -63,5 +73,5 @@ def fit_position(image: np.ndarray, x0: float, y0: float, radius: int = 4) -> tu
         return (amp * np.exp(-((xx - x) ** 2 + (yy - y) ** 2) / (2 * sigma**2)) + bg - z)[ok]
 
     start = [np.nanmax(z) - np.nanmedian(z), x0, y0, 1.0, np.nanmedian(z)]
-    _, x, y, _, _ = least_squares(residuals, start).x
-    return float(x), float(y)
+    amp, x, y, sigma, _ = least_squares(residuals, start).x
+    return float(x), float(y), float(2 * np.pi * amp * sigma**2)

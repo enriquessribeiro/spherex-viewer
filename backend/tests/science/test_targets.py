@@ -19,7 +19,7 @@ from pipeline.cache import CachedArchive
 from pipeline.field import Field, build_field
 from pipeline.irsa import IrsaArchive
 from pipeline.targets import Target, load_targets
-from tests.science.measure import aperture_snr, brightest_stars, fit_position
+from tests.science.measure import aperture_snr, brightest_stars, fit_flux, fit_position
 
 pytestmark = pytest.mark.science
 
@@ -62,7 +62,7 @@ def epocas_detectadas(field: Field, target: Target, det: str) -> list[int]:
 
 
 # Alvos que se movem e o detector em que são medidos.
-MOVEIS = [("wise0855", "D6"), ("barnard", "D2")]
+MOVEIS = [("wise0855", "D6"), ("barnard", "D2"), ("epsindib", "D2")]
 
 
 @pytest.mark.parametrize("target_id, det", MOVEIS)
@@ -124,3 +124,42 @@ def test_estrelas_de_campo_ficam_paradas_entre_epocas(target_id):
         )
         desvio = np.hypot(*(posicoes - posicoes.mean(axis=0)).T).max()
         assert desvio < T_PARADA_PX, f"estrela em ({x}, {y}) desviou {desvio:.2f} px"
+
+
+# Variáveis: a mudança de brilho entre épocas precisa superar em muito a oscilação
+# das estrelas de campo (fotometria relativa: cancela diferenças de calibração).
+K_VARIAVEL = 5.0  # quantas vezes a dispersão das estrelas de campo
+VARIACAO_MIN = 0.10  # e pelo menos 10% de mudança
+
+
+@pytest.mark.parametrize("target_id", ["rdra", "rwaur"])
+def test_estrela_variavel_muda_de_brilho_entre_epocas(target_id):
+    field, target, det = campo(target_id), TARGETS[target_id], "D2"
+    epocas = [i for i, e in enumerate(field.epochs) if det in e.frames and e.frames[det].n_exposures >= 3]
+    estrelas = _estrelas_de_campo(field, target, det)
+    assert len(epocas) >= 2 and len(estrelas) >= 3
+
+    def fluxo_alvo(i):
+        return fit_flux(field.epochs[i].frames[det].data, *prevista_px(field, target, i, det))
+
+    def fluxos_campo(i):
+        return np.array([fit_flux(field.epochs[i].frames[det].data, x, y) for x, y in estrelas])
+
+    melhor = None
+    for a in epocas:
+        for b in epocas:
+            if a >= b:
+                continue
+            log_alvo = np.log(fluxo_alvo(b) / fluxo_alvo(a))
+            log_campo = np.log(fluxos_campo(b) / fluxos_campo(a))
+            # Normaliza pela mediana das estrelas de campo (calibração da época).
+            variacao = log_alvo - np.median(log_campo)
+            dispersao = np.std(log_campo - np.median(log_campo))
+            if melhor is None or abs(variacao) > abs(melhor[0]):
+                melhor = (variacao, dispersao, a, b)
+
+    variacao, dispersao, a, b = melhor
+    assert abs(variacao) > np.log(1 + VARIACAO_MIN), f"épocas {a + 1}-{b + 1}: {np.exp(variacao):.2f}x"
+    assert abs(variacao) > K_VARIAVEL * dispersao, (
+        f"épocas {a + 1}-{b + 1}: variação {variacao:.3f} × dispersão do campo {dispersao:.3f}"
+    )
