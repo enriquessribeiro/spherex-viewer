@@ -33,3 +33,25 @@ describe("canal do mapa por detector", () => {
     expect([1, 2, 3, 4, 5, 6].map(detectorChannel)).toEqual([8, 25, 42, 59, 76, 93]);
   });
 });
+
+describe("catálogos no mapa", () => {
+  it("o raio cobre a vista (meia diagonal) e tem teto", async () => {
+    const { catalogRadiusDeg, CATALOG_MAX_FOV_DEG } = await import("../src/ui/skymap");
+    expect(catalogRadiusDeg(0.2)).toBeCloseTo(0.1 * Math.SQRT2, 9);
+    expect(catalogRadiusDeg(CATALOG_MAX_FOV_DEG)).toBeLessThanOrEqual(0.75);
+  });
+});
+
+describe("consulta ao VizieR", () => {
+  it("cone em VOTable no espelho escolhido", async () => {
+    const { vizierConeUrl } = await import("../src/ui/skymap");
+    const url = new URL(vizierConeUrl("https://vizier.cfa.harvard.edu", "I/355/gaiadr3", "Source,RA_ICRS", 133.76, -7.2422, 0.1, 4000));
+    expect(url.origin + url.pathname).toBe("https://vizier.cfa.harvard.edu/viz-bin/votable");
+    expect(url.searchParams.get("-source")).toBe("I/355/gaiadr3");
+    expect(url.searchParams.get("-c")).toBe("133.760000 -7.242200");
+    expect(url.searchParams.get("-c.rd")).toBe("0.1000");
+    expect(url.searchParams.get("-out.max")).toBe("4000");
+    expect(url.searchParams.get("-out")).toBe("Source,RA_ICRS");
+    expect(url.searchParams.get("-sort")).toBe("_r"); // o limite corta a borda, não o centro
+  });
+});
