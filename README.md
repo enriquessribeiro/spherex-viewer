@@ -22,11 +22,16 @@ O SPHEREx Viewer faz essa comparação com dados reais da missão: você escolhe
 | **Detectores D1–D6** | De 0,75 a 5,0 µm. Uma anã marrom fria como WISE 0855 só aparece nos comprimentos de onda longos |
 | **Mira e posição prevista** | Mira fixa no centro e círculo de lápis onde o catálogo diz que o objeto deveria estar |
 | **Régua do tempo** | Cada época na sua data real, com o número de exposições |
+| **Mapa do céu inteiro** | O mosaico do SPHEREx como uma esfera que gira, com zoom, troca de detector (D1–D6) e os alvos marcados; um clique leva qualquer ponto para a placa |
 | **Link compartilhável** | Todo o estado fica na URL (`?target=wise0855&mode=diff`), com modo `embed=1` para iframe |
 
 ![Modo Diferença: o céu parado desaparece e sobra o WISE 0855](docs/img/marco2-wise0855-diferenca.png)
 
 *Diferença entre out/2025 e abr/2026 no campo do WISE 0855. Vermelho: apareceu ou ficou mais brilhante. Azul: sumiu ou ficou mais fraco.*
+
+![O céu inteiro do SPHEREx no mapa, com a Barnard's Star marcada ao lado da Via Láctea](docs/img/mapa-ceu-barnard.png)
+
+*Mapa do céu inteiro: mosaico do primeiro ano do SPHEREx (DR1), servido pelo IRSA e exibido com o Aladin Lite.*
 
 ## Resultados com dados reais
 
@@ -132,7 +137,7 @@ Tecnologias: Python 3.12, Astropy, reproject, FastAPI, TypeScript, Vite, Vitest.
 | 3 | Contrato de dados, dados estáticos e API | ✅ |
 | 4 | Site | ✅ |
 | 5 | Publicação: GitHub Pages, API no Render, atualização automática | ✅ site e API no ar; a atualização automática ainda não rodou com sucesso (ver abaixo) |
-| 6 | Extras: espectro sob demanda, catálogos Gaia/WISE, falsa cor | Pendente |
+| 6 | Extras: mapa do céu inteiro ✅; espectro sob demanda, catálogos Gaia/WISE, falsa cor | Em andamento |
 
 O site está publicado em <https://enriquessribeiro.github.io/spherex-viewer/>. Exemplos: [WISE 0855 em Diferença](https://enriquessribeiro.github.io/spherex-viewer/?target=wise0855&mode=diff) e [Barnard's Star em Piscar](https://enriquessribeiro.github.io/spherex-viewer/?target=barnard&mode=blink).
 
@@ -158,5 +163,7 @@ Os dados no ar são um *snapshot* gerado e validado localmente em 14/11/2026, po
 ## Créditos
 
 Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx, obtidos pelo [IRSA](https://irsa.ipac.caltech.edu/Missions/spherex.html) (releases DR1 e QR3). Posições e movimentos próprios: [SIMBAD](https://simbad.cds.unistra.fr/simbad/) (CDS, Estrasburgo) e Gaia DR3.
+
+Mapa do céu: [Aladin Lite](https://aladin.cds.unistra.fr/AladinLite/) (CDS, Estrasburgo), distribuído sob a licença GPL-3.
 
 Este projeto não é afiliado à NASA nem endossado por ela.

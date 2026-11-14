@@ -11,6 +11,7 @@ import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
 import { loadApiField, loadFrame, loadManifest, loadStaticField, type FieldHandle } from "./data";
 import { pencilArrow, pencilCircle } from "./ui/marks";
+import { SkyMap } from "./ui/skymap";
 
 const API_BASE: string | null = import.meta.env.VITE_API_BASE || null;
 const ICONS = { ChevronLeft, ChevronRight, Link, Pause, Play, Search };
@@ -128,6 +129,28 @@ async function openFromState() {
   }
 }
 
+function openTarget(id: string) {
+  const t = manifest?.targets.find((x) => x.id === id);
+  if (!t) return;
+  state = { ...state, target: t.id, ra: undefined, dec: undefined, name: undefined, det: undefined, a: undefined, b: undefined, fov: t.fov_arcmin };
+  view.zoom = 1;
+  renderZoom();
+  updateUrl();
+  openFromState();
+  $("plate").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function openPoint(ra: number, dec: number) {
+  state = { ...state, target: undefined, name: undefined, ra: Number(ra.toFixed(5)), dec: Number(dec.toFixed(5)), det: undefined, a: undefined, b: undefined };
+  view.zoom = 1;
+  renderZoom();
+  updateUrl();
+  openFromState();
+  $("plate").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+const skyMap = new SkyMap($("skymap"), $("skymap-status"), { onTarget: openTarget, onPoint: openPoint });
+
 function setupField() {
   const doc = field!.doc;
   const available = DETECTORS.filter((d) => doc.epochs.some((e) => d in e.frames));
@@ -145,6 +168,7 @@ function setupField() {
   updateUrl();
   restartTimer();
   draw();
+  skyMap.showField(doc.center.ra, doc.center.dec, doc.fov_arcmin);
 }
 
 function ensurePair() {
@@ -294,13 +318,7 @@ function renderTargets() {
     button.setAttribute("aria-pressed", String(currentTarget?.id === t.id));
     button.innerHTML = `<canvas class="thumb" width="64" height="64" aria-hidden="true"></canvas>
       <span class="target-text"><span class="target-name">${t.name}</span><span class="target-desc">${t.description ?? ""}</span></span>`;
-    button.addEventListener("click", () => {
-      state = { ...state, target: t.id, ra: undefined, dec: undefined, name: undefined, det: undefined, a: undefined, b: undefined, fov: t.fov_arcmin };
-      view.zoom = 1;
-      renderZoom();
-      updateUrl();
-      openFromState();
-    });
+    button.addEventListener("click", () => openTarget(t.id));
     li.append(button);
     list.append(li);
     drawThumbnail(t, button.querySelector("canvas")!);
@@ -626,6 +644,21 @@ async function main() {
   if (parsed.warnings.length) console.warn(parsed.warnings.join("\n"));
   manifest = await loadManifest();
   renderTargets();
+  if (!state.embed) {
+    skyMap.setTargets(manifest?.targets ?? []);
+    skyMap.loadWhenVisible();
+    $("skymap-here").addEventListener("click", () => skyMap.pick());
+    $("skymap-field").addEventListener("click", () => skyMap.goToField());
+    const skyDets = document.querySelectorAll<HTMLButtonElement>("[data-sky-det]");
+    const markSkyDet = (d: number) => skyDets.forEach((b) => b.setAttribute("aria-checked", String(Number(b.dataset.skyDet) === d)));
+    skyDets.forEach((b) => b.addEventListener("click", () => {
+      const d = Number(b.dataset.skyDet);
+      markSkyDet(d);
+      skyMap.setDetector(d);
+    }));
+    markSkyDet(1);
+    if (!API_BASE) ($("skymap-here") as HTMLButtonElement).title = "Fora da lista de alvos, os dados vêm da API, que não está configurada neste site.";
+  }
   await openFromState();
 }
 

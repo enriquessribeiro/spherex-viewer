@@ -81,7 +81,7 @@ Branch: `fase-5/deploy`
 Branch: `fase-6/<extra>` (um branch por extra, pois são independentes). Em ordem de valor para os jurados:
 
 1. [ ] Espectro sob demanda
-2. [ ] Aladin Lite com Gaia/WISE + marcador de posição prevista
+2. [x] Mapa do céu inteiro: Aladin Lite + HiPS do SPHEREx DR1, troca de detector, alvos marcados, clique abre o ponto na placa (catálogos Gaia/WISE ainda pendentes)
 3. [ ] Overlay de flags de contaminação
 4. [ ] Falsa cor (3 detectores)
 5. [ ] Campo de visão variável

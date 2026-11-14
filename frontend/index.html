@@ -116,6 +116,30 @@
       </aside>
     </main>
 
+    <section class="skymap-area" aria-labelledby="skymap-title">
+      <div class="skymap-head">
+        <div>
+          <h2 class="skymap-title" id="skymap-title">O céu inteiro do SPHEREx</h2>
+          <p class="skymap-lede">Mosaico do primeiro ano de observações (DR1). Gire o céu, aproxime e escolha um ponto: a placa acima mostra como ele mudou de uma época para outra. O mosaico soma o ano inteiro, então ele mesmo não mostra movimento.</p>
+        </div>
+        <div class="segmented skymap-dets" role="radiogroup" aria-label="Detector do mapa" id="skymap-dets">
+          <button type="button" role="radio" data-sky-det="1" title="0,75–1,09 µm">D1</button>
+          <button type="button" role="radio" data-sky-det="2" title="1,10–1,62 µm">D2</button>
+          <button type="button" role="radio" data-sky-det="3" title="1,63–2,41 µm">D3</button>
+          <button type="button" role="radio" data-sky-det="4" title="2,42–3,82 µm">D4</button>
+          <button type="button" role="radio" data-sky-det="5" title="3,83–4,41 µm">D5</button>
+          <button type="button" role="radio" data-sky-det="6" title="4,42–5,00 µm">D6</button>
+        </div>
+        <div class="skymap-actions">
+          <button type="button" class="button button-quiet" id="skymap-field">Ir para o campo aberto</button>
+          <button type="button" class="button button-primary" id="skymap-here">Ver épocas no centro do mapa</button>
+        </div>
+      </div>
+      <div class="skymap" id="skymap"></div>
+      <p class="skymap-status" id="skymap-status" role="status" aria-live="polite"></p>
+      <p class="credit">Mapa: Aladin Lite (CDS, Estrasburgo). Imagens: SPHEREx All-Sky Cube DR1, NASA/JPL-Caltech/IPAC (IRSA).</p>
+    </section>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
