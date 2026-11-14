@@ -25,7 +25,7 @@ Contexto: [03-arquitetura.md](03-arquitetura.md) (fluxo), [02-dados-spherex.md](
 ### 2.1 Identificador do campo
 
 ```
-field_id = "{ra:.4f}{dec:+.4f}_{fov}"      ex.: "133.7951-7.2452_6"
+field_id = "{ra:.4f}{dec:+.4f}_{fov}"      ex.: "133.7951-7.2451_6"
 ```
 
 Arredondar em 0,0001° (0,36″, bem menor que um pixel) faz pedidos quase iguais reaproveitarem o cache.
@@ -131,7 +131,7 @@ Pede um campo. **Inicia o processamento se necessário** e devolve o status e, q
 
 ```json
 {
-  "field_id": "133.7951-7.2452_6",
+  "field_id": "133.7951-7.2451_6",
   "status": "processing",
   "stage": "downloading",
   "progress": { "done": 87, "total": 258 },
@@ -216,7 +216,7 @@ Resposta de `GET /field` quando pronto, e **também o arquivo `field.json` dos a
 ```json
 {
   "schema_version": 1,
-  "field_id": "133.7951-7.2452_6",
+  "field_id": "133.7951-7.2451_6",
   "data_version": "a3f9c2",
   "status": "ready",
   "generated_at": "2026-11-14T21:03:11Z",
@@ -225,6 +225,7 @@ Resposta de `GET /field` quando pronto, e **também o arquivo `field.json` dos a
   "grid": {
     "n": 59,
     "pixel_scale_arcsec": 6.15,
+    "row_order": "north_first",
     "wcs": { "CTYPE1": "RA---TAN", "CTYPE2": "DEC--TAN",
              "CRVAL1": 133.79513, "CRVAL2": -7.24515,
              "CRPIX1": 30.0, "CRPIX2": 30.0,
@@ -232,22 +233,22 @@ Resposta de `GET /field` quando pronto, e **também o arquivo `field.json` dos a
   },
   "collections": ["spherex_dr1", "spherex_qr3"],
   "latest_exposure_mjd": 61174.287,
-  "base_url": "fields/133.7951-7.2452_6/a3f9c2/",
+  "base_url": "fields/133.7951-7.2451_6/a3f9c2/",
   "epochs": [
     {
       "index": 1,
       "mjd_start": 60800.700, "mjd_end": 60801.515, "mjd_mid": 60801.108,
       "date_start": "2025-05-05", "date_end": "2025-05-06",
       "frames": {
-        "D1": { "n_exposures": 4, "lambda_min_um": 0.75, "lambda_max_um": 1.09,
+        "D1": { "n_exposures": 4, "mjd_mean": 60801.51,
+                "lambda_min_um": 0.75, "lambda_max_um": 1.09, "background": 0.031,
                 "frame": "frames/1/D1.f32", "variance": "frames/1/D1.var.f32",
-                "flags": "frames/1/D1.flags.u32", "png": "frames/1/D1.png",
-                "flag_summary": { "GHOST": 0, "NONLINEAR": 3 } },
+                "mask": "frames/1/D1.mask.u8", "png": "frames/1/D1.png" },
         "D6": { "...": "..." }
       },
       "exposures": [
         { "id": "2025W19_1B_0241_1D1", "det": "D1", "mjd": 60801.514,
-          "collection": "spherex_dr1", "file": "exposures/2025W19_1B_0241_1D1.f32" }
+          "collection": "spherex_dr1" }
       ]
     }
   ],
@@ -255,9 +256,11 @@ Resposta de `GET /field` quando pronto, e **também o arquivo `field.json` dos a
     "D1": { "stretch": "asinh", "vmin": -0.05, "vmax": 2.3 },
     "D6": { "stretch": "asinh", "vmin": -0.02, "vmax": 0.9 }
   },
+  "failed_exposures": ["2025W45_2A_0308_4D5"],
   "target": {
-    "name": "WISE 0855-0714",
-    "pm_ra_masyr": -8118.0, "pm_dec_masyr": 673.0, "ref_epoch_mjd": 57000.0,
+    "id": "wise0855", "name": "WISE 0855-0714",
+    "description": "A anã marrom mais fria conhecida",
+    "pm_ra_masyr": -8123.7, "pm_dec_masyr": 673.2, "ref_mjd": 51544.5,
     "predicted_positions": [ { "epoch": 1, "ra": 133.7925, "dec": -7.2440 } ]
   }
 }
@@ -267,7 +270,11 @@ Notas:
 
 - Caminhos de arquivos são **relativos a `base_url`**, que por sua vez é relativo à raiz da API (`/api/v1/`) ou à pasta de dados estáticos (`data/`). O frontend só concatena.
 - Uma época pode não ter todos os detectores: `frames` contém apenas os que existem.
-- `display` traz os limites de contraste **comuns a todas as épocas** de cada detector, calculados por percentis (ex.: 1% e 99,5%) do conjunto.
+- `display` traz os limites de contraste **comuns a todas as épocas** de cada detector: `vmin` = percentil 1 e `vmax` = **máximo** (para variáveis brilhantes não saturarem).
+- **Esquema formal:** [`schemas/field.schema.json`](../schemas/field.schema.json) (JSON Schema 2020-12), validado nos testes do backend e do frontend.
+- **Máscara** (`.mask.u8`, 1 byte por pixel, norte na 1ª linha): bit 0 = **saturado** (núcleo de estrela brilhante sem dado; pintar com o brilho máximo), bit 1 = **baixa qualidade** (só havia dados com flag suspeito). O overlay de fantasmas/artefatos (flags 17, 20, 22–28) fica para a fase 6.
+- `exposures` lista as exposições usadas (sem arquivo individual por enquanto). `failed_exposures` lista as que o IRSA não entregou.
+- O PNG já aplica o esticamento `asinh` com os limites de `display` e pinta o núcleo saturado de branco.
 - `target` só existe quando o campo veio de um nome resolvido ou de um alvo da lista; contém as posições previstas por época (movimento próprio + paralaxe quando disponível).
 
 ## 6. Dados estáticos (GitHub Pages)
@@ -278,7 +285,7 @@ Gerados pelo `pipeline.build_static` e publicados pelo Action ([05-hospedagem.md
 data/
 ├── manifest.json                      ← índice de alvos pré-processados
 └── fields/
-    └── 133.7951-7.2452_6/
+    └── 133.7951-7.2451_6/
         └── a3f9c2/
             ├── field.json             ← igual à seção 5
             ├── frames/1/D1.f32
@@ -299,9 +306,9 @@ data/
       "name": "WISE 0855",
       "description": "A anã marrom mais fria conhecida; move-se ~8″/ano",
       "ra": 133.79513, "dec": -7.24515, "fov_arcmin": 6,
-      "field": "fields/133.7951-7.2452_6/a3f9c2/field.json",
+      "field": "fields/133.7951-7.2451_6/a3f9c2/field.json",
       "latest_exposure_mjd": 61174.287,
-      "thumbnail": "fields/133.7951-7.2452_6/a3f9c2/frames/4/D6.png"
+      "thumbnail": "fields/133.7951-7.2451_6/a3f9c2/frames/4/D6.png"
     }
   ]
 }
