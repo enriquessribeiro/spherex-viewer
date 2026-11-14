@@ -15,7 +15,9 @@ from pathlib import PurePosixPath
 import httpx
 from astropy.io import fits
 
-from pipeline.archive import Exposure
+from pipeline.archive import ArchiveUnavailable, Exposure
+
+__all__ = ["ArchiveUnavailable", "IrsaArchive"]
 
 IRSA_BASE_URL = "https://irsa.ipac.caltech.edu"
 DEFAULT_COLLECTIONS = ("spherex_dr1", "spherex_qr3")
@@ -24,10 +26,6 @@ DEFAULT_COLLECTIONS = ("spherex_dr1", "spherex_qr3")
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 # Extensões que o pipeline não usa e que pesam (EPSF ~4 MB por recorte).
 DROPPED_EXTENSIONS = ("EPSF", "PSF")
-
-
-class ArchiveUnavailable(Exception):
-    """O IRSA não respondeu com sucesso depois de todas as tentativas."""
 
 
 _QUERY = """
@@ -48,7 +46,7 @@ class IrsaArchive:
         client: httpx.Client | None = None,
         collections: tuple[str, ...] = DEFAULT_COLLECTIONS,
         base_url: str = IRSA_BASE_URL,
-        max_attempts: int = 5,
+        max_attempts: int = 6,
         backoff_s: float = 2.0,
         sleep: Callable[[float], None] = time.sleep,
     ):

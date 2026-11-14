@@ -11,7 +11,7 @@ import numpy as np
 from astropy.wcs import WCS
 from reproject import reproject_interp
 
-from pipeline.archive import Archive, Exposure
+from pipeline.archive import Archive, ArchiveUnavailable, Exposure
 
 PIXEL_SCALE_ARCSEC = 6.15
 EPOCH_GAP_DAYS = 10.0
@@ -68,6 +68,7 @@ class Field:
     n: int
     epochs: list[Epoch]
     display: dict[str, DisplayLimits]
+    failed_exposures: list[Exposure]
 
 
 def field_grid(ra: float, dec: float, fov_arcmin: float) -> tuple[WCS, int]:
@@ -108,24 +109,39 @@ def build_field(
     if not exposures:
         raise NoCoverage(f"nenhuma exposição SPHEREx cobre ra={ra}, dec={dec}")
 
-    def load(exp: Exposure) -> tuple[np.ndarray, np.ndarray]:
-        return _reproject_exposure(archive.fetch_cutout(exp, ra, dec, size_deg), wcs, n)
+    def load(exp: Exposure) -> tuple[np.ndarray, np.ndarray] | None:
+        # Uma exposição indisponível é pulada; não deve derrubar o campo inteiro.
+        try:
+            return _reproject_exposure(archive.fetch_cutout(exp, ra, dec, size_deg), wcs, n)
+        except ArchiveUnavailable:
+            return None
 
     groups = group_epochs(exposures)
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
         # map preserva a ordem: o resultado não depende do paralelismo.
         layers = iter(pool.map(load, [exp for group in groups for exp in group]))
         epochs: list[Epoch] = []
-        for index, group in enumerate(groups, start=1):
+        failed: list[Exposure] = []
+        for group in groups:
             stacks: dict[str, list[tuple[np.ndarray, np.ndarray]]] = defaultdict(list)
+            loaded: list[Exposure] = []
             for exp in group:
-                stacks[exp.detector].append(next(layers))
-            frames = {det: _coadd(stack) for det, stack in stacks.items()}
-            epochs.append(Epoch(index=index, exposures=group, frames=frames))
+                layer = next(layers)
+                if layer is None:
+                    failed.append(exp)
+                    continue
+                stacks[exp.detector].append(layer)
+                loaded.append(exp)
+            if loaded:
+                frames = {det: _coadd(stack) for det, stack in stacks.items()}
+                epochs.append(Epoch(index=len(epochs) + 1, exposures=loaded, frames=frames))
+
+    if not epochs:
+        raise ArchiveUnavailable(f"nenhuma das {len(exposures)} exposições pôde ser baixada")
 
     return Field(
         ra=ra, dec=dec, fov_arcmin=fov_arcmin, wcs=wcs, n=n,
-        epochs=epochs, display=_display_limits(epochs),
+        epochs=epochs, display=_display_limits(epochs), failed_exposures=failed,
     )
 
 

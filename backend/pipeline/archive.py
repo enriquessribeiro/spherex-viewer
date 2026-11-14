@@ -12,6 +12,10 @@ from typing import Protocol
 from astropy.io import fits
 
 
+class ArchiveUnavailable(Exception):
+    """O arquivo não conseguiu entregar o dado (ex.: IRSA ocupado após várias tentativas)."""
+
+
 @dataclass(frozen=True)
 class Exposure:
     """Metadados de uma exposição de um detector do SPHEREx."""

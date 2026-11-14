@@ -331,3 +331,40 @@ def test_downloads_paralelos_respeitam_o_limite_de_conexoes_e_ganham_tempo():
 
     assert arquivo.pico == 4  # nunca passa do limite (o IRSA responde 503 se exagerarmos)
     assert duracao < 1.0  # sequencial levaria 8 x 0,2 = 1,6 s
+
+
+class _ArquivoComFalhas:
+    """Arquivo sintético em que algumas exposições estão indisponíveis (IRSA ocupado)."""
+
+    def __init__(self, n_exposicoes: int, falham: set[int]):
+        self.inner = SyntheticArchive(
+            sources=[SyntheticSource(ra=RA0, dec=DEC0)],
+            exposures=[SyntheticExposure(det="D6", mjd=60800.0 + i * 0.1) for i in range(n_exposicoes)],
+        )
+        self.falham = falham
+
+    def query(self, ra, dec):
+        return self.inner.query(ra, dec)
+
+    def fetch_cutout(self, exposure, ra, dec, size_deg):
+        from pipeline.irsa import ArchiveUnavailable
+
+        if int(exposure.id[3:7]) in self.falham:
+            raise ArchiveUnavailable(f"{exposure.id}: HTTP 503")
+        return self.inner.fetch_cutout(exposure, ra, dec, size_deg)
+
+
+def test_exposicao_indisponivel_e_pulada_e_registrada_no_campo():
+    field = build_field(RA0, DEC0, 6, _ArquivoComFalhas(5, falham={2}))
+
+    assert field.epochs[0].frames["D6"].n_exposures == 4
+    assert [e.id for e in field.failed_exposures] == ["syn0002_D6"]
+    x, y = centroid(field.epochs[0].frames["D6"].data)
+    assert (x, y) == approx((CENTRO_PX, CENTRO_PX), abs=0.1)
+
+
+def test_campo_falha_se_nenhuma_exposicao_puder_ser_baixada():
+    from pipeline.irsa import ArchiveUnavailable
+
+    with pytest.raises(ArchiveUnavailable):
+        build_field(RA0, DEC0, 6, _ArquivoComFalhas(3, falham={0, 1, 2}))
