@@ -59,3 +59,29 @@ def test_estrela_fica_no_mesmo_pixel_com_apontamentos_girados_e_deslocados():
         x, y = centroid(epoch.frames["D6"].data)
         assert x == approx(CENTRO_PX - 10, abs=0.1)
         assert y == approx(CENTRO_PX + 5, abs=0.1)
+
+
+def test_estrela_com_movimento_proprio_aparece_deslocada_entre_epocas():
+    # Em 180 dias a estrela anda 2 px para o norte e 1 px para o leste.
+    anos = 180 / 365.25
+    estrela = SyntheticSource(
+        ra=RA0,
+        dec=DEC0,
+        pm_north_arcsec_yr=2 * PIXEL_ARCSEC / anos,
+        pm_east_arcsec_yr=1 * PIXEL_ARCSEC / anos,
+        ref_mjd=60800.0,
+    )
+    archive = SyntheticArchive(
+        sources=[estrela],
+        exposures=[
+            SyntheticExposure(det="D6", mjd=60800.0),
+            SyntheticExposure(det="D6", mjd=60980.0, rotation_deg=-22.0, offset_px=(0.6, 1.3)),
+        ],
+    )
+
+    field = build_field(ra=RA0, dec=DEC0, fov_arcmin=6, archive=archive)
+
+    x1, y1 = centroid(field.epochs[0].frames["D6"].data)
+    x2, y2 = centroid(field.epochs[1].frames["D6"].data)
+    assert (x1, y1) == approx((CENTRO_PX, CENTRO_PX), abs=0.1)
+    assert (x2, y2) == approx((CENTRO_PX - 1, CENTRO_PX + 2), abs=0.1)

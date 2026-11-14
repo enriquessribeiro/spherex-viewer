@@ -23,11 +23,24 @@ PSF_SIGMA_PX = 1.0
 
 @dataclass(frozen=True)
 class SyntheticSource:
-    """Fonte pontual plantada no céu sintético."""
+    """Fonte pontual plantada no céu sintético.
+
+    (ra, dec) é a posição em ref_mjd. O movimento próprio é dado em segundos
+    de arco por ano nas direções leste e norte, como nos catálogos.
+    """
 
     ra: float
     dec: float
     flux: float = 100.0
+    pm_east_arcsec_yr: float = 0.0
+    pm_north_arcsec_yr: float = 0.0
+    ref_mjd: float = 60800.0
+
+    def position_at(self, mjd: float) -> tuple[float, float]:
+        years = (mjd - self.ref_mjd) / 365.25
+        dec = self.dec + self.pm_north_arcsec_yr * years / 3600
+        ra = self.ra + self.pm_east_arcsec_yr * years / 3600 / math.cos(math.radians(self.dec))
+        return ra, dec
 
 
 @dataclass(frozen=True)
@@ -78,7 +91,7 @@ class SyntheticArchive:
         image = np.zeros((n, n), dtype=np.float32)
         yy, xx = np.mgrid[0:n, 0:n]
         for src in self.sources:
-            x, y = wcs.world_to_pixel_values(src.ra, src.dec)
+            x, y = wcs.world_to_pixel_values(*src.position_at(spec.mjd))
             image += src.flux * np.exp(
                 -((xx - x) ** 2 + (yy - y) ** 2) / (2 * PSF_SIGMA_PX**2)
             ).astype(np.float32)
