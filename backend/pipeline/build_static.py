@@ -1,6 +1,6 @@
 """Gera os dados estáticos dos alvos (docs/04-api.md §6, docs/05-hospedagem.md §6).
 
-    uv run python -m pipeline.build_static --targets ../targets.yaml --out ../frontend/data
+    uv run python -m pipeline.build_static --targets ../targets.yaml --out ../frontend/public/data
 
 Saída: <out>/manifest.json + <out>/fields/<field_id>/<data_version>/... para cada alvo.
 """
@@ -83,7 +83,7 @@ def _thumbnail(field_doc: dict, detector: str) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--targets", default="../targets.yaml")
-    parser.add_argument("--out", default="../frontend/data")
+    parser.add_argument("--out", default="../frontend/public/data")
     parser.add_argument("--cache", default="cache", help="pasta do cache de recortes e consultas")
     parser.add_argument("--only", nargs="*", help="ids dos alvos a processar (padrão: todos)")
     args = parser.parse_args()

@@ -131,6 +131,8 @@ Converte nome de objeto ou coordenada em texto para graus. Usa o CDS Sesame (SIM
 
 Coordenadas numéricas são convertidas localmente, sem chamada externa. Erro `404 NOT_FOUND` se o nome não for resolvido.
 
+O site propaga a posição J2000 pelo movimento próprio até a época dos campos (MJD 61000, a mesma de `targets.py`) antes de pedir o campo: sem isso o WISE 0855 cairia ~3,5′ fora do centro, fora de um campo de 6′. Assim, um alvo da lista buscado pelo nome abre o campo pré-processado.
+
 ### 4.4 `GET /api/v1/field?ra=&dec=&fov=` — endpoint principal
 
 Pede um campo. **Inicia o processamento se necessário** e devolve o status e, quando pronto, o manifesto completo.
@@ -383,7 +385,7 @@ Com os quadros em float32, o frontend calcula na hora:
 | Downloads simultâneos do IRSA | 4 (o IRSA respondeu `503 Server busy` com apenas 2; o adaptador repete com espera exponencial) |
 | Trabalhos de campo simultâneos | 2 (excedente → `429 BUSY`) |
 | Validade do cache de consulta TAP | 24 h |
-| Tempo máximo por campo | 5 min (depois, `502 UPSTREAM_ERROR` com o que já ficou pronto em `partial`) |
+| Tempo máximo por campo | 30 min, configurável por `SPHEREX_JOB_TIMEOUT_S` (depois, `502 UPSTREAM_ERROR` e a vaga é liberada; `partial` ainda não existe). Um campo novo leva 5–20 min com o IRSA saudável |
 
 Valores ficam em variáveis de ambiente para ajuste sem mudar código.
 

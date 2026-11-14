@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
 from api.coords import parse_coordinates
-from api.jobs import FieldJobs
+from api.jobs import DEFAULT_JOB_TIMEOUT_S, FieldJobs, JobTimeout
 from pipeline.archive import Archive, ArchiveUnavailable
 from pipeline.field import DEFAULT_MAX_WORKERS, NoCoverage
 from pipeline.output import field_id
@@ -39,9 +39,11 @@ class ApiError(Exception):
 
 def create_app(archive: Archive, data_dir: str | Path, resolver: Resolver | None = None,
                max_jobs: int = 2,
-               fov_max: float = FOV_MAX_ARCMIN) -> FastAPI:
+               fov_max: float = FOV_MAX_ARCMIN,
+               job_timeout_s: float = DEFAULT_JOB_TIMEOUT_S,
+               clock: Callable[[], float] = time.monotonic) -> FastAPI:
     data_dir = Path(data_dir).resolve()
-    jobs = FieldJobs(archive, data_dir, max_jobs)
+    jobs = FieldJobs(archive, data_dir, max_jobs, timeout_s=job_timeout_s, clock=clock)
     started = time.time()
 
     app = FastAPI(title="SPHEREx Viewer API", version=API_VERSION)
@@ -86,7 +88,7 @@ def create_app(archive: Archive, data_dir: str | Path, resolver: Resolver | None
             if isinstance(job.error, NoCoverage):
                 raise ApiError(404, "NO_COVERAGE", str(job.error))
             jobs.forget(fid)  # erro transitório: o próximo pedido tenta de novo
-            if isinstance(job.error, ArchiveUnavailable):
+            if isinstance(job.error, (ArchiveUnavailable, JobTimeout)):
                 raise ApiError(502, "UPSTREAM_ERROR", str(job.error))
             raise ApiError(500, "INTERNAL", "erro inesperado ao processar o campo")
         return JSONResponse(

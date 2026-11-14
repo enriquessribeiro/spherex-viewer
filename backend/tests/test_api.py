@@ -191,3 +191,19 @@ def test_campo_maximo_e_configuravel_para_servidores_com_pouca_memoria(tmp_path)
 def test_fov_que_nao_e_um_numero_finito_responde_400(tmp_path):
     r = _cliente(tmp_path, ArquivoControlado()).get("/api/v1/field", params={**PARAMS, "fov": "nan"})
     assert r.status_code == 400 and r.json()["error"]["code"] == "INVALID_PARAM"
+
+
+def test_campo_que_passa_do_tempo_maximo_responde_502_e_libera_a_vaga(tmp_path):
+    """IRSA pendurado: o trabalho não pode ocupar a vaga para sempre nem deixar o site esperando."""
+    agora = [0.0]
+    arquivo = ArquivoControlado()  # nunca liberado: o recorte fica pendurado
+    cliente = _cliente(tmp_path, arquivo, max_jobs=1, job_timeout_s=60, clock=lambda: agora[0])
+
+    assert cliente.get("/api/v1/field", params=PARAMS).status_code == 202
+    agora[0] = 61
+    r = cliente.get("/api/v1/field", params=PARAMS)
+    assert r.status_code == 502 and r.json()["error"]["code"] == "UPSTREAM_ERROR"
+    assert "tempo" in r.json()["error"]["message"]
+    # a vaga voltou: outro campo é aceito (202), não 429
+    assert cliente.get("/api/v1/field", params={**PARAMS, "ra": RA0 + 1}).status_code == 202
+    arquivo.liberado.set()
