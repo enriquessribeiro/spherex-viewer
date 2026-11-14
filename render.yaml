@@ -1,0 +1,22 @@
+# Blueprint do Render: API do SPHEREx Viewer no plano gratuito.
+# Uso: Render → New → Blueprint → escolher este repositório. Ver docs/05-hospedagem.md §4.
+services:
+  - type: web
+    name: spherex-viewer-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install uv && uv sync --frozen --no-dev
+    startCommand: uv run --frozen --no-dev uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      # Disco temporário: o cache some quando o serviço dorme ou reinicia.
+      - key: SPHEREX_CACHE_DIR
+        value: /tmp/spherex-cache
+      # 512 MB de memória: um campo por vez, de até 10′.
+      - key: SPHEREX_MAX_JOBS
+        value: "1"
+      - key: SPHEREX_FOV_MAX
+        value: "10"

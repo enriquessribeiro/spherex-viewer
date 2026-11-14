@@ -379,7 +379,7 @@ Com os quadros em float32, o frontend calcula na hora:
 
 | Limite | Valor inicial |
 |---|---|
-| `fov` máximo | 30 arcmin |
+| `fov` máximo | 30 arcmin por padrão; configurável por `SPHEREX_FOV_MAX` (10 no Render grátis, por causa da memória) |
 | Downloads simultâneos do IRSA | 4 (o IRSA respondeu `503 Server busy` com apenas 2; o adaptador repete com espera exponencial) |
 | Trabalhos de campo simultâneos | 2 (excedente → `429 BUSY`) |
 | Validade do cache de consulta TAP | 24 h |

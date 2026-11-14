@@ -69,6 +69,25 @@ Cuidados:
 - O frontend mostra o progresso com honestidade (*"acordando o servidor / baixando dados da NASA, ~1–2 min na primeira vez"*) e exibe as épocas à medida que ficam prontas.
 - Evolução futura: abrir com os dados estáticos e consultar o backend em segundo plano para acrescentar épocas novas.
 
+### 4.1 Como publicar a API
+
+O repositório traz um *blueprint* do Render em [`render.yaml`](../render.yaml):
+
+1. Em <https://dashboard.render.com>: **New → Blueprint** → conectar o repositório `spherex-viewer`.
+2. Confirmar o serviço `spherex-viewer-api` (plano *Free*). O Render instala com `uv sync` e inicia com `uvicorn`.
+3. Copiar a URL do serviço (ex.: `https://spherex-viewer-api.onrender.com`) e gravá-la na variável `API_BASE` do repositório no GitHub (ver §6.3).
+4. Rodar o workflow *Atualizar dados e publicar* (ou esperar o próximo push): o site passa a consultar a API para coordenadas e nomes fora da lista.
+
+Configuração do blueprint, pensada para os 512 MB do plano gratuito:
+
+| Variável | Valor | Motivo |
+|---|---|---|
+| `SPHEREX_FOV_MAX` | `10` | O pipeline guarda as exposições do campo em memória, e o consumo cresce com o quadrado do campo: ~75 MB em 6′ com 537 exposições, mais de 1 GB em 30′ |
+| `SPHEREX_MAX_JOBS` | `1` | Um campo por vez; o segundo pedido recebe `429 BUSY` |
+| `SPHEREX_CACHE_DIR` | `/tmp/spherex-cache` | Disco temporário |
+
+O comando de início foi testado localmente num ambiente isolado (`uv run --frozen --no-dev uvicorn api.main:app`). **O deploy no Render em si depende da conta de quem publica.**
+
 ## 5. Frontend + dados estáticos — GitHub Pages
 
 ### 5.1 Por que GitHub Pages (e não Vercel)
@@ -112,7 +131,7 @@ spherex-viewer/
 ├── targets.yaml                  ← lista de alvos pré-processados
 ├── pipeline/
 │   └── build_static.py           ← processa todos os alvos
-├── frontend/                     ← o site (dados gerados vão em frontend/data/)
+├── frontend/                     ← o site (dados gerados vão em frontend/public/data/, fora do git)
 └── .github/workflows/
     └── update-data.yml           ← agendamento e deploy
 ```
@@ -134,66 +153,32 @@ targets:
   # epsindib, rwaur, rdra...
 ```
 
-### 6.3 Workflow (rascunho)
+### 6.3 Workflow
 
-```yaml
-name: Atualizar dados SPHEREx
+O workflow real é [`.github/workflows/update-data.yml`](../.github/workflows/update-data.yml). Passos, em ordem:
 
-on:
-  schedule:
-    - cron: "0 6 */3 * *"   # a cada 3 dias, 06:00 UTC (cache do Actions expira em 7 dias sem uso)
-  workflow_dispatch:         # botão "Run workflow"
-  push:
-    branches: [main]         # republica quando o código muda
+| Passo | O que faz |
+|---|---|
+| Restaurar recortes | `actions/cache/restore` em `backend/cache` (recortes do IRSA de execuções anteriores) |
+| Processar os alvos | `pipeline.build_static` → `frontend/public/data` (manifesto + campos dos alvos) |
+| Guardar recortes | `actions/cache/save` com `if: always()`: os downloads não se perdem se um passo seguinte falhar |
+| Validação científica | `pytest -m science`. **Se falhar, o job para aqui e nada é publicado** |
+| Relatório | `science-report.xml` salvo como artefato da execução, mesmo em caso de falha |
+| Construir o site | `npm ci && npm run build` (o Vite copia `public/data` para `dist/data`), com `VITE_API_BASE` vindo da variável `API_BASE` do repositório |
+| Publicar | `upload-pages-artifact` de `frontend/dist` + job `deploy` (só na `main`) |
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+Gatilhos: a cada 3 dias (`cron: "0 6 */3 * *"`), botão *Run workflow* e push na `main` que altere `backend/`, `frontend/`, `schemas/`, `targets.yaml` ou o próprio workflow (mudanças só de documentação não republicam).
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
+Configuração única no GitHub:
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-      - run: pip install -r requirements.txt
-      - uses: actions/cache@v4
-        with:
-          path: cache/
-          key: spherex-cache-${{ github.run_id }}
-          restore-keys: spherex-cache-
-      - name: Processar alvos
-        run: python -m pipeline.build_static --targets targets.yaml --out frontend/data
-      - name: Validação científica (bloqueia publicação, ver 06-testes.md)
-        run: pytest -m science --data frontend/data --report science-report.json
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: frontend/
+- **Settings → Pages → Source: GitHub Actions**.
+- **Settings → Secrets and variables → Actions → Variables → `API_BASE`**: URL da API no Render, sem barra no fim (ex.: `https://spherex-viewer-api.onrender.com`). Opcional: sem ela o site funciona só com os alvos pré-processados.
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
-```
-
-Configuração única no GitHub: **Settings → Pages → Source: GitHub Actions**.
+Simulação local feita em 14/11/2026 com o cache cheio: alvos em 2 min 18 s, validação científica em 2 min 34 s (16 testes), site de 5,4 MB; o site construído abre num subcaminho (`/spherex-viewer/`) sem erros.
 
 ### 6.4 Atualização incremental
 
-- O script grava `frontend/data/manifest.json` com, por alvo, a data da exposição mais recente e o horário de geração.
+- O script grava `frontend/public/data/manifest.json` com, por alvo, a data da exposição mais recente e o horário de geração.
 - A cada execução, consulta o IRSA. Se não houver exposição nova, reaproveita o resultado anterior. Se houver, baixa **só as novas** (as antigas estão no `actions/cache`) e recalcula as épocas.
 - O frontend exibe: *"Dados atualizados em DD/MM/AAAA — inclui imagens até DD/MM/AAAA"*.
 

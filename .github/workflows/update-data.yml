@@ -1,0 +1,104 @@
+name: Atualizar dados e publicar
+
+# Processa os alvos com dados reais do SPHEREx, valida a ciência e publica o site.
+# Se a validação científica falhar, nada é publicado e o site fica na última versão boa.
+# Ver docs/05-hospedagem.md §6.
+
+on:
+  schedule:
+    - cron: "0 6 */3 * *" # a cada 3 dias, 06:00 UTC (o cache do Actions expira em 7 dias sem uso)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - "schemas/**"
+      - "targets.yaml"
+      - ".github/workflows/update-data.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # Recortes já baixados do IRSA. Sem cache, a primeira execução leva ~60 min.
+      - name: Restaurar recortes do IRSA
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/cache
+          key: spherex-cache-${{ github.run_id }}
+          restore-keys: spherex-cache-
+
+      - name: Instalar o backend
+        working-directory: backend
+        run: uv sync --frozen
+
+      - name: Processar os alvos
+        working-directory: backend
+        run: uv run python -m pipeline.build_static --targets ../targets.yaml --out ../frontend/public/data
+
+      # Salva mesmo se um passo seguinte falhar: os downloads não se perdem.
+      - name: Guardar recortes do IRSA
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: backend/cache
+          key: spherex-cache-${{ github.run_id }}
+
+      - name: Validação científica (bloqueia a publicação)
+        working-directory: backend
+        run: uv run pytest -m science --junitxml=science-report.xml
+
+      - name: Guardar o relatório da validação
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: science-report
+          path: backend/science-report.xml
+          if-no-files-found: ignore
+
+      - name: Construir o site
+        working-directory: frontend
+        env:
+          # URL da API (Render), definida em Settings → Variables → API_BASE. Vazia = só alvos estáticos.
+          VITE_API_BASE: ${{ vars.API_BASE }}
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

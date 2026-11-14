@@ -35,9 +35,9 @@ Estratégia completa em [06-testes.md](06-testes.md).
 
 ```bash
 cd backend
-uv run python -m pipeline.build_static --targets ../targets.yaml --out ../frontend/data
+uv run python -m pipeline.build_static --targets ../targets.yaml --out ../frontend/public/data
 # só alguns alvos:
-uv run python -m pipeline.build_static --only wise0855 barnard --out ../frontend/data
+uv run python -m pipeline.build_static --only wise0855 barnard --out ../frontend/public/data
 ```
 
 - Recortes e consultas ficam em `backend/cache/` (ignorado pelo git). Com o cache cheio, os 5 alvos levam ~2,5 min.
@@ -63,6 +63,7 @@ curl "http://127.0.0.1:8000/api/v1/field?ra=133.76002&dec=-7.24221&fov=6"   # 20
 | `SPHEREX_CACHE_DIR` | `cache` | Cache de recortes e consultas |
 | `SPHEREX_DATA_DIR` | `<cache>/fields-data` | Campos gerados pela API |
 | `SPHEREX_MAX_JOBS` | `2` | Campos processados ao mesmo tempo |
+| `SPHEREX_FOV_MAX` | `30` | Lado máximo do campo (arcmin). A memória cresce com o quadrado do campo; em 512 MB, usar 10 |
 
 Medido localmente: WISE 0855 com o cache cheio fica pronto em ~22 s (reprojeção de 258 exposições); um campo novo depende do IRSA (~5–20 min para 250–550 exposições).
 

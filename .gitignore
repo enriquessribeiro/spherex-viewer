@@ -8,3 +8,4 @@ node_modules/
 # Dados gerados pelo pipeline (pipeline.build_static)
 frontend/public/data/
 frontend/dist/
+backend/science-report.xml
