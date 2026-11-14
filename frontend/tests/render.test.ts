@@ -9,21 +9,30 @@ const grade = (vs: number[]) => new Grid(Math.sqrt(vs.length), Float32Array.from
 const mascara = (vs: number[]) => new MaskGrid(Math.sqrt(vs.length), Uint8Array.from(vs));
 const pixel = (rgba: Uint8ClampedArray, i: number) => Array.from(rgba.slice(i * 4, i * 4 + 4));
 
-describe("renderização", () => {
-  it("escala de cinza com os limites do campo; sem dado = preto; saturado = branco", () => {
-    const rgba = renderGray(grade([0, 10, NaN, NaN]), mascara([0, 0, 0, MASK_SATURATED]), 0, 10, "linear");
-    expect(pixel(rgba, 0)).toEqual([0, 0, 0, 255]);
-    expect(pixel(rgba, 1)).toEqual([255, 255, 255, 255]);
-    expect(pixel(rgba, 2)).toEqual([0, 0, 0, 255]); // NaN sem saturação
-    expect(pixel(rgba, 3)).toEqual([255, 255, 255, 255]); // núcleo saturado: brilho máximo, não buraco
+describe("renderização (mundo das placas: negativo sobre vidro)", () => {
+  const VIDRO = [242, 239, 231, 255], TINTA = [20, 20, 20, 255];
+  const LAPIS = [196, 48, 43, 255], AZUL = [43, 76, 156, 255];
+
+  it("negativo (padrão): sem brilho = vidro, brilho máximo = tinta, saturado = tinta, sem dado = vidro", () => {
+    const rgba = renderGray(grade([0, 10, NaN, NaN]), mascara([0, 0, 0, MASK_SATURATED]), 0, 10, "linear", true);
+    expect(pixel(rgba, 0)).toEqual(VIDRO);
+    expect(pixel(rgba, 1)).toEqual(TINTA);
+    expect(pixel(rgba, 2)).toEqual(VIDRO);
+    expect(pixel(rgba, 3)).toEqual(TINTA); // núcleo saturado: brilho máximo, não buraco
   });
 
-  it("diferença: vermelho = apareceu, azul = sumiu, zero = preto", () => {
+  it("positivo: céu escuro e estrelas claras", () => {
+    const rgba = renderGray(grade([0, 10, 0, 10]), null, 0, 10, "linear", false);
+    expect(pixel(rgba, 0)).toEqual(TINTA);
+    expect(pixel(rgba, 1)).toEqual(VIDRO);
+  });
+
+  it("diferença: vermelho-lápis = apareceu, azul-tinta = sumiu, sem mudança = vidro", () => {
     const rgba = renderDiff(grade([2, -2, 0, NaN]), 2);
-    expect(pixel(rgba, 0)).toEqual([255, 0, 0, 255]);
-    expect(pixel(rgba, 1)).toEqual([0, 0, 255, 255]);
-    expect(pixel(rgba, 2)).toEqual([0, 0, 0, 255]);
-    expect(pixel(rgba, 3)).toEqual([0, 0, 0, 255]);
+    expect(pixel(rgba, 0)).toEqual(LAPIS);
+    expect(pixel(rgba, 1)).toEqual(AZUL);
+    expect(pixel(rgba, 2)).toEqual(VIDRO);
+    expect(pixel(rgba, 3)).toEqual(VIDRO);
   });
 });
 
