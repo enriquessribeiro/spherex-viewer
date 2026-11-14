@@ -777,6 +777,7 @@ dependencies = [
     { name = "astropy" },
     { name = "httpx" },
     { name = "numpy" },
+    { name = "pyyaml" },
     { name = "reproject" },
 ]
 
@@ -790,6 +791,7 @@ requires-dist = [
     { name = "astropy", specifier = ">=7.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "numpy", specifier = ">=2.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "reproject", specifier = ">=0.14" },
 ]
 
