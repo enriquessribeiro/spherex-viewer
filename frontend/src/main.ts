@@ -12,6 +12,7 @@ import { parseState, serializeState, type Mode, type ViewState } from "./core/st
 import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
 import { cropAnchor, zoomCrop } from "./core/crop";
+import { peakNear, targetLimits } from "./core/contrast";
 import { fetchJson, loadApiField, loadFrame, loadManifest, loadStaticField, type FieldHandle } from "./data";
 import { FIELD_REFERENCE_MJD, propagate } from "./core/motion";
 import { parseCoordinates } from "./core/coords";
@@ -45,7 +46,9 @@ const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "
 
 const parsed = parseState(location.search);
 let state: ViewState = parsed.state;
-const view = { zoom: 1, gain: 0, negative: true, marks: true, flags: false, playing: true, cursor: 0, flagged: 0 };
+const view = { zoom: 1, gain: 0, negative: true, marks: true, flags: false, playing: true, cursor: 0, flagged: 0,
+  /** Limites de contraste em uso (os do campo, ou os do alvo); o controle Contraste age sobre eles. */
+  limits: null as { det: Detector; vmin: number; vmax: number } | null };
 /** Falsa cor: o detector mais longo no vermelho, como no céu visível. */
 const COLOR_DETS: [Detector, Detector, Detector] = ["D6", "D3", "D1"];
 let manifest: Manifest | null = null;
@@ -201,7 +204,33 @@ function setupField() {
   updateUrl();
   restartTimer();
   draw();
+  applyTargetContrast();
   skyMap.showField(doc.center.ra, doc.center.dec, doc.fov_arcmin);
+}
+
+/**
+ * Contraste inicial no alvo: com os limites até a estrela mais brilhante do campo, um alvo fraco
+ * (WISE 0855 em D6) saía cinza-claro. Usa o céu como piso e o pico do alvo como topo; o controle
+ * Contraste continua agindo por cima. Sem alvo detectado, ficam os limites do campo.
+ */
+async function applyTargetContrast() {
+  const handle = field, det = state.det;
+  if (!handle || !det) return;
+  const display = handle.doc.display[det];
+  view.limits = null;
+  view.gain = 0;
+  $<HTMLInputElement>("gain").value = "0";
+  if (!display || !handle.doc.target) return;
+  const peaks = await Promise.all(epochsWithDet().map(async (e) => {
+    const here = targetPixel(e.index);
+    const frame = here ? await loadFrame(handle, e.index, det)?.catch(() => null) : null;
+    return frame && here ? peakNear(frame.data, frame.variance, here.row, here.col) : { peak: NaN, snr: 0 };
+  }));
+  if (field !== handle || state.det !== det) return; // trocou de campo ou detector enquanto baixava
+  const limits = targetLimits(peaks, display);
+  if (!limits) return;
+  view.limits = { det, ...limits };
+  draw();
 }
 
 function ensurePair() {
@@ -239,7 +268,9 @@ async function drawPlate() {
   const n = doc.grid.n;
   const det = state.det;
   const display = doc.display[det]!;
-  const vmax = display.vmin + (display.vmax - display.vmin) * Math.pow(10, -view.gain);
+  const base = view.limits?.det === det ? view.limits : display;
+  const vmin = base.vmin;
+  const vmax = base.vmin + (base.vmax - base.vmin) * Math.pow(10, -view.gain);
   let rgba: Uint8ClampedArray;
   let shownEpoch: number | undefined;
 
@@ -274,7 +305,7 @@ async function drawPlate() {
     } else {
       const frame = await plate(det);
       if (token !== drawToken || !frame) return;
-      rgba = renderGray(frame.data, frame.mask, display.vmin, vmax, display.stretch, view.negative);
+      rgba = renderGray(frame.data, frame.mask, vmin, vmax, display.stretch, view.negative);
       flagMask = frame.mask;
     }
   }
@@ -493,6 +524,7 @@ function renderDetectors() {
       renderRuler();
       updateUrl();
       draw();
+      applyTargetContrast();
     });
     box.append(button);
   }
