@@ -27,3 +27,17 @@ export function weightedMean(frames: Grid[], variances: Grid[]): Grid {
   }
   return new Grid(n, out);
 }
+
+/**
+ * Escala de cor da diferença: percentil 99,5 de |b − a|, ignorando NaN.
+ * Vem da própria diferença, não do brilho máximo do campo: no WISE 0855 as mudanças
+ * são pequenas perto da estrela mais brilhante e a diferença saía quase em branco.
+ */
+export function diffScale(diff: Grid, quantile = 0.995): number {
+  const values: number[] = [];
+  for (const v of diff.values) if (Number.isFinite(v)) values.push(Math.abs(v));
+  if (values.length === 0) return 1;
+  values.sort((x, y) => x - y);
+  const scale = values[Math.max(0, Math.ceil(quantile * values.length) - 1)];
+  return scale > 0 ? scale : 1;
+}

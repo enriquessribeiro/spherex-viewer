@@ -1,13 +1,119 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <meta name="description" content="Veja o que se move no céu infravermelho do telescópio SPHEREx (NASA), época por época." />
+    <meta name="theme-color" content="#f2efe7" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23f2efe7'/%3E%3Ccircle cx='15' cy='17' r='3' fill='%23141414'/%3E%3Cpath d='M15 6.5c6.5-.5 11 4 10.5 10.5S19 27.5 13.5 26 4.8 19.5 6 13.6 10.5 6.8 15 6.5' fill='none' stroke='%23c4302b' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <title>SPHEREx Viewer</title>
   </head>
   <body>
-    <div id="app"></div>
+    <header class="masthead">
+      <a class="brand" href="./">
+        <span class="brand-name">SPHEREx Viewer</span>
+        <span class="brand-sub">o que se move no céu infravermelho</span>
+      </a>
+      <form class="search" id="search" role="search">
+        <label class="visually-hidden" for="search-input">Buscar objeto ou coordenada</label>
+        <span class="search-icon" data-icon="Search" aria-hidden="true"></span>
+        <input id="search-input" name="q" type="search" autocomplete="off" spellcheck="false"
+          placeholder="Nome (R Dra) ou RA Dec (133.76 -7.24)" />
+        <button type="submit" class="button">Ver</button>
+      </form>
+      <button type="button" class="button button-quiet" id="copy-link">
+        <span data-icon="Link" aria-hidden="true"></span><span class="label">Copiar link</span>
+      </button>
+    </header>
+
+    <main class="workbench">
+      <section class="plate-area" aria-label="Placa do SPHEREx">
+        <figure class="plate" id="plate">
+          <div class="plate-frame">
+            <canvas id="plate-canvas" width="590" height="590" aria-describedby="plate-label"></canvas>
+            <svg id="plate-marks" class="plate-marks" aria-hidden="true"></svg>
+            <div class="plate-status" id="plate-status" role="status" aria-live="polite" hidden></div>
+          </div>
+          <figcaption class="plate-label" id="plate-label">
+            <span class="plate-target" id="label-target">Carregando…</span>
+            <span class="plate-epoch" id="label-epoch"></span>
+            <dl class="plate-facts" id="label-facts"></dl>
+          </figcaption>
+        </figure>
+
+        <div class="transport" role="group" aria-label="Animação">
+          <button type="button" class="button icon-button" id="prev" aria-label="Época anterior"><span data-icon="ChevronLeft"></span></button>
+          <button type="button" class="button button-primary" id="play"><span data-icon="Pause" aria-hidden="true"></span><span class="label">Pausar</span></button>
+          <button type="button" class="button icon-button" id="next" aria-label="Próxima época"><span data-icon="ChevronRight"></span></button>
+          <label class="speed">
+            <span>Velocidade</span>
+            <input type="range" id="fps" min="0.5" max="6" step="0.5" value="2" aria-describedby="fps-value" />
+            <output id="fps-value">2/s</output>
+          </label>
+          <div class="segmented zoom" role="radiogroup" aria-label="Zoom">
+            <button type="button" role="radio" data-zoom="1">Inteiro</button>
+            <button type="button" role="radio" data-zoom="2">2×</button>
+            <button type="button" role="radio" data-zoom="4">4×</button>
+          </div>
+        </div>
+
+        <div class="ruler-wrap">
+          <h2 class="section-title">Épocas <span class="hint">posição na régua = data real</span></h2>
+          <div id="ruler" class="ruler" role="group" aria-label="Linha do tempo das épocas"></div>
+        </div>
+      </section>
+
+      <aside class="controls" aria-label="Controles">
+        <section class="control-group">
+          <h2 class="section-title">Alvos do desafio</h2>
+          <ul class="targets" id="targets"></ul>
+        </section>
+
+        <section class="control-group">
+          <h2 class="section-title">Comparar</h2>
+          <div class="segmented" role="radiogroup" aria-label="Modo" id="modes">
+            <button type="button" role="radio" data-mode="play">Animar</button>
+            <button type="button" role="radio" data-mode="blink">Piscar</button>
+            <button type="button" role="radio" data-mode="diff">Diferença</button>
+          </div>
+          <p class="mode-help" id="mode-help"></p>
+          <div class="pair" id="pair" hidden>
+            <label>De <select id="epoch-a"></select></label>
+            <label>para <select id="epoch-b"></select></label>
+          </div>
+          <p class="legend" id="diff-legend" hidden>
+            <span class="swatch swatch-pencil"></span> apareceu ou ficou mais brilhante
+            <span class="swatch swatch-blue"></span> sumiu ou ficou mais fraco
+          </p>
+        </section>
+
+        <section class="control-group">
+          <h2 class="section-title">Detector <span class="hint">comprimento de onda</span></h2>
+          <div class="detectors" role="radiogroup" aria-label="Detector" id="detectors"></div>
+          <p class="det-help" id="det-help"></p>
+        </section>
+
+        <section class="control-group">
+          <h2 class="section-title">Imagem</h2>
+          <label class="slider">
+            <span>Contraste</span>
+            <input type="range" id="gain" min="0" max="2.5" step="0.05" value="0" />
+          </label>
+          <div class="segmented" role="radiogroup" aria-label="Aparência do céu">
+            <button type="button" role="radio" data-negative="1">Negativo</button>
+            <button type="button" role="radio" data-negative="0">Positivo</button>
+          </div>
+          <label class="check"><input type="checkbox" id="marks" checked /> Mira e posição prevista</label>
+        </section>
+
+        <section class="control-group about">
+          <h2 class="section-title">Como ler</h2>
+          <p>Cada quadro soma as imagens que o telescópio SPHEREx fez deste pedaço do céu numa mesma época. Estrelas distantes ficam paradas; o que é <strong>próximo</strong> se desloca de uma época para outra, e estrelas <strong>variáveis</strong> mudam de brilho. O círculo vermelho marca onde o objeto deveria estar segundo os catálogos.</p>
+          <p class="credit">Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx (IRSA), releases DR1 e QR3. Posições: SIMBAD.</p>
+        </section>
+      </aside>
+    </main>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -2,7 +2,8 @@
 import { describe, expect, it } from "vitest";
 import { decodeF32, decodeMask } from "../src/core/frames";
 import { normalize } from "../src/core/stretch";
-import { difference, weightedMean } from "../src/core/combine";
+import { difference, diffScale, weightedMean } from "../src/core/combine";
+import { Grid } from "../src/core/frames";
 
 function f32le(values: number[]): ArrayBuffer {
   const view = new DataView(new ArrayBuffer(values.length * 4));
@@ -65,5 +66,18 @@ describe("operações entre épocas", () => {
     const q = (vs: number[]) => decodeF32(f32le(vs), 1);
     expect(weightedMean([q([NaN]), q([4])], [q([1]), q([1])]).at(0, 0)).toBe(4);
     expect(weightedMean([q([NaN]), q([NaN])], [q([1]), q([1])]).at(0, 0)).toBeNaN();
+  });
+});
+
+describe("escala da diferença", () => {
+  it("vem da própria diferença (percentil 99,5 do valor absoluto), ignorando NaN", () => {
+    const d = decodeF32(f32le([1, -2, 3, -4]), 2);
+    expect(diffScale(d)).toBe(4);
+    const muitos = new Grid(20, Float32Array.from({ length: 400 }, (_, i) => (i % 2 ? -1 : 1) * (i + 1)));
+    expect(diffScale(muitos)).toBe(398); // descarta só os 0,5% mais extremos (400 e 399)
+  });
+
+  it("diferença nula ou sem dado → escala 1 (evita divisão por zero)", () => {
+    expect(diffScale(decodeF32(f32le([0, 0, NaN, NaN]), 2))).toBe(1);
   });
 });
