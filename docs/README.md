@@ -12,7 +12,9 @@
 
 | [06-testes.md](06-testes.md) | Estratégia de testes: 7 fronteiras, critérios de aceitação científica dos 5 alvos e integração com o GitHub Actions |
 
+| [07-plano-desenvolvimento.md](07-plano-desenvolvimento.md) | Fases, marcos de entrega, prioridades e fluxo de git (branch por fase + Pull Requests) |
+
 Documentos planejados (criar conforme o projeto avança):
 
-- `07-desenvolvimento.md` — como rodar localmente
-- `08-apresentacao.md` — roteiro do pitch / demo para os jurados
+- `08-desenvolvimento.md` — como rodar localmente
+- `09-apresentacao.md` — roteiro do pitch / demo para os jurados
