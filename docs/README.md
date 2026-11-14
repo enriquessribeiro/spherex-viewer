@@ -14,6 +14,7 @@
 | [08-resultados.md](08-resultados.md) | Resultados com dados reais: Marco 1 (WISE 0855 andando), astrometria, validação científica e lições para o produto |
 | [09-relatorio-progresso.md](09-relatorio-progresso.md) | Relatório consolidado das fases 0 a 3: o que foi construído, processo, decisões técnicas, problemas e resultados |
 | [10-desenvolvimento.md](10-desenvolvimento.md) | Como rodar localmente: instalação, testes, geração dos dados estáticos e API |
+| [diagramas/](diagramas/README.md) | Fluxo do sistema em diagrama de raia, três páginas editáveis, com a análise: atores, máquina de estados do trabalho, falhas e ordem de grandeza |
 
 Documentos planejados (criar conforme o projeto avança):
 
