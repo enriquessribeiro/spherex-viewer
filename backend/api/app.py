@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import math
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -37,7 +38,8 @@ class ApiError(Exception):
 
 
 def create_app(archive: Archive, data_dir: str | Path, resolver: Resolver | None = None,
-               max_jobs: int = 2) -> FastAPI:
+               max_jobs: int = 2,
+               fov_max: float = FOV_MAX_ARCMIN) -> FastAPI:
     data_dir = Path(data_dir).resolve()
     jobs = FieldJobs(archive, data_dir, max_jobs)
     started = time.time()
@@ -57,7 +59,7 @@ def create_app(archive: Archive, data_dir: str | Path, resolver: Resolver | None
     @app.get("/api/v1/config")
     def config():
         return {
-            "fov_arcmin": {"min": FOV_MIN_ARCMIN, "max": FOV_MAX_ARCMIN, "default": FOV_DEFAULT_ARCMIN},
+            "fov_arcmin": {"min": FOV_MIN_ARCMIN, "max": fov_max, "default": FOV_DEFAULT_ARCMIN},
             "max_parallel_downloads": DEFAULT_MAX_WORKERS,
             "poll_after_ms": POLL_AFTER_MS,
         }
@@ -67,8 +69,8 @@ def create_app(archive: Archive, data_dir: str | Path, resolver: Resolver | None
         ra_deg, dec_deg, fov_arcmin = _number(ra, "ra"), _number(dec, "dec"), _number(fov, "fov")
         if not (0 <= ra_deg < 360 and -90 <= dec_deg <= 90):
             raise ApiError(400, "INVALID_COORDS", "RA deve estar em [0, 360) e Dec em [-90, 90]")
-        if fov_arcmin > FOV_MAX_ARCMIN:
-            raise ApiError(400, "FOV_TOO_LARGE", f"fov máximo é {FOV_MAX_ARCMIN:g} arcmin")
+        if fov_arcmin > fov_max:
+            raise ApiError(400, "FOV_TOO_LARGE", f"fov máximo é {fov_max:g} arcmin")
         if fov_arcmin < FOV_MIN_ARCMIN:
             raise ApiError(400, "FOV_TOO_SMALL", f"fov mínimo é {FOV_MIN_ARCMIN:g} arcmin")
 
@@ -116,6 +118,9 @@ def create_app(archive: Archive, data_dir: str | Path, resolver: Resolver | None
 
 def _number(value: str, name: str) -> float:
     try:
-        return float(value)
+        number = float(value)
     except ValueError:
         raise ApiError(400, "INVALID_PARAM", f"{name} deve ser um número") from None
+    if not math.isfinite(number):
+        raise ApiError(400, "INVALID_PARAM", f"{name} deve ser um número finito")
+    return number
