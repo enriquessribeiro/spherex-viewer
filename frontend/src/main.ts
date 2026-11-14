@@ -17,7 +17,7 @@ import { FIELD_REFERENCE_MJD, propagate } from "./core/motion";
 import { parseCoordinates } from "./core/coords";
 import { nearbyTarget, type MovingTarget } from "./core/nearby";
 import { pencilArrow, pencilCircle } from "./ui/marks";
-import { SkyMap } from "./ui/skymap";
+import { SkyMap, type CatalogKey } from "./ui/skymap";
 
 const API_BASE: string | null = import.meta.env.VITE_API_BASE || null;
 const ICONS = { ChevronLeft, ChevronRight, Link, Pause, Play, Search };
@@ -807,6 +807,9 @@ async function main() {
       skyMap.setDetector(d);
     }));
     markSkyDet(1);
+    for (const box of document.querySelectorAll<HTMLInputElement>("[data-catalog]")) {
+      box.addEventListener("change", () => skyMap.setCatalog(box.dataset.catalog as CatalogKey, box.checked));
+    }
     if (!API_BASE) ($("skymap-here") as HTMLButtonElement).title = "Fora da lista de alvos, os dados vêm da API, que não está configurada neste site.";
   }
   await openFromState();
