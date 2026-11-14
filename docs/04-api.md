@@ -162,7 +162,7 @@ Matriz float32 do quadro (coadd) de uma época/detector. É o recurso usado pela
 - Tamanho: `N² × 4` bytes (6′ → ~59×59 → ~14 KB; 30′ → ~293×293 → ~343 KB).
 - Variante `{det}.var.f32`: variância do quadro, no mesmo formato.
 
-Também `.../frames/{epoch}/{det}.flags.u32`: bitmap uint32 com a **união** (OR) dos flags das exposições, para o overlay de contaminação.
+Também `.../frames/{epoch}/{det}.mask.u8`: 1 byte por pixel, bit 0 = saturado, bit 1 = baixa qualidade (ver §5). Um bitmap com a união dos flags de contaminação (fantasmas, persistência) fica para a fase 6.
 
 ### 4.6 `GET /api/v1/fields/{field_id}/{data_version}/frames/{epoch}/{det}.png`
 
@@ -176,7 +176,7 @@ O mesmo quadro já renderizado em PNG, em escala de cinza, com o esticamento pad
 
 Uso: miniaturas, embed simples, compartilhamento em redes sociais.
 
-### 4.7 `GET /api/v1/fields/{field_id}/{data_version}/exposures/{exposure_id}.f32`
+### 4.7 `GET /api/v1/fields/{field_id}/{data_version}/exposures/{exposure_id}.f32` *(planejado — fase 6)*
 
 Uma exposição individual, reprojetada para a grade do campo e com a luz zodiacal subtraída, no mesmo formato de `.f32`. Permite animar **dentro** de uma época, útil para objetos rápidos como asteroides, que andam de um minuto para o outro.
 
@@ -291,7 +291,6 @@ data/
             ├── frames/1/D1.f32
             ├── frames/1/D1.png
             ├── ...
-            └── exposures/...
 ```
 
 `data/manifest.json`:
@@ -358,7 +357,7 @@ Com os quadros em float32, o frontend calcula na hora:
 | Diferença | `b − a`, mapa de cores divergente (azul = sumiu, vermelho = apareceu) |
 | Soma de épocas | Média ponderada por `1/variância` das épocas escolhidas |
 | Falsa cor | Três detectores nos canais R, G e B |
-| Overlay de flags | Bits escolhidos de `.flags.u32` desenhados em cor semitransparente |
+| Overlay de qualidade | Bits de `.mask.u8` (saturado, baixa qualidade) desenhados em cor semitransparente; contaminação (fantasmas etc.) na fase 6 |
 | Marcador de posição prevista | `target.predicted_positions` convertidas para pixel com `grid.wcs` |
 
 ## 9. Limites operacionais (Render free)
