@@ -43,3 +43,25 @@ def brightest_stars(image: np.ndarray, n: int, exclude: list[tuple[float, float]
         if len(found) == n:
             break
     return found
+
+
+def fit_position(image: np.ndarray, x0: float, y0: float, radius: int = 4) -> tuple[float, float]:
+    """Posição (x, y) por ajuste de gaussiana 2D + fundo, usando só pixels válidos.
+
+    Diferente do centroide simples, ignora pixels faltantes (NaN) em vez de tratá-los
+    como zero: o núcleo saturado de estrelas brilhantes (Barnard's Star) não vicia a medida.
+    """
+    from scipy.optimize import least_squares
+
+    xi, yi = int(round(x0)), int(round(y0))
+    yy, xx = np.mgrid[yi - radius : yi + radius + 1, xi - radius : xi + radius + 1]
+    z = image[yi - radius : yi + radius + 1, xi - radius : xi + radius + 1]
+    ok = np.isfinite(z)
+
+    def residuals(p):
+        amp, x, y, sigma, bg = p
+        return (amp * np.exp(-((xx - x) ** 2 + (yy - y) ** 2) / (2 * sigma**2)) + bg - z)[ok]
+
+    start = [np.nanmax(z) - np.nanmedian(z), x0, y0, 1.0, np.nanmedian(z)]
+    _, x, y, _, _ = least_squares(residuals, start).x
+    return float(x), float(y)

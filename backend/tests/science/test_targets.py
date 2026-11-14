@@ -19,7 +19,7 @@ from pipeline.cache import CachedArchive
 from pipeline.field import Field, build_field
 from pipeline.irsa import IrsaArchive
 from pipeline.targets import Target, load_targets
-from tests.science.measure import aperture_snr, brightest_stars, centroid_near
+from tests.science.measure import aperture_snr, brightest_stars, fit_position
 
 pytestmark = pytest.mark.science
 
@@ -62,7 +62,7 @@ def epocas_detectadas(field: Field, target: Target, det: str) -> list[int]:
 
 
 # Alvos que se movem e o detector em que são medidos.
-MOVEIS = [("wise0855", "D6")]
+MOVEIS = [("wise0855", "D6"), ("barnard", "D2")]
 
 
 @pytest.mark.parametrize("target_id, det", MOVEIS)
@@ -74,7 +74,7 @@ def test_alvo_aparece_na_posicao_prevista_pelo_movimento_proprio(target_id, det)
     for i in epocas:
         frame = field.epochs[i].frames[det]
         px, py = prevista_px(field, target, i, det)
-        mx, my = centroid_near(frame.data, px, py)
+        mx, my = fit_position(frame.data, px, py)
         assert np.hypot(mx - px, my - py) < T_POSICAO_PX, f"época {i + 1}"
 
 
@@ -88,7 +88,7 @@ def test_alvo_se_desloca_entre_epocas_como_previsto(target_id, det):
     for i in (primeira, ultima):
         px, py = prevista_px(field, target, i, det)
         previstas.append((px, py))
-        medidas.append(centroid_near(field.epochs[i].frames[det].data, px, py))
+        medidas.append(fit_position(field.epochs[i].frames[det].data, px, py))
     delta_previsto = np.subtract(previstas[1], previstas[0])
     delta_medido = np.subtract(medidas[1], medidas[0])
 
@@ -120,7 +120,7 @@ def test_estrelas_de_campo_ficam_paradas_entre_epocas(target_id):
 
     for x, y in estrelas:
         posicoes = np.array(
-            [centroid_near(e.frames[det].data, x, y) for e in field.epochs if det in e.frames]
+            [fit_position(e.frames[det].data, x, y) for e in field.epochs if det in e.frames]
         )
         desvio = np.hypot(*(posicoes - posicoes.mean(axis=0)).T).max()
         assert desvio < T_PARADA_PX, f"estrela em ({x}, {y}) desviou {desvio:.2f} px"
