@@ -94,3 +94,33 @@ def test_alvo_se_desloca_entre_epocas_como_previsto(target_id, det):
 
     assert np.hypot(*delta_previsto) > 2 * T_MOVIMENTO_PX  # o movimento é mensurável
     assert np.hypot(*(delta_medido - delta_previsto)) < T_MOVIMENTO_PX
+
+
+def _estrelas_de_campo(field: Field, target: Target, det: str, n: int = 5) -> list[tuple[int, int]]:
+    """Estrelas brilhantes do campo, longe do alvo e sem pixels mascarados no núcleo."""
+    referencia = max(
+        (e.frames[det] for e in field.epochs if det in e.frames), key=lambda f: f.n_exposures
+    )
+    alvo = [prevista_px(field, target, i, det) for i, e in enumerate(field.epochs) if det in e.frames]
+    candidatas = brightest_stars(referencia.data, n=3 * n, exclude=alvo)
+    limpas = []
+    for x, y in candidatas:
+        nucleos = [e.frames[det].data[y - 1 : y + 2, x - 1 : x + 2] for e in field.epochs if det in e.frames]
+        if all(np.isfinite(nucleo).all() for nucleo in nucleos):
+            limpas.append((x, y))
+    return limpas[:n]
+
+
+@pytest.mark.parametrize("target_id", ["wise0855", "barnard", "epsindib", "rwaur", "rdra"])
+def test_estrelas_de_campo_ficam_paradas_entre_epocas(target_id):
+    """Prova de alinhamento: estrelas distantes não podem 'andar' de uma época para outra."""
+    field, target, det = campo(target_id), TARGETS[target_id], "D2"
+    estrelas = _estrelas_de_campo(field, target, det)
+    assert len(estrelas) >= 3
+
+    for x, y in estrelas:
+        posicoes = np.array(
+            [centroid_near(e.frames[det].data, x, y) for e in field.epochs if det in e.frames]
+        )
+        desvio = np.hypot(*(posicoes - posicoes.mean(axis=0)).T).max()
+        assert desvio < T_PARADA_PX, f"estrela em ({x}, {y}) desviou {desvio:.2f} px"
