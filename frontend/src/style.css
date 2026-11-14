@@ -4,6 +4,7 @@
 :root {
   --glass: #f2efe7;
   --glass-deep: #e7e2d5;
+  --glass-bright: #fbf9f4;
   --sleeve: #ddd6c4;
   --ink: #141414;
   --ink-soft: #3d3a34;
@@ -12,15 +13,12 @@
   --pencil-deep: #9e2420;
   --ink-blue: #2b4c9c;
   --manila: #9c8f74;
-  --manila-light: #cfc4a8;
   --rule: #bdb39b;
 
   --font: "Archivo Variable", "Archivo", system-ui, sans-serif;
   --step--1: 0.8125rem;
   --step-0: 0.9375rem;
-  --step-1: 1.125rem;
   --step-2: 1.5rem;
-  --step-3: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem);
   --radius: 3px;
   --gap: clamp(1rem, 0.6rem + 1.2vw, 1.75rem);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -120,7 +118,7 @@ h2 { margin: 0; }
   font: inherit;
   padding: 0.55rem 0.75rem 0.55rem 2.2rem;
   color: var(--ink);
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
 }
@@ -140,7 +138,7 @@ h2 { margin: 0; }
   font-stretch: 92%;
   padding: 0.5rem 0.9rem;
   color: var(--ink);
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 1px solid var(--ink-soft);
   border-radius: var(--radius);
   cursor: pointer;
@@ -172,7 +170,7 @@ h2 { margin: 0; }
   font-stretch: 90%;
   padding: 0.45rem 0.85rem;
   color: var(--ink);
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 0;
   border-left: 1px solid var(--rule);
   cursor: pointer;
@@ -299,7 +297,7 @@ h2 { margin: 0; }
   translate: -50% -50%;
   width: min(85%, 26rem);
   padding: 0.9rem 1.1rem;
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   box-shadow: 0 8px 22px -12px rgb(20 20 20 / 0.4);
@@ -511,7 +509,7 @@ input[type="range"] { width: 8rem; }
   font: inherit;
   text-align: left;
   color: var(--ink);
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   cursor: pointer;
@@ -548,7 +546,7 @@ input[type="range"] { width: 8rem; }
   color: var(--ink);
   margin-left: 0.3rem;
   padding: 0.3rem 0.4rem;
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
 }
@@ -586,7 +584,7 @@ input[type="range"] { width: 8rem; }
   font: inherit;
   text-align: left;
   color: var(--ink);
-  background: #fbf9f4;
+  background: var(--glass-bright);
   border: 1px solid var(--rule);
   border-radius: var(--radius);
   cursor: pointer;
