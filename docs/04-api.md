@@ -359,7 +359,7 @@ Com os quadros em float32, o frontend calcula na hora:
 | Limite | Valor inicial |
 |---|---|
 | `fov` máximo | 30 arcmin |
-| Downloads simultâneos do IRSA | 12 |
+| Downloads simultâneos do IRSA | 4 (o IRSA respondeu `503 Server busy` com apenas 2; o adaptador repete com espera exponencial) |
 | Trabalhos de campo simultâneos | 2 (excedente → `429 BUSY`) |
 | Validade do cache de consulta TAP | 24 h |
 | Tempo máximo por campo | 5 min (depois, `502 UPSTREAM_ERROR` com o que já ficou pronto em `partial`) |

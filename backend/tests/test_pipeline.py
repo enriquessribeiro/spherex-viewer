@@ -151,11 +151,17 @@ def test_luz_zodiacal_e_subtraida_do_quadro():
 HOT, SOURCE = 10, 21
 
 
-def test_pixel_com_defeito_e_ignorado_na_soma():
-    # Pixel HOT com valor absurdo numa exposição, 8 px a oeste e 6 px ao sul do centro.
+# Bits de pixel inutilizável, conferidos no cabeçalho FLAGS de um recorte real (DR1):
+# TRANSIENT, OVERFLOW, SUR_ERROR, NONFUNC, MISSING_DATA, HOT, COLD, NONLINEAR, OUTLIER.
+BITS_RUINS = [0, 1, 2, 6, 9, 10, 11, 15, 19]
+
+
+@pytest.mark.parametrize("bit", BITS_RUINS)
+def test_pixel_com_defeito_e_ignorado_na_soma(bit):
+    # Pixel com defeito e valor absurdo numa exposição, 8 px a oeste e 6 px ao sul do centro.
     field = _campo_com_exposicoes(
         [
-            SyntheticExposure(det="D6", mjd=60800.0, flagged=((-8, -6, HOT, 1e4),)),
+            SyntheticExposure(det="D6", mjd=60800.0, flagged=((-8, -6, bit, 1e4),)),
             SyntheticExposure(det="D6", mjd=60800.5),
         ]
     )
@@ -186,16 +192,19 @@ def _campo_vazio(exposicoes):
 
 
 def test_soma_pondera_cada_exposicao_pelo_inverso_da_variancia():
-    field = _campo_vazio(
+    # Mesma estrela medida com fluxo 100 (variância 1) e 200 (variância 3).
+    field = _campo_com_exposicoes(
         [
-            SyntheticExposure(det="D6", mjd=60800.0, bias=2.0, variance=1.0),
-            SyntheticExposure(det="D6", mjd=60800.5, bias=4.0, variance=3.0),
+            SyntheticExposure(det="D6", mjd=60800.0, flux_scale=1.0, variance=1.0),
+            SyntheticExposure(det="D6", mjd=60800.5, flux_scale=2.0, variance=3.0),
         ]
     )
 
     frame = field.epochs[0].frames["D6"]
-    # (2/1 + 4/3) / (1/1 + 1/3) = 2,5  (a média simples daria 3)
-    assert np.nanmedian(frame.data) == approx(2.5, abs=1e-6)
+    janela = frame.data[CENTRO_PX - 5 : CENTRO_PX + 6, CENTRO_PX - 5 : CENTRO_PX + 6]
+    # Pico ponderado: (100/1 + 200/3) / (1/1 + 1/3) = 125 (a média simples daria 150).
+    # Medido pelo fluxo total da gaussiana (sigma 1 px): 2*pi*125.
+    assert np.nansum(janela) == approx(2 * math.pi * 125.0, rel=0.02)
     # 1 / (1/1 + 1/3) = 0,75
     assert np.nanmedian(frame.variance) == approx(0.75, abs=1e-6)
 
@@ -243,3 +252,181 @@ def test_grade_do_campo_tem_o_tamanho_do_contrato_da_api(fov, lado):
 
     assert field.n == lado
     assert field.epochs[0].frames["D6"].data.shape == (lado, lado)
+
+
+def test_recortes_reais_do_wise0855_passam_pelo_pipeline():
+    """Dados reais: distorção SIP, big-endian, pixels marcados e NaN de verdade."""
+    from pathlib import Path
+
+    from astropy.io import fits
+
+    from pipeline.archive import Exposure
+
+    fixtures = Path(__file__).parent / "fixtures" / "irsa"
+    reais = {
+        "e1": (Exposure(id="e1", detector="D1", mjd=60801.514), "wise0855_D1_epoca1.fits"),
+        "e4": (Exposure(id="e4", detector="D6", mjd=61171.096), "wise0855_D6_epoca4.fits"),
+    }
+
+    class ArquivoGravado:
+        def query(self, ra, dec):
+            return [exp for exp, _ in reais.values()]
+
+        def fetch_cutout(self, exposure, ra, dec, size_deg):
+            return fits.open(fixtures / reais[exposure.id][1])
+
+    field = build_field(ra=RA0, dec=DEC0, fov_arcmin=6, archive=ArquivoGravado())
+
+    assert [set(e.frames) for e in field.epochs] == [{"D1"}, {"D6"}]
+    for epoch in field.epochs:
+        (frame,) = epoch.frames.values()
+        assert frame.data.shape == (59, 59)
+        assert np.isfinite(frame.data).mean() > 0.95  # quase todo o campo coberto
+    assert all(np.isfinite([lim.vmin, lim.vmax]).all() for lim in field.display.values())
+
+
+class _ArquivoLento:
+    """Arquivo sintético em que cada recorte demora; mede a concorrência máxima."""
+
+    def __init__(self, n_exposicoes: int, atraso_s: float = 0.2):
+        import threading
+
+        self.inner = SyntheticArchive(
+            sources=[SyntheticSource(ra=RA0, dec=DEC0)],
+            exposures=[SyntheticExposure(det="D6", mjd=60800.0 + i * 0.1) for i in range(n_exposicoes)],
+        )
+        self.atraso_s = atraso_s
+        self._lock = threading.Lock()
+        self.ativos = 0
+        self.pico = 0
+
+    def query(self, ra, dec):
+        return self.inner.query(ra, dec)
+
+    def fetch_cutout(self, exposure, ra, dec, size_deg):
+        import time
+
+        with self._lock:
+            self.ativos += 1
+            self.pico = max(self.pico, self.ativos)
+        time.sleep(self.atraso_s)
+        with self._lock:
+            self.ativos -= 1
+        return self.inner.fetch_cutout(exposure, ra, dec, size_deg)
+
+
+def test_downloads_paralelos_dao_o_mesmo_resultado_que_sequenciais():
+    sequencial = build_field(RA0, DEC0, 6, _ArquivoLento(6, atraso_s=0), max_workers=1)
+    paralelo = build_field(RA0, DEC0, 6, _ArquivoLento(6, atraso_s=0), max_workers=4)
+
+    np.testing.assert_array_equal(
+        sequencial.epochs[0].frames["D6"].data, paralelo.epochs[0].frames["D6"].data
+    )
+
+
+def test_downloads_paralelos_respeitam_o_limite_de_conexoes_e_ganham_tempo():
+    import time
+
+    arquivo = _ArquivoLento(8, atraso_s=0.2)
+    inicio = time.perf_counter()
+    build_field(RA0, DEC0, 6, arquivo, max_workers=4)
+    duracao = time.perf_counter() - inicio
+
+    assert arquivo.pico == 4  # nunca passa do limite (o IRSA responde 503 se exagerarmos)
+    assert duracao < 1.0  # sequencial levaria 8 x 0,2 = 1,6 s
+
+
+class _ArquivoComFalhas:
+    """Arquivo sintético em que algumas exposições estão indisponíveis (IRSA ocupado)."""
+
+    def __init__(self, n_exposicoes: int, falham: set[int]):
+        self.inner = SyntheticArchive(
+            sources=[SyntheticSource(ra=RA0, dec=DEC0)],
+            exposures=[SyntheticExposure(det="D6", mjd=60800.0 + i * 0.1) for i in range(n_exposicoes)],
+        )
+        self.falham = falham
+
+    def query(self, ra, dec):
+        return self.inner.query(ra, dec)
+
+    def fetch_cutout(self, exposure, ra, dec, size_deg):
+        from pipeline.irsa import ArchiveUnavailable
+
+        if int(exposure.id[3:7]) in self.falham:
+            raise ArchiveUnavailable(f"{exposure.id}: HTTP 503")
+        return self.inner.fetch_cutout(exposure, ra, dec, size_deg)
+
+
+def test_exposicao_indisponivel_e_pulada_e_registrada_no_campo():
+    field = build_field(RA0, DEC0, 6, _ArquivoComFalhas(5, falham={2}))
+
+    assert field.epochs[0].frames["D6"].n_exposures == 4
+    assert [e.id for e in field.failed_exposures] == ["syn0002_D6"]
+    x, y = centroid(field.epochs[0].frames["D6"].data)
+    assert (x, y) == approx((CENTRO_PX, CENTRO_PX), abs=0.1)
+
+
+def test_campo_falha_se_nenhuma_exposicao_puder_ser_baixada():
+    from pipeline.irsa import ArchiveUnavailable
+
+    with pytest.raises(ArchiveUnavailable):
+        build_field(RA0, DEC0, 6, _ArquivoComFalhas(3, falham={0, 1, 2}))
+
+
+def test_fundo_residual_de_cada_epoca_e_removido_e_registrado():
+    # Resíduo de fundo que o modelo ZODI não explica, diferente em cada época
+    # (no WISE 0855 real isso dominava a imagem de diferença em D1).
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D1", mjd=60800.0, bias=0.3),
+            SyntheticExposure(det="D1", mjd=60980.0, bias=-0.2),
+        ]
+    )
+
+    q1, q2 = (e.frames["D1"] for e in field.epochs)
+    assert np.nanmedian(q1.data) == approx(0.0, abs=1e-3)
+    assert np.nanmedian(q2.data) == approx(0.0, abs=1e-3)
+    assert (q1.background, q2.background) == approx((0.3, -0.2), abs=1e-3)
+    # Longe da estrela, a diferença entre épocas fica ~0.
+    assert np.nanmax(np.abs((q2.data - q1.data)[:10, :10])) < 1e-3
+
+
+TRANSIENT, OVERFLOW = 0, 1
+VIZINHANCA_3X3 = [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1)]
+
+
+def test_anel_de_estrela_brilhante_com_flag_suspeito_em_todas_as_exposicoes_e_mantido():
+    # Como na Barnard's Star real: os pixels em volta de uma estrela brilhante vêm com
+    # TRANSIENT/SUR_ERROR em TODAS as exposições, mas os valores são bons.
+    suspeitos = tuple((dx, dy, TRANSIENT, None) for dx, dy in VIZINHANCA_3X3)
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D2", mjd=60800.0, flagged=suspeitos),
+            SyntheticExposure(det="D2", mjd=60800.5, flagged=suspeitos),
+        ]
+    )
+
+    frame = field.epochs[0].frames["D2"]
+    janela = frame.data[CENTRO_PX - 5 : CENTRO_PX + 6, CENTRO_PX - 5 : CENTRO_PX + 6]
+    assert np.nansum(janela) == approx(2 * math.pi * 100.0, rel=0.02)  # a estrela inteira volta
+    assert frame.low_quality[CENTRO_PX, CENTRO_PX]
+    assert not frame.low_quality[5, 5]
+
+
+def test_nucleo_saturado_sem_dado_fica_marcado_como_saturado():
+    # Núcleo que o SPHEREx não entrega: IMAGE = NaN com OVERFLOW; anel com TRANSIENT.
+    nucleo = tuple((dx, dy, OVERFLOW, float("nan")) for dx, dy in [(0, 0), (1, 0), (0, 1), (1, 1)])
+    anel = tuple((dx, dy, TRANSIENT, None) for dx, dy in VIZINHANCA_3X3 if (dx, dy) not in
+                 [(0, 0), (1, 0), (0, 1), (1, 1)])
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D2", mjd=60800.0, flagged=nucleo + anel),
+            SyntheticExposure(det="D2", mjd=60800.5, flagged=nucleo + anel),
+        ]
+    )
+
+    frame = field.epochs[0].frames["D2"]
+    perto = frame.saturated[CENTRO_PX - 2 : CENTRO_PX + 3, CENTRO_PX - 2 : CENTRO_PX + 3]
+    assert perto.any()
+    assert np.isnan(frame.data[frame.saturated]).all()
+    assert not frame.saturated[:10, :10].any()

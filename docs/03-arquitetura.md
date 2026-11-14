@@ -133,7 +133,7 @@ A especificação completa está em [04-api.md](04-api.md). Resumo: o backend pr
 
 As coleções/releases do SPHEREx (`spherex_dr1`, `spherex_qr3`, ...) ficam em **configuração**, não fixas no código. Como a consulta TAP sempre lê o estado atual do arquivo, novas semanas de dados aparecem automaticamente no backend ao vivo; um novo release é só uma linha de configuração.
 
-Hospedagem, cache e a atualização semanal dos alvos pré-processados (GitHub Pages + Render + GitHub Actions) estão em [05-hospedagem.md](05-hospedagem.md).
+Hospedagem, cache e a atualização automática (a cada 3 dias) dos alvos pré-processados (GitHub Pages + Render + GitHub Actions) estão em [05-hospedagem.md](05-hospedagem.md).
 
 ## 6. Pontos críticos
 
@@ -141,3 +141,24 @@ Hospedagem, cache e a atualização semanal dos alvos pré-processados (GitHub P
 2. **Alinhamento**: se falhar, a animação perde sentido. Validar com estrelas de campo, que devem ficar perfeitamente paradas.
 3. **Pixel grande (~6″)**: Barnard's Star anda ~1,5–2 pixels por semestre. É visível, mas sutil; a imagem de diferença e o marcador de posição prevista ajudam muito.
 4. **Fontes brilhantes**: geram fantasmas e saturação. Usar as FLAGS para avisar o usuário.
+
+## 7. Decisões de implementação do pipeline
+
+Decisões tomadas durante a implementação (fases 1 e 2), várias forçadas pelos dados reais. Código em `backend/pipeline/`.
+
+| Decisão | Motivo | Onde |
+|---|---|---|
+| O pipeline recebe um **adaptador de arquivo** (`Archive`: `query` + `fetch_cutout`) | Testar a ciência com dados sintéticos; trocar IRSA por cache/arquivo gravado sem mudar o pipeline | `archive.py` |
+| Recorte pedido com **1,5 × o campo** | Com o detector girado, o recorte precisa cobrir a diagonal do campo (√2 ≈ 1,41) | `field.py` |
+| **Interpolação normalizada** na reprojeção (imagem e mapa de pixels válidos reprojetados e divididos) | A bilinear comum espalhava cada pixel mascarado para ~4 vizinhos: com dados reais só 91,6% do quadro ficava válido | `field.py` |
+| Flags em **dois níveis**: graves (`1, 6, 9, 10, 11`) sempre excluídos; suspeitos (`0, 2, 15, 19`) excluídos só se outra exposição tiver o ponto limpo, senão usados e marcados em `Frame.low_quality` | Na Barnard's Star real, TODAS as exposições marcam o anel da estrela com TRANSIENT/SUR_ERROR, mas os valores são bons. Mascarar deixava um buraco 3×3 e erro de posição de 1–3 px; com dois níveis o erro cai para 0,11–0,18 px | `field.py` |
+| Valor "limpo" de uma exposição só onde **nenhum** pixel suspeito entra na interpolação | Senão o pixel de borda usaria só os vizinhos limpos, mais fracos (asa da estrela), e subestimaria o brilho | `field.py` |
+| Núcleo sem dado (`IMAGE` = NaN com OVERFLOW) marcado em `Frame.saturated` | O SPHEREx não entrega o núcleo de estrelas muito brilhantes; o frontend deve pintá-lo com o brilho máximo, não como buraco | `field.py` |
+| Soma ponderada por **1/variância**, com variância propagada | Exposições mais ruidosas pesam menos; a variância do quadro alimenta o espectro e o S/R | `field.py` |
+| **Fundo residual removido** de cada quadro (mediana com corte sigma 3σ), valor guardado em `Frame.background` | No WISE 0855 real, um desnível de fundo entre épocas (resíduo da luz zodiacal) dominava a imagem de diferença em D1 | `field.py` |
+| Contraste: `vmin` = percentil 1, `vmax` = **máximo**, comum a todas as épocas | Variáveis brilhantes (R Dra) não podem saturar, senão a variação some | `field.py` |
+| **4 downloads simultâneos**, 6 tentativas com espera exponencial (2–32 s) | O IRSA responde `503 Server busy` mesmo com 2 pedidos simultâneos | `field.py`, `irsa.py` |
+| **Exposição indisponível é pulada** e listada em `Field.failed_exposures`; o campo só falha se nenhuma exposição vier | Um único `503` persistente derrubou um campo de 258 exposições | `field.py` |
+| Extensão **EPSF descartada** ao ler o recorte | ~4 MB por recorte, não usada | `irsa.py` |
+| Cache em disco: recortes permanentes, consultas por 24 h, escrita atômica | Reprocessar sem baixar de novo; dados novos chegam semanalmente | `cache.py` |
+| Centro dos alvos = posição **propagada pelo movimento próprio** | O WISE 0855 está ~3,4′ a oeste da coordenada da designação (2010) | `targets.py`, `targets.yaml` |

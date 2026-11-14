@@ -5,7 +5,9 @@ description = "Pipeline e API do SPHEREx Viewer (NASA Space Apps 2026 - Planet X
 requires-python = ">=3.12"
 dependencies = [
     "astropy>=7.0",
+    "httpx>=0.28.1",
     "numpy>=2.0",
+    "pyyaml>=6.0.3",
     "reproject>=0.14",
 ]
 

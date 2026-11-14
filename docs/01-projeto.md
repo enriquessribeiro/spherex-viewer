@@ -57,15 +57,15 @@ Como o céu "anda" pelo filtro a cada apontamento, um mesmo ponto do céu acaba 
 
 ### 3.2 Alvos de teste exigidos
 
-| Alvo | O que é | O que esperamos ver | Coordenadas aprox. (J2000) |
-|---|---|---|---|
-| **Barnard's Star** | Anã vermelha a 6 anos-luz, o maior movimento próprio conhecido (~10,4″/ano) | Deslocamento de ~1,5–2 pixels entre os dois mapeamentos | RA 17h57m48,5s, Dec +04°41′36″ |
-| **Epsilon Indi B** | Par de anãs marrons (Ba/Bb) orbitando a estrela ε Indi A, a ~12 anos-luz | Ponto vermelho/frio que se move junto com ε Indi A (~4,7″/ano) | RA 22h04m10,5s, Dec −56°46′58″ |
-| **WISE 0855** | A anã marrom mais fria conhecida (~285 K), a 7,4 anos-luz | Quase invisível no curto IR, aparece em ~4–5 µm; move ~8″/ano | RA 08h55m10,831s, Dec −07°14′42,53″ (fornecida pelo desafio) |
-| **RW Aurigae** | Estrela jovem variável (T Tauri) | Variação de brilho entre épocas | RA 05h07m49,5s, Dec +30°24′05″ |
-| **R Draconis** | Variável de longo período (tipo Mira), ~245 dias | Grande variação de brilho entre épocas | RA 16h32m40,2s, Dec +66°45′18″ |
+| Alvo | O que é | O que esperamos ver | RA, Dec (J2000, época 2000) | Movimento próprio (mas/ano, α*, δ) |
+|---|---|---|---|---|
+| **Barnard's Star** | Anã vermelha a 6 anos-luz, o maior movimento próprio conhecido (~10,4″/ano) | Deslocamento de ~1,7 px/ano para o norte | 269,45208°, +4,69336° | −801,6, +10362,4 |
+| **Epsilon Indi B** | Par de anãs marrons (Ba/Bb) orbitando ε Indi A (a 6,7′), a ~12 anos-luz | Ponto frio movendo-se ~4,7″/ano para sudeste, como ε Indi A | 331,04415°, −56,78284° | +3982,0, −2466,8 |
+| **WISE 0855** | A anã marrom mais fria conhecida (~285 K), a 7,4 anos-luz | Quase invisível no curto IR, aparece em ~4–5 µm; move ~8,1″/ano para oeste | 133,81891°, −7,24705° | −8123,7, +673,2 |
+| **RW Aurigae** | Estrela jovem variável (T Tauri) | Variação de brilho entre épocas | 76,95653°, +30,40144° | +7,2, −20,3 |
+| **R Draconis** | Variável de longo período (tipo Mira), ~245 dias | Grande variação de brilho entre épocas | 248,16761°, +66,75498° | −20,6, +6,1 |
 
-> ⚠️ Exceto WISE 0855, as coordenadas acima são aproximadas e foram escritas de memória. **Confirmar no [SIMBAD](https://simbad.cds.unistra.fr/simbad/)** (posição, movimento próprio e época de referência) antes de fixar no código. Para estrelas de alto movimento próprio, a posição precisa ser propagada para a data da observação SPHEREx (2025–2026).
+Fonte: SIMBAD (espelho de Harvard), consultado em 14/11/2026; mesmos valores em [`targets.yaml`](../targets.yaml). As posições são para a época J2000 e precisam ser **propagadas pelo movimento próprio** até a data da observação: em 2025 o WISE 0855 está ~3,4′ a oeste da coordenada da sua designação (que é de 2010, usada no texto do desafio).
 
 ### 3.3 Considerações opcionais (diferenciais)
 

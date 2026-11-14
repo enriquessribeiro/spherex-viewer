@@ -18,8 +18,8 @@ Branch: `fase-0/preparacao`
 - [x] Backend: `pyproject.toml` (astropy, numpy, reproject, fastapi, httpx, pytest)
 - [x] pytest com marcadores `live` e `science` desligados por padrão
 - [x] Workflow `test.yml`: testes rápidos em todo push e PR
-- [ ] Confirmar no SIMBAD coordenadas, movimento próprio e época de referência dos 5 alvos (movido para a fase 2)
-- [ ] Criar `targets.yaml` (movido para a fase 2)
+- [x] Confirmar no SIMBAD coordenadas, movimento próprio e época de referência dos 5 alvos (movido para a fase 2)
+- [x] Criar `targets.yaml` (movido para a fase 2)
 
 > A fase 0 foi feita no início do branch `fase-1/pipeline`.
 
@@ -40,11 +40,12 @@ Branch: `fase-1/pipeline`. É a parte de maior risco, por isso vem primeiro.
 
 Branch: `fase-2/dados-reais`
 
-- [ ] `IrsaArchive` com respostas reais gravadas do WISE 0855 (258 exposições, 4 grupos)
-- [ ] Download paralelo + cache em disco
-- [ ] **🎯 Marco 1:** WISE 0855 real processado de ponta a ponta, com a anã marrom andando entre épocas
-- [ ] Calibrar e registrar as tolerâncias da validação científica em [06-testes.md](06-testes.md)
-- [ ] Validação científica dos 5 alvos (`pytest -m science`)
+- [x] `IrsaArchive` com respostas reais gravadas do WISE 0855 (258 exposições, 4 grupos)
+- [x] Download paralelo + cache em disco
+- [x] **🎯 Marco 1:** WISE 0855 real processado de ponta a ponta, com a anã marrom andando entre épocas
+- [x] Calibrar e registrar as tolerâncias da validação científica em [06-testes.md](06-testes.md)
+- [x] Validação científica dos 5 alvos (`pytest -m science`)
+- [x] Extras forçados pelos dados reais: flags em dois níveis e núcleo saturado, interpolação normalizada, fundo residual, exposição indisponível pulada, novas tentativas em `503`
 
 ### Fase 3 — Saídas e API
 
@@ -80,7 +81,7 @@ Branch: `fase-6/<extra>` (um branch por extra, pois são independentes). Em orde
 4. [ ] Falsa cor (3 detectores)
 5. [ ] Campo de visão variável
 6. [ ] Modo embed
-7. [ ] Roteiro do pitch (`docs/09-apresentacao.md`) com os resultados da validação científica
+7. [ ] Roteiro do pitch (`docs/10-apresentacao.md`) com os resultados da validação científica
 
 ## 3. Prioridade se o tempo apertar
 

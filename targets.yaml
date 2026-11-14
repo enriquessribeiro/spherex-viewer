@@ -1,0 +1,51 @@
+# Alvos pré-processados (docs/05-hospedagem.md §6). Os 5 primeiros são os testes do desafio.
+#
+# Posições e movimentos próprios: SIMBAD (consultado em 14/11/2026), época J2000
+# (ref_mjd 51544.5). pm_ra_masyr é mu_alpha* (já multiplicado por cos(dec)).
+# O centro do campo é a posição propagada para a época das observações SPHEREx.
+
+targets:
+  - id: barnard
+    name: "Barnard's Star"
+    description: "Anã vermelha a 6 anos-luz; maior movimento próprio conhecido (~10,4″/ano)"
+    ra: 269.4520769586187
+    dec: 4.693364966576667
+    pm_ra_masyr: -801.551
+    pm_dec_masyr: 10362.394
+    fov_arcmin: 6
+
+  - id: epsindib
+    name: "Epsilon Indi B"
+    description: "Par de anãs marrons (Ba/Bb) orbitando ε Indi A, a ~12 anos-luz (~4,7″/ano)"
+    ra: 331.04414658852124
+    dec: -56.782844195116105
+    pm_ra_masyr: 3981.977
+    pm_dec_masyr: -2466.832
+    fov_arcmin: 6  # ε Indi A fica ~6,7′ a oeste, fora do campo
+
+  - id: wise0855
+    name: "WISE 0855-0714"
+    description: "A anã marrom mais fria conhecida (~285 K), a 7,4 anos-luz (~8,1″/ano)"
+    ra: 133.81890825
+    dec: -7.247048
+    pm_ra_masyr: -8123.7
+    pm_dec_masyr: 673.2
+    fov_arcmin: 6
+
+  - id: rwaur
+    name: "RW Aurigae"
+    description: "Estrela jovem variável (T Tauri)"
+    ra: 76.95652603458333
+    dec: 30.401438173888888
+    pm_ra_masyr: 7.23
+    pm_dec_masyr: -20.33
+    fov_arcmin: 6
+
+  - id: rdra
+    name: "R Draconis"
+    description: "Variável de longo período (tipo Mira, ~245 dias)"
+    ra: 248.16761083295
+    dec: 66.75497941722
+    pm_ra_masyr: -20.643
+    pm_dec_masyr: 6.149
+    fov_arcmin: 6

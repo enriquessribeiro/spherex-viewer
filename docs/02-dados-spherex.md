@@ -101,18 +101,38 @@ Exposições com o mesmo `large slew` e `small slew` diferentes são tiradas em 
 
 #### Flags (bits do `FLAGS`)
 
-Definição completa na Tabela 16 do *Explanatory Supplement*; os nomes também estão no cabeçalho (`MSKNnnnn` / `MSKDnnnn`).
+Lista **conferida no cabeçalho de recortes reais do DR1** (`MSKNnnnn` = nome, `MSKDnnnn` = descrição). Definição completa na Tabela 16 do *Explanatory Supplement*.
 
 | Bit | Nome | Significado | Tratamento no projeto |
 |---|---|---|---|
 | 0 | TRANSIENT | Transiente detectado durante a leitura | Mascarar |
+| 1 | OVERFLOW | Estouro na leitura | Mascarar |
+| 2 | SUR_ERROR | Erro no processamento a bordo | Mascarar |
+| 6 | NONFUNC | Pixel permanentemente inutilizável | Mascarar |
+| 7 | DICHROIC | Baixa eficiência por causa do dicroico | Manter (calibrado) |
+| 9 | MISSING_DATA | Dado perdido a bordo | Mascarar |
 | 10 | HOT | Pixel quente | Mascarar |
 | 11 | COLD | Sinal anormalmente baixo | Mascarar |
-| 15 | NONLINEAR | Correção de não linearidade não confiável (saturação) | Mascarar + avisar |
+| 12 | FULLSAMPLE | Histórico completo de amostras disponível | Informativo |
+| 14 | PHANMISS | Correção de "phantom" não aplicada | Manter |
+| 15 | NONLINEAR | Correção de não linearidade não confiável (saturação) | Mascarar |
+| 17 | PERSIST | Carga residual de exposição anterior | **Overlay**: pode simular um objeto que "apareceu" |
 | 19 | OUTLIER | Pixel atípico | Mascarar |
-| 21 | SOURCE | Pixel sobre uma fonte conhecida (o mais comum) | **Não** mascarar (é informativo) |
-| 22–24 | GHOST* | Fantasmas de fontes brilhantes | Overlay de contaminação |
-| 26–28 | BLOOM / SNOWBALL / HALO | Artefatos | Overlay de contaminação |
+| 20 | CROSSTALK | Afetado por crosstalk | Overlay |
+| 21 | SOURCE | Pixel sobre uma fonte conhecida (~37% dos pixels) | **Não** mascarar (marca estrelas) |
+| 22 | GHOST | Fantasma de fonte brilhante na exposição | Overlay |
+| 23 | GHOST_FPA | Fantasma de fonte brilhante em outro detector | Overlay |
+| 24 | GHOST_EXT | Fantasma de fonte brilhante fora do campo | Overlay |
+| 25 | STREAK | Rastro | Overlay |
+| 26 | BLOOM | Artefato de "bloom" | Overlay |
+| 27 | SNOWBALL | Artefato "snowball" (raio cósmico) | Overlay |
+| 28 | HALO | Halo transiente | Overlay |
+
+Tratamento no pipeline (ver [03-arquitetura.md](03-arquitetura.md) §7):
+
+- **Graves**, sempre excluídos: `1, 6, 9, 10, 11` (OVERFLOW, NONFUNC, MISSING_DATA, HOT, COLD).
+- **Suspeitos**, excluídos só se outra exposição tiver aquele ponto limpo: `0, 2, 15, 19` (TRANSIENT, SUR_ERROR, NONLINEAR, OUTLIER). Em volta de estrelas brilhantes **todas** as exposições vêm com TRANSIENT/SUR_ERROR, mas os valores são bons.
+- **Núcleo de estrelas muito brilhantes**: o `IMAGE` vem `NaN` com OVERFLOW. O SPHEREx não entrega esses pixels, que são marcados como saturados.
 
 ### 3.2 All-Sky Cube (só DR1)
 
@@ -234,7 +254,7 @@ Observações:
 | Épocas irregulares e detectores faltando | Agrupar por tempo dinamicamente; UI tolerante a lacunas |
 | Pixel de 6,15″ | Movimentos de poucos ″/ano são sutis; imagem de diferença e marcador de posição prevista são essenciais |
 | DR1 + QR3 atuais, QR2 obsoleto | Coleções configuráveis; nunca misturar QR2 |
-| Novos dados QR3 semanais | Backend ao vivo sempre atualizado; Action semanal para os estáticos |
+| Novos dados QR3 semanais | Backend ao vivo sempre atualizado; Action a cada 3 dias para os estáticos |
 | All-Sky Cube com HiPS | Camada de contexto colorida no Aladin Lite, sem custo de processamento |
 
 ## 7. Referências

@@ -8,7 +8,7 @@ Decisões de infraestrutura do projeto. Restrição principal: **tudo deve ser 1
 |---|---|---|
 | Frontend + alvos pré-processados | **GitHub Pages** | Grátis, publicação nativa pelo GitHub Actions, tudo no mesmo lugar |
 | Backend ao vivo (coordenadas quaisquer) | **Render (plano free)** | Único plano gratuito viável para Python + Astropy |
-| Atualização dos alvos pré-processados | **GitHub Actions agendado** (semanal) | Grátis em repositório público; atende ao item "fácil de atualizar" do desafio |
+| Atualização dos alvos pré-processados | **GitHub Actions agendado** (a cada 3 dias) | Grátis em repositório público; atende ao item "fácil de atualizar" do desafio |
 | Armazenamento de imagens | **Arquivos (cache), sem banco de dados** | Imagens são arquivos; a busca de "quais imagens existem" é feita pelo próprio IRSA |
 | Repositório | **Público** | Exigência usual do Space Apps e condição para Pages e Actions gratuitos |
 
@@ -25,7 +25,7 @@ Decisões de infraestrutura do projeto. Restrição principal: **tudo deve ser 1
                      │ Backend FastAPI (Render free) │ ───▶ │ IRSA │
                      │  cache temporário em disco    │      └──────┘
                      └───────────────────────────────┘
-   GitHub Actions (semanal) ── roda o mesmo pipeline ──▶ republica o GitHub Pages
+   GitHub Actions (a cada 3 dias) ── roda o mesmo pipeline ──▶ republica o GitHub Pages
 ```
 
 Há dois caminhos de dados:
@@ -95,7 +95,7 @@ Os itens em que a Vercel ganha (prévias, redirects, funções) não são necess
 
 ### 6.1 Funcionamento
 
-Toda semana (o SPHEREx recebe dados semanalmente), o Action:
+A cada 3 dias (o SPHEREx recebe dados semanalmente; o intervalo menor mantém o cache do Actions vivo), o Action:
 
 1. Sobe uma máquina Linux temporária.
 2. Faz checkout do código.
@@ -141,7 +141,7 @@ name: Atualizar dados SPHEREx
 
 on:
   schedule:
-    - cron: "0 6 * * 1"     # segundas, 06:00 UTC
+    - cron: "0 6 */3 * *"   # a cada 3 dias, 06:00 UTC (cache do Actions expira em 7 dias sem uso)
   workflow_dispatch:         # botão "Run workflow"
   push:
     branches: [main]         # republica quando o código muda
@@ -202,13 +202,24 @@ Configuração única no GitHub: **Settings → Pages → Source: GitHub Actions
 - Repositório público: minutos de Actions ilimitados. Cada execução deve levar ~5–15 min; o limite por job é 6 h.
 - O `cron` é em UTC e pode atrasar em horários de pico.
 - **Em repositórios públicos, agendamentos são desativados após 60 dias sem commits.** Reativar na aba *Actions* quando necessário.
+- **O GitHub apaga caches sem uso há 7 dias.** Com agendamento exatamente semanal o cache pode expirar e forçar o download completo. Por isso o agendamento será **a cada 3 dias** (`cron: "0 6 */3 * *"`).
 
-### 6.6 Como responde ao desafio
+### 6.6 Tempo de execução (medido)
+
+| Execução | O que baixa | Tempo |
+|---|---|---|
+| Primeira (cache vazio) | ~1.950 recortes dos 5 alvos (~4 MB cada no download; ~190 KB cada no cache, ~370 MB no total) | ~60 min (medido localmente: 5 a 19 min por alvo) |
+| Recorrente (cache cheio) | Consulta TAP + exposições novas | ~1–3 min |
+| Validação científica | Nada (usa o cache) | ~2,5 min |
+
+O download é lento porque o serviço de recortes do IRSA sempre inclui a extensão PSF (~4 MB), descartada depois. Rodar a primeira execução **cedo**, para o cache já estar cheio na avaliação.
+
+### 6.7 Como responde ao desafio
 
 > *"New SPHEREx data is arriving fast! Make sure to design a tool that's easy to update with the latest data releases."*
 
 - Backend ao vivo: sempre consulta o estado atual do arquivo.
-- Alvos pré-processados: atualização automática semanal, sem intervenção.
+- Alvos pré-processados: atualização automática a cada 3 dias, sem intervenção.
 - Adicionar alvo: uma linha em `targets.yaml` (qualquer pessoa pode sugerir por Pull Request).
 - Novo release: alterar a configuração de coleções, sem mudar código.
 - Histórico de cada atualização visível e auditável na aba *Actions*.
