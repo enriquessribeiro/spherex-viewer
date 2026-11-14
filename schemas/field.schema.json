@@ -56,7 +56,8 @@
       }
     },
     "failed_exposures": { "type": "array", "items": { "type": "string" } },
-    "target": { "$ref": "#/$defs/target" }
+    "target": { "$ref": "#/$defs/target" },
+    "spectrum": { "description": "Espectro do alvo (schemas/spectrum.schema.json), relativo a base_url", "const": "spectrum.json" }
   },
   "$defs": {
     "detector": { "enum": ["D1", "D2", "D3", "D4", "D5", "D6"] },

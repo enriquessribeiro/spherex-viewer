@@ -19,6 +19,8 @@ import { parseCoordinates } from "./core/coords";
 import { nearbyTarget, type MovingTarget } from "./core/nearby";
 import { pencilArrow, pencilCircle } from "./ui/marks";
 import { SkyMap, type CatalogKey } from "./ui/skymap";
+import { SpectrumView } from "./ui/spectrum";
+import type { SpectrumDoc } from "./core/spectrum";
 
 const API_BASE: string | null = import.meta.env.VITE_API_BASE || null;
 const ICONS = { ChevronLeft, ChevronRight, Link, Pause, Play, Search };
@@ -183,6 +185,23 @@ function openPoint(ra: number, dec: number) {
   $("plate").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+const spectrumView = new SpectrumView($("spectrum"));
+
+/** Espectro do alvo, quando o campo tem (alvos pré-processados). */
+async function showSpectrum() {
+  const handle = field;
+  spectrumView.show(null, "");
+  if (!handle?.doc.spectrum || state.embed) return;
+  try {
+    const doc = (await fetch(handle.base + handle.doc.spectrum).then((r) => r.ok ? r.json() : null)) as SpectrumDoc | null;
+    if (field !== handle || !doc) return;
+    spectrumView.show(doc, currentTarget?.name ?? handle.doc.target?.name ?? "alvo");
+    spectrumView.highlight(state.mode === "play" || state.mode === "blink" ? currentEpochIndex() : undefined);
+  } catch {
+    // sem espectro: a seção fica escondida
+  }
+}
+
 const skyMap = new SkyMap($("skymap"), $("skymap-status"), { onTarget: openTarget, onPoint: openPoint });
 
 function setupField() {
@@ -205,6 +224,7 @@ function setupField() {
   restartTimer();
   draw();
   applyTargetContrast();
+  showSpectrum();
   skyMap.showField(doc.center.ra, doc.center.dec, doc.fov_arcmin);
 }
 
@@ -325,6 +345,7 @@ async function drawPlate() {
   renderInscription(shownEpoch);
   renderLabel(shownEpoch);
   highlightRuler(shownEpoch);
+  spectrumView.highlight(state.mode === "play" || state.mode === "blink" ? shownEpoch : undefined);
 }
 
 /** Recorte da placa conforme o zoom: fixo no céu (meio da trajetória prevista), igual em todas as épocas. */

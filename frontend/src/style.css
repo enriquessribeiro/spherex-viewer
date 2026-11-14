@@ -703,3 +703,45 @@ body.embed .plate-label { width: 100%; }
 .check .hint { font-size: var(--step--1); color: var(--ink-muted); }
 
 .skymap-catalogs { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; }
+
+/* ---------------------------------------------------------------- espectro */
+
+.spectrum-area { max-width: 96rem; margin: 1rem auto 0; padding: var(--gap); border-top: 1px solid var(--rule); }
+.spectrum-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 0.6rem 2rem; margin-bottom: 0.6rem; }
+.spectrum-notes p { margin: 0.4rem 0 0; max-width: 72ch; color: var(--ink-soft); font-size: var(--step--1); }
+.spectrum-notes .spectrum-warning { color: var(--ink); border-left: 2px solid var(--manila); padding-left: 0.6rem; }
+.spectrum-chart { position: relative; max-width: 60rem; }
+.spectrum-chart svg { display: block; width: 100%; height: auto; font-family: var(--font); }
+.sp-grid { stroke: var(--glass-deep); stroke-width: 1; }
+.sp-grid.sp-zero, .sp-axisline { stroke: var(--rule); stroke-width: 1; }
+.sp-tick, .sp-det { font-size: 12px; fill: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.sp-axis { font-size: 12px; fill: var(--ink-soft); }
+.sp-band { fill: var(--sleeve); }
+.sp-band-dirty { fill: var(--manila); }
+.sp-err { stroke-width: 1; }
+.sp-err.sp-other { stroke: var(--manila); opacity: 0.45; }
+.sp-err.sp-now { stroke: var(--pencil); opacity: 0.7; }
+.sp-median { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.sp-dot { stroke: var(--glass); stroke-width: 2; cursor: default; }
+.sp-dot.sp-other { fill: var(--manila); }
+.sp-dot.sp-now { fill: var(--pencil); }
+.sp-dot.sp-flagged { fill: var(--glass); stroke-width: 1.5; }
+.sp-dot.sp-flagged.sp-other { stroke: var(--manila); }
+.sp-dot.sp-flagged.sp-now { stroke: var(--pencil); }
+.spectrum-tooltip {
+  position: absolute; pointer-events: none; padding: 0.4rem 0.6rem; font-size: var(--step--1);
+  background: var(--glass-bright); border: 1px solid var(--rule); border-radius: var(--radius);
+  box-shadow: 0 8px 22px -12px rgb(20 20 20 / 0.4); white-space: nowrap;
+}
+.sp-key { display: inline-block; width: 0.7rem; height: 0.7rem; border-radius: 50%; margin-left: 0.6rem; vertical-align: -0.05rem; }
+.sp-key:first-child { margin-left: 0; }
+.sp-key-now { background: var(--pencil); }
+.sp-key-other { background: var(--manila); width: 0.55rem; height: 0.55rem; }
+.sp-key-median { width: 1rem; height: 2px; border-radius: 1px; background: var(--ink); vertical-align: 0.2rem; }
+.sp-key-flagged { border: 1.5px solid var(--manila); background: var(--glass); }
+.spectrum-table { margin-top: 0.6rem; font-size: var(--step--1); }
+.spectrum-table summary { cursor: pointer; color: var(--ink-soft); }
+.spectrum-table table { border-collapse: collapse; margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
+.spectrum-table th, .spectrum-table td { padding: 0.15rem 0.8rem 0.15rem 0; text-align: right; border-bottom: 1px solid var(--glass-deep); }
+.spectrum-table th { color: var(--ink-muted); font-weight: 600; }
+body.embed .spectrum-area { display: none; }

@@ -73,7 +73,7 @@ Arredondar em 0,0001° (0,36″, bem menor que um pixel) faz pedidos quase iguai
 | `GET /api/v1/resolve` | ✅ coordenadas (graus ou sexagesimal) sem rede; nomes via SIMBAD (espelho de Harvard, depois CDS). Sem movimento próprio para coordenadas digitadas |
 | `GET /api/v1/field` | ✅ 202 com progresso → 200 com `field.json`; erros 400/404/429/502 |
 | `GET /api/v1/fields/{field_id}/{data_version}/...` | ✅ `field.json`, `.f32`, `.var.f32`, `.mask.u8`, `.png` (PNG com o esticamento padrão; parâmetros `stretch`/`vmin`/`vmax`/`scale` ainda não implementados) |
-| `.../spectrum` | Planejado — fase 6 |
+| `spectrum.json` dos alvos | ✅ nos dados estáticos (`build_static`); pela API, planejado |
 | `.../exposures/{id}.f32` | Planejado — fase 6 |
 | `.../frames/{epoch}/{det}.fits` | Planejado |
 
@@ -221,6 +221,13 @@ Espectro de um ponto do campo, medido em **todas** as exposições.
 ```
 
 Método: fotometria de abertura na posição, em cada exposição, com fundo local em anel. Comprimento de onda lido do WCS espectral (`WCS-WAVE`, ver limitação em [02-dados-spherex.md](02-dados-spherex.md)). Pontos com flags graves (HOT, NONLINEAR, GHOST…) vêm marcados, e o frontend pode escondê-los.
+
+**Implementado (fase 6) para os alvos pré-processados**, em `pipeline/spectrum.py`, gravado como `spectrum.json` na pasta do campo (`field.json` → `"spectrum": "spectrum.json"`; formato em [`schemas/spectrum.schema.json`](../schemas/spectrum.schema.json)):
+
+- Posição do alvo **na data de cada exposição** (movimento próprio), abertura de **2 px (12″)**, fundo pela mediana com corte sigma no anel de 5–8 px, sobre `IMAGE − ZODI`. Unidade: µJy (MJy/sr × ângulo sólido do pixel). Sem correção pela PSF: a forma do espectro é confiável, o valor absoluto fica ~10% abaixo do total.
+- Exposição descartada se a abertura tem pixel sem dado (núcleo saturado: R Draconis não tem espectro) ou com flag grave; com flag suspeito (TRANSIENT, NONLINEAR…) entra marcada (`flagged`).
+- **Vizinhas na abertura** (`neighbors`): fontes com S/R > 5, a mais de 1 px e até 3 px do alvo, por detector, na época mais profunda. No WISE 0855 há uma estrela a ~9″: em D1–D3 o fluxo medido é dela, e o site avisa.
+- No site: uma bolinha por exposição, a época que está na placa em lápis, a mediana por caixas de λ/40 em tinta, faixa de cada detector sob o eixo, tooltip e tabela.
 
 ### 4.9 `GET /api/v1/fields/{field_id}/{data_version}/frames/{epoch}/{det}.fits`
 

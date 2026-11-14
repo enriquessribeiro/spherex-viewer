@@ -34,6 +34,9 @@ OVERFLOW_BIT = 1
 # então o limite é baixo e o adaptador repete com espera (pipeline/irsa.py).
 DEFAULT_MAX_WORKERS = 4
 
+# Recorte pedido ao arquivo = 1,5 × o campo (com o detector girado, cobre a diagonal √2).
+CUTOUT_FACTOR = 1.5
+
 # Fração mínima de pixels válidos na vizinhança interpolada para aceitar o valor.
 MIN_VALID_WEIGHT = 0.5
 
@@ -125,7 +128,7 @@ def build_field(
 ) -> Field:
     wcs, n = field_grid(ra, dec, fov_arcmin)
     # Recorte um pouco maior que o campo para a reprojeção não perder as bordas.
-    size_deg = fov_arcmin / 60 * 1.5
+    size_deg = fov_arcmin / 60 * CUTOUT_FACTOR
 
     exposures = archive.query(ra, dec)
     if not exposures:
