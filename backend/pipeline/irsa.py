@@ -24,6 +24,11 @@ DEFAULT_COLLECTIONS = ("spherex_dr1", "spherex_qr3")
 
 # O IRSA responde 503 "Server busy, retry later" mesmo com poucos pedidos simultâneos.
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+# Com o TAP fora do ar, poucas tentativas antes de consultar pelo SIA.
+TAP_ATTEMPTS_BEFORE_SIA = 2
+# O SIA busca imagens que tocam um círculo; um raio de 3,6″ equivale a "contém o ponto".
+SIA_RADIUS_DEG = 0.001
+
 # Extensões que o pipeline não usa e que pesam (EPSF ~4 MB por recorte).
 DROPPED_EXTENSIONS = ("EPSF", "PSF")
 
@@ -61,11 +66,39 @@ class IrsaArchive:
         adql = _QUERY.format(
             ra=ra, dec=dec, collections=", ".join(f"'{c}'" for c in self._collections)
         )
-        response = self._request(
-            "POST", f"{self._base_url}/TAP/sync",
-            data={"QUERY": adql, "LANG": "ADQL", "FORMAT": "csv"},
-        )
+        try:
+            response = self._request(
+                "POST", f"{self._base_url}/TAP/sync",
+                data={"QUERY": adql, "LANG": "ADQL", "FORMAT": "csv"},
+                max_attempts=TAP_ATTEMPTS_BEFORE_SIA,
+            )
+        except ArchiveUnavailable:
+            # O TAP do IRSA pode cair sozinho (14/11/2026: TAP com 502, SIA e recortes no ar).
+            return self._query_sia(ra, dec)
         return [_exposure_from_row(row) for row in csv.DictReader(io.StringIO(response.text))]
+
+    def _query_sia(self, ra: float, dec: float) -> list[Exposure]:
+        """Mesma consulta pelo serviço SIA2: uma requisição por coleção."""
+        exposures: list[Exposure] = []
+        for collection in self._collections:
+            response = self._request(
+                "GET", f"{self._base_url}/SIA",
+                params={
+                    "COLLECTION": collection,
+                    "POS": f"circle {ra} {dec} {SIA_RADIUS_DEG}",
+                    "RESPONSEFORMAT": "CSV",
+                },
+            )
+            for row in csv.DictReader(io.StringIO(response.text)):
+                if row["dataproduct_subtype"] != "science":
+                    continue
+                exposures.append(_exposure_from_row({
+                    "uri": row["access_url"].split("://", 1)[1].split("/", 1)[1],
+                    "energy_bandpassname": row["energy_bandpassname"],
+                    "time_bounds_lower": row["t_min"],
+                    "collection": row["obs_collection"],
+                }))
+        return sorted(exposures, key=lambda e: e.mjd)
 
     def fetch_cutout(
         self, exposure: Exposure, ra: float, dec: float, size_deg: float
@@ -80,10 +113,11 @@ class IrsaArchive:
                 del hdul[name]
         return hdul
 
-    def _request(self, method: str, url: str, **kwargs) -> httpx.Response:
+    def _request(self, method: str, url: str, max_attempts: int | None = None, **kwargs) -> httpx.Response:
         """Faz o pedido repetindo com espera exponencial quando o IRSA está ocupado."""
+        attempts = max_attempts or self._max_attempts
         last_error = ""
-        for attempt in range(self._max_attempts):
+        for attempt in range(attempts):
             if attempt:
                 self._sleep(self._backoff_s * 2 ** (attempt - 1))
             try:
@@ -96,7 +130,7 @@ class IrsaArchive:
                 continue
             response.raise_for_status()
             return response
-        raise ArchiveUnavailable(f"{url}: {last_error} após {self._max_attempts} tentativas")
+        raise ArchiveUnavailable(f"{url}: {last_error} após {attempts} tentativas")
 
 
 def _exposure_from_row(row: dict[str, str]) -> Exposure:

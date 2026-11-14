@@ -123,3 +123,59 @@ def test_servidor_ocupado_sempre_gera_erro_de_arquivo_indisponivel():
 
     with pytest.raises(ArchiveUnavailable):
         archive.fetch_cutout(_exposicao_d1(), RA0, DEC0, 0.15)
+
+
+SIA_HEADER = (FIXTURES / "wise0855_sia_dr1.csv").read_text().splitlines()[0] + "\n"
+
+
+def _irsa_com_tap_fora(pedidos, sia_status=200):
+    """IRSA como em 14/11/2026: TAP respondendo 502 e SIA no ar."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        pedidos.append(request.url)
+        if request.url.path == "/TAP/sync":
+            return httpx.Response(502, content=b"Proxy Error")
+        if sia_status != 200:
+            return httpx.Response(sia_status, content=b"Proxy Error")
+        if request.url.params["COLLECTION"] == "spherex_dr1":
+            return httpx.Response(200, content=(FIXTURES / "wise0855_sia_dr1.csv").read_bytes())
+        return httpx.Response(200, content=SIA_HEADER.encode())  # coleção sem dados nessa posição
+
+    return IrsaArchive(client=_cliente(handler), sleep=lambda s: None)
+
+
+def test_com_o_tap_fora_do_ar_a_consulta_usa_o_sia_e_devolve_as_mesmas_exposicoes():
+    pedidos = []
+    exposicoes = _irsa_com_tap_fora(pedidos).query(133.76002, -7.24221)
+
+    # Valores esperados: o que o TAP devolveu para esta posição antes de cair.
+    assert len(exposicoes) == 258
+    assert Counter(e.detector for e in exposicoes) == {
+        "D1": 36, "D2": 48, "D3": 45, "D4": 36, "D5": 48, "D6": 45,
+    }
+    assert [e.mjd for e in exposicoes] == sorted(e.mjd for e in exposicoes)
+    primeira = exposicoes[0]
+    assert (primeira.id, primeira.detector, primeira.collection) == ("2025W19_1B_0116_1D3", "D3", "spherex_dr1")
+    assert primeira.mjd == pytest.approx(60800.700028)
+    assert primeira.uri == (
+        "ibe/data/spherex/dr1/level2/2025W19_1B/l2b-v27-2026-197/3/"
+        "level2_2025W19_1B_0116_1D3_spx_l2b-v27-2026-197.fits"
+    )
+    # Uma consulta SIA por coleção configurada, com a posição pedida.
+    sia = [u for u in pedidos if u.path == "/SIA"]
+    assert sorted(u.params["COLLECTION"] for u in sia) == ["spherex_dr1", "spherex_qr3"]
+    assert sia[0].params["POS"].startswith("circle 133.76002 -7.24221 ")
+
+
+def test_com_o_tap_fora_do_ar_nao_se_gasta_mais_de_duas_tentativas_antes_do_sia():
+    pedidos = []
+    _irsa_com_tap_fora(pedidos).query(133.76002, -7.24221)
+
+    assert len([u for u in pedidos if u.path == "/TAP/sync"]) == 2
+
+
+def test_tap_e_sia_fora_do_ar_geram_erro_de_arquivo_indisponivel():
+    from pipeline.irsa import ArchiveUnavailable
+
+    with pytest.raises(ArchiveUnavailable):
+        _irsa_com_tap_fora([], sia_status=502).query(133.76002, -7.24221)
