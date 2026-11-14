@@ -55,6 +55,7 @@ class SyntheticExposure:
     mjd: float
     rotation_deg: float = 0.0
     offset_px: tuple[float, float] = (0.0, 0.0)
+    zodi: float = 0.0  # luz zodiacal (MJy/sr), somada à IMAGE e registrada em ZODI
 
 
 @dataclass
@@ -88,7 +89,7 @@ class SyntheticArchive:
         wcs.wcs.cdelt = [-PIXEL_SCALE_DEG, PIXEL_SCALE_DEG]
         wcs.wcs.pc = [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
 
-        image = np.zeros((n, n), dtype=np.float32)
+        image = np.full((n, n), spec.zodi, dtype=np.float32)
         yy, xx = np.mgrid[0:n, 0:n]
         for src in self.sources:
             x, y = wcs.world_to_pixel_values(*src.position_at(spec.mjd))
@@ -104,6 +105,6 @@ class SyntheticArchive:
                 fits.ImageHDU(image, header=header, name="IMAGE"),
                 fits.ImageHDU(np.zeros((n, n), dtype=np.int32), name="FLAGS"),
                 fits.ImageHDU(np.ones((n, n), dtype=np.float32), name="VARIANCE"),
-                fits.ImageHDU(np.zeros((n, n), dtype=np.float32), name="ZODI"),
+                fits.ImageHDU(np.full((n, n), spec.zodi, dtype=np.float32), name="ZODI"),
             ]
         )

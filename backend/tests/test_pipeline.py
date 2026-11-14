@@ -2,6 +2,8 @@
 
 import math
 
+import numpy as np
+
 from pytest import approx
 
 from pipeline.field import build_field
@@ -129,3 +131,17 @@ def test_epoca_sem_algum_detector_contem_apenas_os_detectores_observados():
 
     assert set(field.epochs[0].frames) == {"D1", "D6"}
     assert set(field.epochs[1].frames) == {"D6"}
+
+
+def test_luz_zodiacal_e_subtraida_do_quadro():
+    # Como no SPHEREx real: IMAGE inclui a luz zodiacal e ZODI traz o modelo dela.
+    field = _campo_com_exposicoes(
+        [
+            SyntheticExposure(det="D6", mjd=60800.0, zodi=5.0),
+            SyntheticExposure(det="D6", mjd=60800.5, zodi=7.0, rotation_deg=15.0),
+        ]
+    )
+
+    quadro = field.epochs[0].frames["D6"].data
+    canto = quadro[:10, :10]  # longe da estrela no centro
+    assert np.nanmedian(canto) == approx(0.0, abs=1e-3)

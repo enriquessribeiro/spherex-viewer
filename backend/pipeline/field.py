@@ -75,8 +75,10 @@ def build_field(ra: float, dec: float, fov_arcmin: float, archive: Archive) -> F
         for exp in group:
             hdul = archive.fetch_cutout(exp, ra, dec, size_deg)
             image = hdul["IMAGE"]
+            # IMAGE inclui a luz zodiacal; ZODI é o modelo dela (docs/02-dados-spherex.md).
+            data = image.data - hdul["ZODI"].data
             reprojected, _ = reproject_interp(
-                (image.data, WCS(image.header)), wcs, shape_out=(n, n)
+                (data, WCS(image.header)), wcs, shape_out=(n, n)
             )
             stacks[exp.detector].append(reprojected)
         frames = {
