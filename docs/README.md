@@ -14,8 +14,5 @@
 | [08-resultados.md](08-resultados.md) | Resultados com dados reais: Marco 1 (WISE 0855 andando), astrometria, validação científica e lições para o produto |
 | [09-relatorio-progresso.md](09-relatorio-progresso.md) | Relatório consolidado das fases 0 a 6: o que foi construído, processo, decisões técnicas, problemas e resultados |
 | [10-desenvolvimento.md](10-desenvolvimento.md) | Como rodar localmente: instalação, testes, geração dos dados estáticos e API |
+| [11-apresentacao.md](11-apresentacao.md) | Roteiro do pitch de 3 minutos: texto cronometrado, demonstração, preparação, números e perguntas prováveis |
 | [diagramas/](diagramas/README.md) | Diagrama de atividade da visão geral (PlantUML) e fluxo do sistema em diagrama de raia, três páginas editáveis, com a análise: atores, máquina de estados do trabalho, falhas e ordem de grandeza |
-
-Documentos planejados (criar conforme o projeto avança):
-
-- `11-apresentacao.md` — roteiro do pitch / demo para os jurados
