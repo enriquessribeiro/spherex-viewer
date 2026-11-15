@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Veja o que se move no céu infravermelho do telescópio SPHEREx (NASA), época por época." />
+    <meta name="description" content="Veja o que se move no céu infravermelho do telescópio SPHEREx (NASA), época por época." data-i18n-attr="content:meta.description" />
     <meta name="theme-color" content="#f2efe7" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23f2efe7'/%3E%3Ccircle cx='15' cy='17' r='3' fill='%23141414'/%3E%3Cpath d='M15 6.5c6.5-.5 11 4 10.5 10.5S19 27.5 13.5 26 4.8 19.5 6 13.6 10.5 6.8 15 6.5' fill='none' stroke='%23c4302b' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E" />
     <title>SPHEREx Viewer</title>
@@ -12,40 +12,43 @@
     <header class="masthead">
       <a class="brand" href="./">
         <span class="brand-name">SPHEREx Viewer</span>
-        <span class="brand-sub">o que se move no céu infravermelho</span>
+        <span class="brand-sub" data-i18n="brand.sub">o que se move no céu infravermelho</span>
       </a>
       <form class="search" id="search" role="search">
-        <label class="visually-hidden" for="search-input">Buscar objeto ou coordenada</label>
+        <label class="visually-hidden" for="search-input" data-i18n="search.label">Buscar objeto ou coordenada</label>
         <span class="search-icon" data-icon="Search" aria-hidden="true"></span>
         <input id="search-input" name="q" type="search" autocomplete="off" spellcheck="false"
-          placeholder="R Dra ou 133.76 -7.24" />
-        <button type="submit" class="button">Ver</button>
+          placeholder="R Dra ou 133.76 -7.24" data-i18n-attr="placeholder:search.placeholder" />
+        <button type="submit" class="button" data-i18n="search.go">Ver</button>
       </form>
       <button type="button" class="button button-quiet" id="copy-link">
-        <span data-icon="Link" aria-hidden="true"></span><span class="label">Copiar link</span>
+        <span data-icon="Link" aria-hidden="true"></span><span class="label" data-i18n="copy.label">Copiar link</span>
+      </button>
+      <button type="button" class="button button-quiet lang-switch" id="lang-switch">
+        <span data-icon="Languages" aria-hidden="true"></span><span class="label">English</span>
       </button>
     </header>
 
     <section class="intro" aria-labelledby="intro-title">
       <div class="intro-text">
-        <h1 class="intro-title" id="intro-title">O que mudou no céu de uma foto para a outra?</h1>
-        <p class="intro-lede">O telescópio espacial SPHEREx, da NASA, fotografa o céu inteiro em infravermelho a cada seis meses. Aqui você vê as fotos de um mesmo pedaço do céu em sequência, como um filme curto. As estrelas distantes ficam paradas; o que está perto de nós muda de lugar, e algumas estrelas mudam de brilho. Foi comparando fotos assim que Plutão foi descoberto, em 1930.</p>
+        <h1 class="intro-title" id="intro-title" data-i18n="intro.title">O que mudou no céu de uma foto para a outra?</h1>
+        <p class="intro-lede" data-i18n="intro.lede">O telescópio espacial SPHEREx, da NASA, fotografa o céu inteiro em infravermelho a cada seis meses. Aqui você vê as fotos de um mesmo pedaço do céu em sequência, como um filme curto. As estrelas distantes ficam paradas; o que está perto de nós muda de lugar, e algumas estrelas mudam de brilho. Foi comparando fotos assim que Plutão foi descoberto, em 1930.</p>
       </div>
-      <ol class="intro-steps" aria-label="Como ler">
-        <li><strong>Escolha um alvo</strong> na lista de alvos do desafio, ou busque um nome ou coordenada no alto da página.</li>
-        <li><strong>Veja as épocas passarem.</strong> Cada quadro é o mesmo pedaço do céu numa data diferente. A cruz fixa no centro ajuda a perceber o que anda; o círculo vermelho marca onde o objeto deveria estar.</li>
-        <li><strong>Compare.</strong> Piscar alterna duas datas. Diferença apaga o que ficou igual e deixa só o que mudou.</li>
+      <ol class="intro-steps" aria-label="Como ler" data-i18n-attr="aria-label:intro.steps">
+        <li data-i18n-html="intro.step1"><strong>Escolha um alvo</strong> na lista de alvos do desafio, ou busque um nome ou coordenada no alto da página.</li>
+        <li data-i18n-html="intro.step2"><strong>Veja as épocas passarem.</strong> Cada quadro é o mesmo pedaço do céu numa data diferente. A cruz fixa no centro ajuda a perceber o que anda; o círculo vermelho marca onde o objeto deveria estar.</li>
+        <li data-i18n-html="intro.step3"><strong>Compare.</strong> Piscar alterna duas datas. Diferença apaga o que ficou igual e deixa só o que mudou.</li>
       </ol>
     </section>
 
     <main class="workbench">
-      <section class="plate-area" aria-label="Placa do SPHEREx">
+      <section class="plate-area" aria-label="Placa do SPHEREx" data-i18n-attr="aria-label:plate.aria">
         <figure class="plate" id="plate">
           <div class="plate-frame">
             <canvas id="plate-canvas" width="590" height="590" aria-describedby="plate-label"></canvas>
             <svg id="plate-marks" class="plate-marks" aria-hidden="true"></svg>
             <span class="plate-inscription" id="plate-inscription" aria-hidden="true"></span>
-            <div class="segmented zoom" role="radiogroup" aria-label="Zoom">
+            <div class="segmented zoom" role="radiogroup" aria-label="Zoom" data-i18n-attr="aria-label:zoom.aria">
               <button type="button" role="radio" data-zoom="1">1×</button>
               <button type="button" role="radio" data-zoom="2">2×</button>
               <button type="button" role="radio" data-zoom="4">4×</button>
@@ -53,78 +56,78 @@
             <div class="plate-status" id="plate-status" role="status" aria-live="polite" hidden></div>
           </div>
           <figcaption class="plate-label" id="plate-label">
-            <span class="plate-target" id="label-target">Carregando…</span>
+            <span class="plate-target" id="label-target" data-i18n="plate.loading">Carregando…</span>
             <span class="plate-epoch" id="label-epoch"></span>
             <dl class="plate-facts" id="label-facts"></dl>
           </figcaption>
         </figure>
 
-        <div class="transport" role="group" aria-label="Animação">
-          <h2 class="section-title transport-title">Épocas</h2>
-          <button type="button" class="button icon-button" id="prev" aria-label="Época anterior"><span data-icon="ChevronLeft"></span></button>
-          <button type="button" class="button button-primary" id="play"><span data-icon="Pause" aria-hidden="true"></span><span class="label">Pausar</span></button>
-          <button type="button" class="button icon-button" id="next" aria-label="Próxima época"><span data-icon="ChevronRight"></span></button>
+        <div class="transport" role="group" aria-label="Animação" data-i18n-attr="aria-label:transport.aria">
+          <h2 class="section-title transport-title" data-i18n="transport.title">Épocas</h2>
+          <button type="button" class="button icon-button" id="prev" aria-label="Época anterior" data-i18n-attr="aria-label:transport.prev"><span data-icon="ChevronLeft"></span></button>
+          <button type="button" class="button button-primary" id="play"><span data-icon="Pause" aria-hidden="true"></span><span class="label" data-i18n="transport.pause">Pausar</span></button>
+          <button type="button" class="button icon-button" id="next" aria-label="Próxima época" data-i18n-attr="aria-label:transport.next"><span data-icon="ChevronRight"></span></button>
           <label class="speed" id="speed">
-            <span>Velocidade</span>
+            <span data-i18n="transport.speed">Velocidade</span>
             <input type="range" id="fps" min="0.5" max="6" step="0.5" value="2" aria-describedby="fps-value" />
             <output id="fps-value">2/s</output>
           </label>
         </div>
 
         <div class="ruler-wrap">
-          <div id="ruler" class="ruler" role="group" aria-label="Linha do tempo das épocas: posição = data real, altura = número de exposições"></div>
-          <p class="ruler-note"><span id="ruler-note"></span> <span class="hint">Posição = data real · altura = nº de exposições.</span></p>
+          <div id="ruler" class="ruler" role="group" aria-label="Linha do tempo das épocas: posição = data real, altura = número de exposições" data-i18n-attr="aria-label:ruler.aria"></div>
+          <p class="ruler-note"><span id="ruler-note"></span> <span class="hint" data-i18n="ruler.hint">Posição = data real · altura = nº de exposições.</span></p>
         </div>
       </section>
 
       <aside class="targets-area control-group" aria-labelledby="targets-title">
-        <h2 class="section-title" id="targets-title">Alvos do desafio</h2>
+        <h2 class="section-title" id="targets-title" data-i18n="targets.title">Alvos do desafio</h2>
         <ul class="targets" id="targets"></ul>
       </aside>
 
-      <aside class="controls" aria-label="Controles">
+      <aside class="controls" aria-label="Controles" data-i18n-attr="aria-label:controls.aria">
         <section class="control-group compare">
-          <h2 class="section-title">Comparar</h2>
-          <div class="segmented" role="radiogroup" aria-label="Modo" id="modes">
-            <button type="button" role="radio" data-mode="play">Animar</button>
-            <button type="button" role="radio" data-mode="blink">Piscar</button>
-            <button type="button" role="radio" data-mode="diff">Diferença</button>
-            <button type="button" role="radio" data-mode="sum">Somar</button>
+          <h2 class="section-title" data-i18n="compare.title">Comparar</h2>
+          <div class="segmented" role="radiogroup" aria-label="Modo" id="modes" data-i18n-attr="aria-label:modes.aria">
+            <button type="button" role="radio" data-mode="play" data-i18n="mode.play">Animar</button>
+            <button type="button" role="radio" data-mode="blink" data-i18n="mode.blink">Piscar</button>
+            <button type="button" role="radio" data-mode="diff" data-i18n="mode.diff">Diferença</button>
+            <button type="button" role="radio" data-mode="sum" data-i18n="mode.sum">Somar</button>
           </div>
           <p class="mode-help" id="mode-help"></p>
           <div class="pair" id="pair" hidden>
-            <label>De <select id="epoch-a"></select></label>
-            <label>para <select id="epoch-b"></select></label>
+            <label><span data-i18n="pair.from">De</span> <select id="epoch-a"></select></label>
+            <label><span data-i18n="pair.to">para</span> <select id="epoch-b"></select></label>
           </div>
           <p class="legend" id="diff-legend" hidden>
-            <span class="swatch swatch-pencil"></span> apareceu ou ficou mais brilhante
-            <span class="swatch swatch-blue"></span> sumiu ou ficou mais fraco
+            <span class="swatch swatch-pencil"></span> <span data-i18n="legend.brighter">apareceu ou ficou mais brilhante</span>
+            <span class="swatch swatch-blue"></span> <span data-i18n="legend.fainter">sumiu ou ficou mais fraco</span>
           </p>
         </section>
 
         <section class="control-group">
-          <h2 class="section-title">Detector <span class="hint">comprimento de onda</span></h2>
-          <div class="detectors" role="radiogroup" aria-label="Detector" id="detectors"></div>
+          <h2 class="section-title"><span data-i18n="det.title">Detector</span> <span class="hint" data-i18n="det.hint">comprimento de onda</span></h2>
+          <div class="detectors" role="radiogroup" aria-label="Detector" id="detectors" data-i18n-attr="aria-label:det.aria"></div>
           <p class="det-help" id="det-help"></p>
         </section>
 
         <section class="control-group">
-          <h2 class="section-title">Imagem</h2>
+          <h2 class="section-title" data-i18n="image.title">Imagem</h2>
           <label class="slider">
-            <span>Contraste</span>
+            <span data-i18n="image.contrast">Contraste</span>
             <input type="range" id="gain" min="0" max="2.5" step="0.05" value="0" />
           </label>
-          <div class="segmented" role="radiogroup" aria-label="Aparência do céu">
-            <button type="button" role="radio" data-negative="1">Negativo</button>
-            <button type="button" role="radio" data-negative="0">Positivo</button>
+          <div class="segmented" role="radiogroup" aria-label="Aparência do céu" data-i18n-attr="aria-label:image.sky">
+            <button type="button" role="radio" data-negative="0" data-i18n="image.positive">Positivo</button>
+            <button type="button" role="radio" data-negative="1" data-i18n="image.negative">Negativo</button>
           </div>
-          <label class="check"><input type="checkbox" id="color" /> Falsa cor <span class="hint">D1 azul · D3 verde · D6 vermelho</span></label>
-          <label class="check"><input type="checkbox" id="flags" /> Marcar pixels pouco confiáveis</label>
-          <p class="det-help" id="flags-help" hidden>Em manila: núcleo saturado (o SPHEREx não entrega o valor) ou pixel que só tinha medidas com aviso de qualidade.</p>
-          <label class="check"><input type="checkbox" id="marks" checked /> Mira e posição prevista</label>
+          <label class="check"><input type="checkbox" id="color" /> <span data-i18n="image.color">Falsa cor</span> <span class="hint" data-i18n="image.colorHint">D1 azul · D3 verde · D6 vermelho</span></label>
+          <label class="check"><input type="checkbox" id="flags" /> <span data-i18n="image.flags">Marcar pixels pouco confiáveis</span></label>
+          <p class="det-help" id="flags-help" hidden data-i18n="image.flagsHelp">Em manila: núcleo saturado (o SPHEREx não entrega o valor) ou pixel que só tinha medidas com aviso de qualidade.</p>
+          <label class="check"><input type="checkbox" id="marks" checked /> <span data-i18n="image.marks">Mira e posição prevista</span></label>
           <div class="field-size">
-            <span class="slider-label">Campo</span>
-            <div class="segmented" role="radiogroup" aria-label="Tamanho do campo" id="fovs">
+            <span class="slider-label" data-i18n="image.field">Campo</span>
+            <div class="segmented" role="radiogroup" aria-label="Tamanho do campo" id="fovs" data-i18n-attr="aria-label:image.fieldAria">
               <button type="button" role="radio" data-fov="3">3′</button>
               <button type="button" role="radio" data-fov="6">6′</button>
               <button type="button" role="radio" data-fov="10">10′</button>
@@ -134,8 +137,8 @@
         </section>
 
         <section class="control-group about">
-          <p>Cada quadro soma todas as fotos que o SPHEREx fez deste pedaço do céu numa mesma época, para ficar mais nítido.</p>
-          <p class="credit">Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx (IRSA), releases DR1 e QR3. Posições: SIMBAD.</p>
+          <p data-i18n="about.text">Cada quadro soma todas as fotos que o SPHEREx fez deste pedaço do céu numa mesma época, para ficar mais nítido.</p>
+          <p class="credit" data-i18n="about.credit">Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx (IRSA), releases DR1 e QR3. Posições: SIMBAD.</p>
         </section>
       </aside>
     </main>
@@ -143,14 +146,14 @@
     <section class="spectrum-area" id="spectrum" aria-labelledby="spectrum-title" hidden>
       <div class="spectrum-head">
         <div>
-          <h2 class="skymap-title spectrum-title" id="spectrum-title">Espectro</h2>
+          <h2 class="skymap-title spectrum-title" id="spectrum-title" data-i18n="sp.heading">Espectro</h2>
           <div class="spectrum-notes"></div>
         </div>
         <p class="legend spectrum-legend">
-          <span class="sp-key sp-key-now"></span> época que está na placa
-          <span class="sp-key sp-key-other"></span> outras épocas
-          <span class="sp-key sp-key-median"></span> mediana
-          <span class="sp-key sp-key-flagged"></span> pixel com aviso
+          <span class="sp-key sp-key-now"></span> <span data-i18n="sp.now">época que está na placa</span>
+          <span class="sp-key sp-key-other"></span> <span data-i18n="sp.other">outras épocas</span>
+          <span class="sp-key sp-key-median"></span> <span data-i18n="sp.median">mediana</span>
+          <span class="sp-key sp-key-flagged"></span> <span data-i18n="sp.flaggedKey">pixel com aviso</span>
         </p>
       </div>
       <div class="spectrum-chart">
@@ -158,9 +161,9 @@
         <div class="spectrum-tooltip" hidden></div>
       </div>
       <details class="spectrum-table">
-        <summary>Ver os pontos em tabela</summary>
+        <summary data-i18n="sp.table">Ver os pontos em tabela</summary>
         <table>
-          <thead><tr><th>λ (µm)</th><th>fluxo (µJy)</th><th>erro</th><th>detector</th><th>data</th><th>aviso</th></tr></thead>
+          <thead><tr><th>λ (µm)</th><th data-i18n="sp.thFlux">fluxo (µJy)</th><th data-i18n="sp.thErr">erro</th><th data-i18n="sp.thDet">detector</th><th data-i18n="sp.thDate">data</th><th data-i18n="sp.thFlag">aviso</th></tr></thead>
           <tbody></tbody>
         </table>
       </details>
@@ -169,29 +172,29 @@
     <section class="skymap-area" aria-labelledby="skymap-title">
       <div class="skymap-head">
         <div>
-          <h2 class="skymap-title" id="skymap-title">O céu inteiro do SPHEREx</h2>
-          <p class="skymap-lede">Mosaico do primeiro ano de observações (DR1). Gire o céu, aproxime e escolha um ponto: a placa acima mostra como ele mudou de uma época para outra. O mosaico soma o ano inteiro, então ele mesmo não mostra movimento.</p>
+          <h2 class="skymap-title" id="skymap-title" data-i18n="sky.title">O céu inteiro do SPHEREx</h2>
+          <p class="skymap-lede" data-i18n="sky.lede">Mosaico do primeiro ano de observações (DR1). Gire o céu, aproxime e escolha um ponto: a placa acima mostra como ele mudou de uma época para outra. O mosaico soma o ano inteiro, então ele mesmo não mostra movimento.</p>
         </div>
-        <div class="segmented skymap-dets" role="radiogroup" aria-label="Detector do mapa" id="skymap-dets">
-          <button type="button" role="radio" data-sky-det="1" title="0,75–1,09 µm">D1</button>
-          <button type="button" role="radio" data-sky-det="2" title="1,10–1,62 µm">D2</button>
-          <button type="button" role="radio" data-sky-det="3" title="1,63–2,41 µm">D3</button>
-          <button type="button" role="radio" data-sky-det="4" title="2,42–3,82 µm">D4</button>
-          <button type="button" role="radio" data-sky-det="5" title="3,83–4,41 µm">D5</button>
-          <button type="button" role="radio" data-sky-det="6" title="4,42–5,00 µm">D6</button>
+        <div class="segmented skymap-dets" role="radiogroup" aria-label="Detector do mapa" id="skymap-dets" data-i18n-attr="aria-label:sky.detAria">
+          <button type="button" role="radio" data-sky-det="1">D1</button>
+          <button type="button" role="radio" data-sky-det="2">D2</button>
+          <button type="button" role="radio" data-sky-det="3">D3</button>
+          <button type="button" role="radio" data-sky-det="4">D4</button>
+          <button type="button" role="radio" data-sky-det="5">D5</button>
+          <button type="button" role="radio" data-sky-det="6">D6</button>
         </div>
-        <div class="skymap-catalogs" role="group" aria-label="Catálogos de outros telescópios">
-          <label class="check"><input type="checkbox" data-catalog="gaia" /> Gaia DR3 <span class="hint">círculos</span></label>
-          <label class="check"><input type="checkbox" data-catalog="wise" /> AllWISE <span class="hint">quadrados</span></label>
+        <div class="skymap-catalogs" role="group" aria-label="Catálogos de outros telescópios" data-i18n-attr="aria-label:sky.catalogsAria">
+          <label class="check"><input type="checkbox" data-catalog="gaia" /> Gaia DR3 <span class="hint" data-i18n="sky.circles">círculos</span></label>
+          <label class="check"><input type="checkbox" data-catalog="wise" /> AllWISE <span class="hint" data-i18n="sky.squares">quadrados</span></label>
         </div>
         <div class="skymap-actions">
-          <button type="button" class="button button-quiet" id="skymap-field">Ir para o campo aberto</button>
-          <button type="button" class="button button-primary" id="skymap-here">Ver épocas no centro do mapa</button>
+          <button type="button" class="button button-quiet" id="skymap-field" data-i18n="sky.goField">Ir para o campo aberto</button>
+          <button type="button" class="button button-primary" id="skymap-here" data-i18n="sky.here">Ver épocas no centro do mapa</button>
         </div>
       </div>
       <div class="skymap" id="skymap"></div>
       <p class="skymap-status" id="skymap-status" role="status" aria-live="polite"></p>
-      <p class="credit">Mapa: Aladin Lite (CDS, Estrasburgo). Imagens: SPHEREx All-Sky Cube DR1, NASA/JPL-Caltech/IPAC (IRSA).</p>
+      <p class="credit" data-i18n="sky.credit">Mapa: Aladin Lite (CDS, Estrasburgo). Imagens: SPHEREx All-Sky Cube DR1, NASA/JPL-Caltech/IPAC (IRSA).</p>
     </section>
 
     <script type="module" src="/src/main.ts"></script>

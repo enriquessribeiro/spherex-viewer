@@ -1,7 +1,7 @@
 // SPHEREx Viewer: controlador da tela principal.
 import "@fontsource-variable/archivo/wdth.css";
 import "./style.css";
-import { createElement, ChevronLeft, ChevronRight, Link, Pause, Play, Search } from "lucide";
+import { createElement, ChevronLeft, ChevronRight, Languages, Link, Pause, Play, Search } from "lucide";
 import { significance } from "./core/combine";
 import { defaultDiffPair } from "./core/epochs";
 import { overlayFlags, renderDiff, renderGray, renderRgb, type ColorChannel } from "./core/render";
@@ -21,34 +21,27 @@ import { pencilArrow, pencilCircle } from "./ui/marks";
 import { SkyMap, type CatalogKey } from "./ui/skymap";
 import { SpectrumView } from "./ui/spectrum";
 import type { SpectrumDoc } from "./core/spectrum";
+import { applyStatic, fmtDate, fmtNum, getLang, monthName, pickLang, setLang, t, type Lang } from "./i18n";
 
 const API_BASE: string | null = import.meta.env.VITE_API_BASE || null;
-const ICONS = { ChevronLeft, ChevronRight, Link, Pause, Play, Search };
+const ICONS = { ChevronLeft, ChevronRight, Languages, Link, Pause, Play, Search };
 
 const DET_RANGE: Record<Detector, [number, number]> = {
   D1: [0.75, 1.09], D2: [1.1, 1.62], D3: [1.63, 2.41], D4: [2.42, 3.82], D5: [3.83, 4.41], D6: [4.42, 5.0],
 };
-const DET_HELP: Record<Detector, string> = {
-  D1: "Infravermelho mais curto: estrelas comuns aparecem bem.",
-  D2: "Estrelas e a banda de absorção da água.",
-  D3: "Anãs frias começam a aparecer (metano em ~2,2 µm).",
-  D4: "Gelo de água e metano.",
-  D5: "Dióxido de carbono (CO₂).",
-  D6: "Infravermelho mais longo: anãs marrons frias, como WISE 0855, brilham aqui.",
-};
-const MODE_HELP: Record<Mode, string> = {
-  play: "Passa pelas épocas em ordem, como um filme curto.",
-  blink: "Alterna entre duas épocas, como o comparador que achou Plutão em 1930.",
-  diff: "Subtrai uma época da outra: o que ficou parado some.",
-  sum: "Soma todas as épocas: o céu fica mais profundo, e o que se move vira um rastro.",
-};
-const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const detHelp = (d: Detector) => t(`det.${d}`);
+const modeHelp = (m: Mode) => t(`mode.${m}`);
 
 // ---------------------------------------------------------------------------- estado
 
 const parsed = parseState(location.search);
 let state: ViewState = parsed.state;
-const view = { zoom: 1, gain: 0, negative: true, marks: true, flags: false, playing: true, cursor: 0, flagged: 0,
+const LANG_KEY = "spherex-viewer:lang";
+function storedLang(): string | null {
+  try { return localStorage.getItem(LANG_KEY); } catch { return null; }
+}
+setLang(pickLang(state.lang, storedLang(), navigator.languages ?? [navigator.language]));
+const view = { zoom: 1, gain: 0, negative: false, marks: true, flags: false, playing: true, cursor: 0, flagged: 0,
   /** Limites de contraste em uso (os do campo, ou os do alvo); o controle Contraste age sobre eles. */
   limits: null as { det: Detector; vmin: number; vmax: number } | null };
 /** Falsa cor: o detector mais longo no vermelho, como no céu visível. */
@@ -73,7 +66,7 @@ function icon(el: Element, name: keyof typeof ICONS) {
 
 function formatDate(iso: string): string {
   const [y, m, d] = iso.split("-").map(Number);
-  return `${d} ${MONTHS[m - 1]} ${y}`;
+  return fmtDate(y, m - 1, d);
 }
 
 function epochSpan(e: EpochDoc): string {
@@ -81,7 +74,12 @@ function epochSpan(e: EpochDoc): string {
 }
 
 function um(v: number): string {
-  return v.toFixed(2).replace(".", ",");
+  return fmtNum(v, 2);
+}
+
+/** Texto do alvo no idioma atual (o manifesto traz o português e, quando há, o inglês). */
+function targetText(target: ManifestTarget, key: "description" | "look_for"): string {
+  return (getLang() === "en" ? target[`${key}_en`] : undefined) ?? target[key] ?? "";
 }
 
 function setStatus(message: string | null, kind: "info" | "error" = "info") {
@@ -118,13 +116,12 @@ async function openFromState() {
   if (state.ra !== undefined && state.dec !== undefined && !state.target && manifest) {
     const near = nearbyTarget({ ra: state.ra, dec: state.dec }, await movingTargets());
     if (signal.aborted) return;
-    const t = near && manifest.targets.find((x) => x.id === near.id);
-    if (t && t.fov_arcmin === state.fov && near.distanceDeg * 3600 > 1) {
-      notice = `A coordenada digitada fica a ${(near.distanceDeg * 60).toFixed(1).replace(".", ",")}′ de ${t.name}, ` +
-        "que se move rápido: mostrando o objeto onde ele está nas imagens do SPHEREx.";
+    const hit = near && manifest.targets.find((x) => x.id === near.id);
+    if (hit && hit.fov_arcmin === state.fov && near.distanceDeg * 3600 > 1) {
+      notice = t("status.near", { dist: fmtNum(near.distanceDeg * 60, 1), name: hit.name });
     }
     // Só troca pelo pré-processado no mesmo tamanho de campo; outro tamanho em volta do alvo vem da API.
-    if (t && t.fov_arcmin === state.fov) state = { ...state, target: t.id, ra: undefined, dec: undefined, fov: t.fov_arcmin };
+    if (hit && hit.fov_arcmin === state.fov) state = { ...state, target: hit.id, ra: undefined, dec: undefined, fov: hit.fov_arcmin };
     updateUrl();
   }
 
@@ -133,11 +130,11 @@ async function openFromState() {
   renderTargets();
   try {
     if (source.kind === "unavailable") {
-      setStatus(`Não dá para abrir isso aqui: ${source.reason}. Escolha um dos alvos ao lado.`, "error");
+      setStatus(t("status.unavailable", { reason: t(`reason.${source.reason}`) }), "error");
       return;
     }
     if (source.kind === "resolve") {
-      setStatus(`Procurando “${state.name}” no catálogo SIMBAD…`);
+      setStatus(t("status.resolving", { name: state.name ?? "" }));
       const body = await fetchJson(source.resolveUrl, signal);
       // O SIMBAD devolve a posição J2000; objetos próximos andam vários ″/ano (WISE 0855: ~3,5′
       // até a época dos dados). Propagar para o centro do campo cair onde o objeto está agora.
@@ -148,22 +145,22 @@ async function openFromState() {
       updateUrl();
       return openFromState();
     }
-    setStatus("Carregando a placa…");
+    setStatus(t("status.loading"));
     field = source.kind === "static"
       ? await loadStaticField(source.fieldUrl)
       : await loadApiField(source.fieldUrl, (p) => {
           setStatus(p.stage === "busy"
-            ? "O servidor está processando o campo de outra pessoa (um por vez, no plano gratuito). Tentando de novo em instantes…"
+            ? t("status.busy")
             : p.total
-              ? `Baixando imagens do SPHEREx: ${p.done} de ${p.total}. Na primeira vez pode levar alguns minutos.`
-              : "Consultando o arquivo da NASA (IRSA)…");
+              ? t("status.downloading", { done: p.done ?? 0, total: p.total })
+              : t("status.querying"));
         }, signal);
     if (signal.aborted) return;
     setupField();
     if (notice) showNotice(notice);
   } catch (err) {
     if ((err as Error).name === "AbortError") return;
-    setStatus(`Não foi possível carregar: ${(err as Error).message}. Tente de novo ou escolha um dos alvos.`, "error");
+    setStatus(t("status.loadError", { msg: (err as Error).message }), "error");
   }
 }
 
@@ -197,7 +194,7 @@ async function showSpectrum() {
   try {
     const doc = (await fetch(handle.base + handle.doc.spectrum).then((r) => r.ok ? r.json() : null)) as SpectrumDoc | null;
     if (field !== handle || !doc) return;
-    spectrumView.show(doc, currentTarget?.name ?? handle.doc.target?.name ?? "alvo");
+    spectrumView.show(doc, currentTarget?.name ?? handle.doc.target?.name ?? t("target.fallback"));
     spectrumView.highlight(state.mode === "play" || state.mode === "blink" ? currentEpochIndex() : undefined);
   } catch {
     // sem espectro: a seção fica escondida
@@ -279,7 +276,7 @@ function currentEpochIndex(): number | undefined {
 function draw(): void {
   const token = drawToken + 1;
   drawPlate().catch((err: Error) => {
-    if (token === drawToken && field) setStatus(`Não foi possível baixar esta época: ${err.message}.`, "error");
+    if (token === drawToken && field) setStatus(t("status.frameError", { msg: err.message }), "error");
   });
 }
 
@@ -400,9 +397,9 @@ function renderInscription(epochIndex: number | undefined) {
   const fov = `${doc.fov_arcmin}′ × ${doc.fov_arcmin}′`;
   const dets = state.color && state.mode !== "diff" ? "D1·D3·D6" : state.det;
   el.textContent = state.mode === "diff"
-    ? `${state.det} · diferença em σ · ${fov}`
+    ? t("inscr.diff", { det: state.det ?? "", fov })
     : state.mode === "sum"
-      ? `${dets} · soma de ${epochsWithDet().length} épocas · ${fov}`
+      ? t("inscr.sum", { dets: dets ?? "", n: epochsWithDet().length, fov })
       : `${plate}${dets} · ${formatDate(epoch.date_start)} · ${fov}`;
 }
 
@@ -416,21 +413,21 @@ function renderLabel(epochIndex: number | undefined) {
   if (state.mode === "diff") {
     const a = doc.epochs.find((e) => e.index === state.a), b = epoch;
     $("label-epoch").textContent = a && b ? `${formatDate(a.date_start)} → ${formatDate(b.date_start)}` : "";
-    if (a && b) facts.push(["Intervalo", `${Math.round(b.mjd_mid - a.mjd_mid)} dias`]);
+    if (a && b) facts.push([t("fact.interval"), t("fact.days", { n: Math.round(b.mjd_mid - a.mjd_mid) })]);
   } else if (state.mode === "sum") {
     const all = epochsWithDet();
     $("label-epoch").textContent = all.length ? `${formatDate(all[0].date_start)} – ${formatDate(all[all.length - 1].date_end)}` : "";
-    facts.push(["Épocas", String(all.length)]);
-    facts.push(["Exposições", String(all.reduce((s, e) => s + e.frames[det]!.n_exposures, 0))]);
+    facts.push([t("fact.epochs"), String(all.length)]);
+    facts.push([t("fact.exposures"), String(all.reduce((s, e) => s + e.frames[det]!.n_exposures, 0))]);
   } else {
     $("label-epoch").textContent = epoch ? epochSpan(epoch) : "";
-    if (epoch) facts.push(["Placa", `${epochsWithDet().findIndex((e) => e.index === epoch.index) + 1} de ${epochsWithDet().length}`]);
-    if (epoch?.frames[det]) facts.push(["Exposições", String(epoch.frames[det]!.n_exposures)]);
+    if (epoch) facts.push([t("fact.plate"), t("fact.plateOf", { i: epochsWithDet().findIndex((e) => e.index === epoch.index) + 1, n: epochsWithDet().length })]);
+    if (epoch?.frames[det]) facts.push([t("fact.exposures"), String(epoch.frames[det]!.n_exposures)]);
   }
   facts.push(state.color && state.mode !== "diff"
-    ? ["Cor", "D1 azul · D3 verde · D6 vermelho"]
-    : ["Detector", `${det} · ${um(DET_RANGE[det][0])}–${um(DET_RANGE[det][1])} µm`]);
-  if (view.flags) facts.push(["Pixels marcados", String(view.flagged)]);
+    ? [t("fact.color"), t("fact.colorValue")]
+    : [t("fact.detector"), `${det} · ${um(DET_RANGE[det][0])}–${um(DET_RANGE[det][1])} µm`]);
+  if (view.flags) facts.push([t("fact.flagged"), String(view.flagged)]);
   $("label-facts").innerHTML = facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("");
 }
 
@@ -439,18 +436,18 @@ function renderLabel(epochIndex: number | undefined) {
 function renderTargets() {
   const list = $("targets");
   list.innerHTML = "";
-  for (const t of manifest?.targets ?? []) {
+  for (const target of manifest?.targets ?? []) {
     const li = document.createElement("li");
     const button = document.createElement("button");
     button.type = "button";
     button.className = "target";
-    button.setAttribute("aria-pressed", String(currentTarget?.id === t.id));
+    button.setAttribute("aria-pressed", String(currentTarget?.id === target.id));
     button.innerHTML = `<canvas class="thumb" width="64" height="64" aria-hidden="true"></canvas>
-      <span class="target-text"><span class="target-name">${t.name}</span><span class="target-desc">${t.description ?? ""}</span>${t.look_for ? `<span class="target-look"><strong>O que ver:</strong> ${t.look_for}</span>` : ""}</span>`;
-    button.addEventListener("click", () => openTarget(t.id));
+      <span class="target-text"><span class="target-name">${target.name}</span><span class="target-desc">${targetText(target, "description")}</span>${target.look_for ? `<span class="target-look"><strong>${t("target.lookFor")}</strong> ${targetText(target, "look_for")}</span>` : ""}</span>`;
+    button.addEventListener("click", () => openTarget(target.id));
     li.append(button);
     list.append(li);
-    drawThumbnail(t, button.querySelector("canvas")!);
+    drawThumbnail(target, button.querySelector("canvas")!);
   }
 }
 
@@ -489,7 +486,7 @@ function showNotice(message: string) {
 
 const thumbCache = new Map<string, Promise<ImageData | null>>();
 
-/** Miniatura do alvo nas cores da placa (negativo), com contraste realçado para caber em 64 px. */
+/** Miniatura do alvo com o céu escuro (como a placa abre), contraste realçado para caber em 64 px. */
 function drawThumbnail(t: ManifestTarget, el: HTMLCanvasElement) {
   let pending = thumbCache.get(t.id);
   if (!pending) {
@@ -505,7 +502,7 @@ function drawThumbnail(t: ManifestTarget, el: HTMLCanvasElement) {
       const finite = Array.from(frame.data.values).filter(Number.isFinite).sort((x, y) => x - y);
       const at = (q: number) => finite[Math.min(finite.length - 1, Math.floor(q * finite.length))];
       const n = handle.doc.grid.n;
-      return new ImageData(new Uint8ClampedArray(renderGray(frame.data, frame.mask, at(0.5), at(0.995), "linear", true)), n, n);
+      return new ImageData(new Uint8ClampedArray(renderGray(frame.data, frame.mask, at(0.5), at(0.995), "linear", false)), n, n);
     })().catch(() => null);
     thumbCache.set(t.id, pending);
   }
@@ -537,7 +534,7 @@ function renderDetectors() {
     button.innerHTML = `<span class="det-name">${d}</span>
       <span class="det-band" aria-hidden="true"><span style="left:${((a - lo) / (hi - lo)) * 100}%;width:${((b - a) / (hi - lo)) * 100}%"></span></span>
       <span class="det-range">${um(a)}–${um(b)} µm</span>`;
-    button.title = has ? DET_HELP[d] : "Sem imagens deste detector neste campo";
+    button.title = has ? detHelp(d) : t("det.none");
     button.addEventListener("click", () => {
       state = { ...state, det: d, a: undefined, b: undefined };
       ensurePair();
@@ -551,14 +548,14 @@ function renderDetectors() {
     });
     box.append(button);
   }
-  $("det-help").textContent = state.det ? DET_HELP[state.det] : "";
+  $("det-help").textContent = state.det ? detHelp(state.det) : "";
 }
 
 function renderModes() {
   for (const b of document.querySelectorAll<HTMLButtonElement>("#modes [data-mode]")) {
     b.setAttribute("aria-checked", String(b.dataset.mode === state.mode));
   }
-  $("mode-help").textContent = MODE_HELP[state.mode];
+  $("mode-help").textContent = modeHelp(state.mode);
   $("pair").hidden = state.mode === "play" || state.mode === "sum";
   $("diff-legend").hidden = state.mode !== "diff";
   const still = state.mode === "diff" || state.mode === "sum";
@@ -568,7 +565,7 @@ function renderModes() {
 }
 
 function renderPairSelects() {
-  const options = epochsWithDet().map((e) => `<option value="${e.index}">${formatDate(e.date_start)} (${e.frames[state.det!]!.n_exposures} exp.)</option>`).join("");
+  const options = epochsWithDet().map((e) => `<option value="${e.index}">${t("pair.option", { date: formatDate(e.date_start), n: e.frames[state.det!]!.n_exposures })}</option>`).join("");
   for (const [id, key] of [["epoch-a", "a"], ["epoch-b", "b"]] as const) {
     const select = $<HTMLSelectElement>(id);
     select.innerHTML = options;
@@ -596,7 +593,7 @@ function renderRuler() {
     const tick = document.createElement("span");
     tick.className = d.getUTCMonth() === 0 ? "month year" : "month";
     tick.style.left = `${pos(mjd)}%`;
-    if (d.getUTCMonth() === 0 || d.getUTCMonth() === 6) tick.dataset.label = d.getUTCMonth() === 0 ? String(d.getUTCFullYear()) : "jul";
+    if (d.getUTCMonth() === 0 || d.getUTCMonth() === 6) tick.dataset.label = d.getUTCMonth() === 0 ? String(d.getUTCFullYear()) : t("ruler.jul");
     months.append(tick);
   }
   ruler.append(months);
@@ -610,9 +607,9 @@ function renderRuler() {
     button.disabled = !has;
     button.style.left = `${pos(e.mjd_mid)}%`;
     const n = has ? e.frames[state.det!]!.n_exposures : 0;
-    const count = has ? `${n} exp.` : `sem ${state.det}`;
-    button.innerHTML = `<span class="tick" style="height:${Math.min(60, 12 + n * 2)}%"></span><span class="ruler-date">${MONTHS[Number(e.date_start.slice(5, 7)) - 1]} ${e.date_start.slice(2, 4)}<span class="ruler-count">${count}</span></span>`;
-    button.setAttribute("aria-label", `${epochSpan(e)}${has ? `, ${n} exposições` : ", sem este detector"}`);
+    const count = has ? t("ruler.count", { n }) : t("ruler.without", { det: state.det ?? "" });
+    button.innerHTML = `<span class="tick" style="height:${Math.min(60, 12 + n * 2)}%"></span><span class="ruler-date">${monthName(Number(e.date_start.slice(5, 7)) - 1)} ${e.date_start.slice(2, 4)}<span class="ruler-count">${count}</span></span>`;
+    button.setAttribute("aria-label", has ? t("ruler.aria", { span: epochSpan(e), n }) : t("ruler.ariaWithout", { span: epochSpan(e) }));
     button.addEventListener("click", () => {
       if (state.mode === "play") {
         view.cursor = epochsWithDet().findIndex((x) => x.index === e.index);
@@ -629,7 +626,7 @@ function renderRuler() {
   declutterRuler();
   const missing = all.filter((e) => !(state.det! in e.frames)).length;
   $("ruler-note").textContent = missing
-    ? `Marcas claras: ${missing} ${missing === 1 ? "época" : "épocas"} sem imagens em ${state.det}.`
+    ? t(missing === 1 ? "ruler.missing1" : "ruler.missingN", { n: missing, det: state.det ?? "" })
     : "";
 }
 
@@ -665,9 +662,7 @@ function renderFovs() {
     // Sem API, só existe o tamanho pré-processado.
     b.disabled = fov !== shown && !API_BASE;
   }
-  $("fov-help").textContent = API_BASE
-    ? "Campo maior pega objetos mais rápidos, mas é processado na hora pela API (alguns minutos)."
-    : "Outros tamanhos de campo precisam da API, que não está configurada neste site.";
+  $("fov-help").textContent = API_BASE ? t("fov.api") : t("fov.noApi");
 }
 
 function renderZoom() {
@@ -680,6 +675,46 @@ function renderNegative() {
   for (const b of document.querySelectorAll<HTMLButtonElement>("[data-negative]")) {
     b.setAttribute("aria-checked", String((b.dataset.negative === "1") === view.negative));
   }
+}
+
+// ---------------------------------------------------------------------------- idioma
+
+/** Textos fixos da página e do botão de idioma, no idioma atual. */
+function renderStatic() {
+  const lang = getLang();
+  document.documentElement.lang = lang === "en" ? "en" : "pt-BR";
+  applyStatic();
+  const button = $("lang-switch");
+  button.querySelector(".label")!.textContent = t("lang.button");
+  button.setAttribute("aria-label", t("lang.aria"));
+  button.setAttribute("lang", lang === "en" ? "pt-BR" : "en");
+  for (const b of document.querySelectorAll<HTMLButtonElement>("[data-sky-det]")) {
+    const [lo, hi] = DET_RANGE[`D${b.dataset.skyDet}` as Detector];
+    b.title = `${um(lo)}–${um(hi)} µm`;
+  }
+  if (!API_BASE) $("skymap-here").title = t("skymap.noApi");
+}
+
+/** Troca o idioma sem recarregar: textos fixos, controles, placa, espectro e mapa. */
+function switchLang(lang: Lang) {
+  setLang(lang);
+  state = { ...state, lang };
+  try { localStorage.setItem(LANG_KEY, lang); } catch { /* sem armazenamento: vale a URL */ }
+  updateUrl();
+  renderStatic();
+  setPlaying(view.playing);
+  renderModes();
+  renderTargets();
+  skyMap.relabel();
+  if (!field) return;
+  setStatus(null);
+  renderDetectors();
+  renderPairSelects();
+  renderRuler();
+  renderFovs();
+  $("fps-value").textContent = `${fmtNum(state.fps, state.fps % 1 ? 1 : 0)}/s`;
+  draw();
+  showSpectrum();
 }
 
 // ---------------------------------------------------------------------------- animação
@@ -702,7 +737,7 @@ function setPlaying(playing: boolean) {
   view.playing = playing;
   const button = $("play");
   icon(button.querySelector("[data-icon]") ?? button.firstElementChild!, playing ? "Pause" : "Play");
-  button.querySelector(".label")!.textContent = playing ? "Pausar" : "Animar";
+  button.querySelector(".label")!.textContent = playing ? t("play.pause") : t("play.play");
   restartTimer();
 }
 
@@ -725,10 +760,10 @@ function wire() {
 
   const fps = $<HTMLInputElement>("fps");
   fps.value = String(state.fps);
-  $("fps-value").textContent = `${state.fps}/s`.replace(".", ",");
+  $("fps-value").textContent = `${fmtNum(state.fps, state.fps % 1 ? 1 : 0)}/s`;
   fps.addEventListener("input", () => {
     state.fps = Number(fps.value);
-    $("fps-value").textContent = `${state.fps}/s`.replace(".", ",");
+    $("fps-value").textContent = `${fmtNum(state.fps, state.fps % 1 ? 1 : 0)}/s`;
     updateUrl();
     restartTimer();
   });
@@ -802,15 +837,17 @@ function wire() {
     draw();
   });
 
+  $("lang-switch").addEventListener("click", () => switchLang(getLang() === "en" ? "pt" : "en"));
+
   $("copy-link").addEventListener("click", async () => {
     const label = $("copy-link").querySelector(".label")!;
     try {
       await navigator.clipboard.writeText(location.href);
-      label.textContent = "Link copiado";
+      label.textContent = t("copy.done");
     } catch {
-      label.textContent = "Copie da barra de endereço";
+      label.textContent = t("copy.fail");
     }
-    setTimeout(() => (label.textContent = "Copiar link"), 2200);
+    setTimeout(() => (label.textContent = t("copy.label")), 2200);
   });
 
   $<HTMLFormElement>("search").addEventListener("submit", (ev) => {
@@ -843,6 +880,7 @@ function wire() {
 
 async function main() {
   document.body.classList.toggle("embed", state.embed);
+  renderStatic();
   wire();
   renderZoom();
   renderNegative();
@@ -866,7 +904,6 @@ async function main() {
     for (const box of document.querySelectorAll<HTMLInputElement>("[data-catalog]")) {
       box.addEventListener("change", () => skyMap.setCatalog(box.dataset.catalog as CatalogKey, box.checked));
     }
-    if (!API_BASE) ($("skymap-here") as HTMLButtonElement).title = "Fora da lista de alvos, os dados vêm da API, que não está configurada neste site.";
   }
   await openFromState();
 }

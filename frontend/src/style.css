@@ -777,8 +777,8 @@ body.embed .skymap-area { display: none; }
 
 @media (max-width: 640px) {
   .masthead { flex-wrap: wrap; padding: 0.75rem 1rem; row-gap: 0.6rem; }
-  #copy-link .label { display: none; }
-  #copy-link { padding: 0.5rem; }
+  #copy-link .label, #lang-switch .label { display: none; }
+  #copy-link, #lang-switch { padding: 0.5rem; }
   .search { flex-basis: 100%; order: 3; }
   .workbench { padding: 1rem; }
   .plate-epoch { white-space: normal; }

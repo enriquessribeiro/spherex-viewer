@@ -338,7 +338,7 @@ data/
 }
 ```
 
-`description` (o que o astro é) e `look_for` (o que observar na placa) são opcionais, vêm do `targets.yaml` e aparecem nos cards dos alvos. São escritos para quem não é astrônomo, sem números.
+`description` (o que o astro é) e `look_for` (o que observar na placa) são opcionais, vêm do `targets.yaml` e aparecem nos cards dos alvos. São escritos para quem não é astrônomo, sem números. `description_en` e `look_for_en` são os mesmos textos em inglês, usados quando o site está em inglês.
 
 **Regra do frontend:** se o campo pedido corresponde a um alvo de `data/manifest.json`, carrega o estático (instantâneo). Senão, usa `GET /api/v1/field`.
 
@@ -360,6 +360,7 @@ Não é API do backend, mas é o "contrato público" para links e embed. Todo o 
 | `stretch` | `asinh` | Esticamento |
 | `overlay` | `gaia,wise,flags,pm` | Camadas ligadas (planejado) |
 | `embed` | `embed=1` | Interface mínima para iframe |
+| `lang` | `lang=en` | Idioma da interface (`pt` ou `en`), gravado pelo botão de idioma. Sem ele, vale a última escolha no navegador; senão, português para navegador em português e inglês para os outros |
 
 Exemplo:
 

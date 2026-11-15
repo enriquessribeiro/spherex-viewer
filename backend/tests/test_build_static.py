@@ -15,7 +15,8 @@ FIELD_SCHEMA = json.loads((SCHEMAS / "field.schema.json").read_text())
 
 ALVOS = [
     Target(id="fria", name="Anã fria", ra=133.79513, dec=-7.24515, default_detector="D6",
-           description="Só aparece em D6", look_for="Um ponto que anda"),
+           description="Só aparece em D6", look_for="Um ponto que anda",
+           description_en="Only shows up in D6", look_for_en="A moving dot"),
     Target(id="comum", name="Estrela comum", ra=269.452, dec=4.693),
 ]
 
@@ -64,7 +65,8 @@ def test_manifesto_leva_os_textos_do_card_quando_existem(tmp_path):
 
     fria, comum = doc["targets"]
     assert (fria["description"], fria["look_for"]) == ("Só aparece em D6", "Um ponto que anda")
-    assert "description" not in comum and "look_for" not in comum
+    assert (fria["description_en"], fria["look_for_en"]) == ("Only shows up in D6", "A moving dot")
+    assert not {"description", "look_for", "description_en", "look_for_en"} & comum.keys()
 
 
 def test_miniatura_usa_o_detector_padrao_do_alvo_na_ultima_epoca(tmp_path):

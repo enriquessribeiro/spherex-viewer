@@ -7,6 +7,8 @@ export interface ManifestTarget {
   name: string;
   description?: string;
   look_for?: string;
+  description_en?: string;
+  look_for_en?: string;
   ra: number;
   dec: number;
   fov_arcmin: number;
@@ -26,7 +28,10 @@ export type Source =
   | { kind: "static"; fieldUrl: string; targetId: string }
   | { kind: "api"; fieldUrl: string }
   | { kind: "resolve"; resolveUrl: string }
-  | { kind: "unavailable"; reason: string };
+  | { kind: "unavailable"; reason: UnavailableReason };
+
+/** Por que não dá para abrir (a interface traduz). */
+export type UnavailableReason = "coords-without-api" | "name-without-api" | "no-targets";
 
 export const DATA_ROOT = "data/";
 const SAME_POSITION_DEG = 1 / 3600; // 1″
@@ -46,14 +51,14 @@ export function chooseSource(state: ViewState, manifest: Manifest | null, apiBas
         Math.abs(x.ra - state.ra!) * Math.cos((x.dec * Math.PI) / 180) < SAME_POSITION_DEG,
     );
     if (t) return asStatic(t);
-    if (!apiBase) return { kind: "unavailable", reason: "coordenadas fora da lista de alvos e sem API configurada" };
+    if (!apiBase) return { kind: "unavailable", reason: "coords-without-api" };
     const q = new URLSearchParams({ ra: String(state.ra), dec: String(state.dec), fov: String(state.fov) });
     return { kind: "api", fieldUrl: `${apiBase}/api/v1/field?${q}` };
   }
   if (state.name) {
-    if (!apiBase) return { kind: "unavailable", reason: "busca por nome precisa da API" };
+    if (!apiBase) return { kind: "unavailable", reason: "name-without-api" };
     return { kind: "resolve", resolveUrl: `${apiBase}/api/v1/resolve?name=${encodeURIComponent(state.name)}` };
   }
   if (targets.length > 0) return asStatic(targets[0]);
-  return { kind: "unavailable", reason: "nenhum alvo disponível" };
+  return { kind: "unavailable", reason: "no-targets" };
 }

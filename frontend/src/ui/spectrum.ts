@@ -2,6 +2,7 @@
 // A época que está na placa fica em lápis (maior); as outras em manila (menores), a mediana em tinta.
 import { binnedMedian, contaminatedDetectors, medianSegments, fluxRange, niceTicks, type SpectrumDoc, type SpectrumPoint } from "../core/spectrum";
 import type { Detector } from "../core/types";
+import { fmtNum as fmt, monthName, t } from "../i18n";
 
 const W = 760, H = 340;
 const M = { top: 16, right: 16, bottom: 78, left: 64 };
@@ -11,12 +12,9 @@ const DET_RANGE: Record<Detector, [number, number]> = {
 };
 /** Abaixo disso não há espectro que valha um gráfico: o alvo satura o detector (R Dra, Barnard). */
 export const MIN_SPECTRUM_POINTS = 10;
-const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-
-const fmt = (v: number, digits = 0) => v.toLocaleString("pt-BR", { maximumFractionDigits: digits, minimumFractionDigits: digits });
 const mjdDate = (mjd: number) => {
   const d = new Date(Date.UTC(1858, 10, 17) + mjd * 864e5);
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  return `${d.getUTCDate()} ${monthName(d.getUTCMonth())} ${d.getUTCFullYear()}`;
 };
 
 export class SpectrumView {
@@ -37,7 +35,7 @@ export class SpectrumView {
     this.doc = doc;
     this.section.hidden = doc === null;
     if (!doc) return;
-    this.section.querySelector<HTMLElement>(".spectrum-title")!.textContent = `Espectro de ${targetName}`;
+    this.section.querySelector<HTMLElement>(".spectrum-title")!.textContent = t("sp.title", { name: targetName });
     const enough = doc.points.length >= MIN_SPECTRUM_POINTS;
     for (const sel of [".spectrum-chart", ".spectrum-table", ".spectrum-legend"]) {
       this.section.querySelector<HTMLElement>(sel)!.hidden = !enough;
@@ -61,21 +59,16 @@ export class SpectrumView {
       // Estrela brilhante: o núcleo vem sem valor (saturado) e a abertura não pode ser medida.
       // As "vizinhas" achadas nesse caso são o halo da própria estrela, então não viram aviso.
       this.section.querySelector(".spectrum-notes")!.innerHTML =
-        `<p>Sem espectro: ${targetName} é brilhante demais para o SPHEREx e satura o detector. O núcleo vem ` +
-        `sem valor em ${doc.exposures.total - doc.exposures.measured} de ${doc.exposures.total} exposições, e a ` +
-        `fotometria precisa dele. Os alvos fracos (WISE 0855, Epsilon Indi B) têm espectro.</p>`;
+        `<p>${t("sp.saturated", { name: targetName, bad: doc.exposures.total - doc.exposures.measured, total: doc.exposures.total })}</p>`;
       return;
     }
     const notes: string[] = [
-      `Cada ponto é uma exposição: o filtro do SPHEREx muda de comprimento de onda ao longo do detector, ` +
-      `então cada imagem mede o alvo numa cor diferente. ${doc.exposures.measured} de ${doc.exposures.total} ` +
-      `exposições medidas, numa abertura de ${fmt(doc.aperture_arcsec, 1)}″.`,
+      t("sp.intro", { measured: doc.exposures.measured, total: doc.exposures.total, aperture: fmt(doc.aperture_arcsec, 1) }),
     ];
     const dets = contaminatedDetectors(doc);
     if (dets.length) {
       const d = Math.min(...doc.neighbors.map((n) => n.distance_arcsec));
-      notes.push(`Atenção: uma estrela a ${fmt(d, 1)}″ cai na abertura em ${dets.join(", ")}. Nesses detectores ` +
-        `o fluxo pode ser dela, não de ${targetName}: o pixel do SPHEREx tem 6,15″ e não separa os dois.`);
+      notes.push(t("sp.warn", { dist: fmt(d, 1), dets: dets.join(", "), name: targetName }));
     }
     this.section.querySelector(".spectrum-notes")!.innerHTML = notes.map((n, i) =>
       `<p${i === 1 && dets.length ? ' class="spectrum-warning"' : ""}>${n}</p>`).join("");
@@ -84,7 +77,7 @@ export class SpectrumView {
   private renderTable(): void {
     const rows = this.doc!.points.map((p) =>
       `<tr><td>${fmt(p.wavelength, 3)}</td><td>${fmt(p.flux, 1)}</td><td>${fmt(p.flux_err, 1)}</td>` +
-      `<td>${p.det}</td><td>${mjdDate(p.mjd)}</td><td>${p.flagged ? "sim" : ""}</td></tr>`).join("");
+      `<td>${p.det}</td><td>${mjdDate(p.mjd)}</td><td>${p.flagged ? t("sp.yes") : ""}</td></tr>`).join("");
     this.section.querySelector(".spectrum-table tbody")!.innerHTML = rows;
   }
 
@@ -102,7 +95,7 @@ export class SpectrumView {
       parts.push(`<line class="sp-grid${t === 0 ? " sp-zero" : ""}" x1="${M.left}" x2="${W - M.right}" y1="${y(t)}" y2="${y(t)}"/>`);
       parts.push(`<text class="sp-tick" x="${M.left - 8}" y="${y(t)}" text-anchor="end" dominant-baseline="middle">${fmt(t)}</text>`);
     }
-    parts.push(`<text class="sp-axis" transform="translate(16 ${(M.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">fluxo (µJy)</text>`);
+    parts.push(`<text class="sp-axis" transform="translate(16 ${(M.top + plotBottom) / 2}) rotate(-90)" text-anchor="middle">${t("sp.flux")}</text>`);
 
     // eixo do comprimento de onda, com a faixa de cada detector embaixo
     for (const t of [1, 2, 3, 4, 5]) {
@@ -115,7 +108,7 @@ export class SpectrumView {
       parts.push(`<rect class="sp-band${dirty.has(det) ? " sp-band-dirty" : ""}" x="${x(a)}" y="${plotBottom + 26}" width="${x(b) - x(a)}" height="4" rx="2"/>`);
       parts.push(`<text class="sp-det" x="${(x(a) + x(b)) / 2}" y="${plotBottom + 44}" text-anchor="middle">${det}${dirty.has(det) ? "*" : ""}</text>`);
     }
-    parts.push(`<text class="sp-axis" x="${(M.left + W - M.right) / 2}" y="${plotBottom + 66}" text-anchor="middle">comprimento de onda (µm)</text>`);
+    parts.push(`<text class="sp-axis" x="${(M.left + W - M.right) / 2}" y="${plotBottom + 66}" text-anchor="middle">${t("sp.wavelength")}</text>`);
 
     // barras de erro e pontos: contexto primeiro, a época da placa por cima
     const current = (p: SpectrumPoint) => this.epoch !== undefined && p.epoch === this.epoch;
@@ -147,7 +140,7 @@ export class SpectrumView {
       const p = pts[Number(dot.getAttribute("data-i"))];
       this.tooltip.innerHTML =
         `<strong>${fmt(p.wavelength, 3)} µm</strong> · ${p.det}<br>${fmt(p.flux, 1)} ± ${fmt(p.flux_err, 1)} µJy` +
-        `<br>${mjdDate(p.mjd)}${p.flagged ? "<br>pixel com aviso de qualidade" : ""}`;
+        `<br>${mjdDate(p.mjd)}${p.flagged ? `<br>${t("sp.flagged")}` : ""}`;
       const box = this.section.querySelector(".spectrum-chart")!.getBoundingClientRect();
       this.tooltip.style.left = `${ev.clientX - box.left + 14}px`;
       this.tooltip.style.top = `${ev.clientY - box.top + 14}px`;
