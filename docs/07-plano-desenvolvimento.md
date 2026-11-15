@@ -71,7 +71,7 @@ Branch: `fase-5/deploy`
 
 - [x] Workflow `update-data.yml`: pipeline → validação científica → GitHub Pages
 - [x] Deploy da API no Render (`https://spherex-viewer-api.onrender.com`)
-- [x] Site publicado em <https://enriquessribeiro.github.io/spherex-viewer/> (snapshot validado localmente; IRSA fora do ar em 14/11/2026)
+- [x] Site publicado em <https://enriquessribeiro.github.io/spherex-viewer/>; a atualização automática roda com sucesso desde que o IRSA voltou (14/11/2026)
 - [ ] Primeira execução bem-sucedida de `update-data.yml` no GitHub (depende do IRSA voltar)
 - [x] Frontend usando a API para coordenadas fora da lista (via variável `API_BASE`; ativa quando a API estiver no ar)
 - [x] Extras: `SPHEREX_FOV_MAX` (limite de memória), `fov=nan` responde 400
@@ -80,12 +80,12 @@ Branch: `fase-5/deploy`
 
 Branch: `fase-6/<extra>` (um branch por extra, pois são independentes). Em ordem de valor para os jurados:
 
-1. [ ] Espectro sob demanda
-2. [x] Mapa do céu inteiro: Aladin Lite + HiPS do SPHEREx DR1, troca de detector, alvos marcados, clique abre o ponto na placa (catálogos Gaia/WISE ainda pendentes)
-3. [ ] Overlay de flags de contaminação
-4. [ ] Falsa cor (3 detectores)
-5. [ ] Campo de visão variável
-6. [ ] Modo embed
+1. [x] Espectro dos alvos: fotometria em cada exposição (filtro de variação linear, comprimento de onda do WCS-WAVE), 0,75–5 µm, com aviso de estrelas vizinhas na abertura (PR #22)
+2. [x] Mapa do céu inteiro: Aladin Lite + HiPS do SPHEREx DR1, troca de detector, alvos marcados, clique abre o ponto na placa (PR #15), catálogos Gaia DR3 e AllWISE (PR #20)
+3. [x] Overlay de flags de contaminação na placa (PR #19)
+4. [x] Falsa cor com 3 detectores (D6, D3, D1) e modo Somar épocas (PR #19)
+5. [x] Campo de visão variável: 3′, 6′ e 10′ (PR #19)
+6. [x] Modo embed (`embed=1`, PR #16)
 7. [ ] Roteiro do pitch (`docs/11-apresentacao.md`) com os resultados da validação científica
 
 ## 3. Prioridade se o tempo apertar

@@ -41,7 +41,7 @@ uv run python -m pipeline.build_static --only wise0855 barnard --out ../frontend
 ```
 
 - Recortes e consultas ficam em `backend/cache/` (ignorado pelo git). Com o cache cheio, os 5 alvos levam ~2,5 min.
-- Saída: `manifest.json` + `fields/<field_id>/<data_version>/...` (~5 MB no total). Formato em [04-api.md](04-api.md) §5–6.
+- Saída: `manifest.json` + `fields/<field_id>/<data_version>/...` (~5 MB no total), com `spectrum.json` de cada alvo. Formato em [04-api.md](04-api.md) §5–6.
 
 ## 5. Rodar a API
 
@@ -64,6 +64,7 @@ curl "http://127.0.0.1:8000/api/v1/field?ra=133.76002&dec=-7.24221&fov=6"   # 20
 | `SPHEREX_DATA_DIR` | `<cache>/fields-data` | Campos gerados pela API |
 | `SPHEREX_MAX_JOBS` | `2` | Campos processados ao mesmo tempo |
 | `SPHEREX_FOV_MAX` | `30` | Lado máximo do campo (arcmin). A memória cresce com o quadrado do campo; em 512 MB, usar 10 |
+| `SPHEREX_JOB_TIMEOUT_S` | `1800` | Tempo máximo de um campo; passou disso, `502` e o próximo pedido começa de novo |
 
 Medido localmente: WISE 0855 com o cache cheio fica pronto em ~22 s (reprojeção de 258 exposições); um campo novo depende do IRSA (~5–20 min para 250–550 exposições).
 
@@ -75,11 +76,12 @@ npm install
 # dados dos alvos para desenvolvimento (gerados pelo backend; pasta ignorada pelo git):
 (cd ../backend && uv run python -m pipeline.build_static --out ../frontend/public/data)
 npm run dev            # http://localhost:5173
-npm test               # viewer-core (Vitest): quadros, contraste, diferença, WCS, URL, contrato
+npm test               # viewer-core (Vitest, 67 testes): quadros, contraste, diferença, WCS, URL, espectro, contrato
 npm run build          # dist/ (com public/data copiado), pronto para o GitHub Pages
 ```
 
 - Para buscar coordenadas e nomes fora da lista de alvos, apontar para uma API: `VITE_API_BASE=http://127.0.0.1:8000 npm run dev`. Sem API, o site funciona só com os alvos pré-processados.
+- Catálogos no mapa: Gaia DR3 (`I/355/gaiadr3`) e AllWISE (`II/328/allwise`) pelo VizieR, espelho de Harvard primeiro e o CDS como reserva; só com o campo do mapa até 1°.
 - Mapa do céu inteiro (`src/ui/skymap.ts`): Aladin Lite 3.8.2 carregado sob demanda (~850 KB comprimidos, só quando o mapa chega perto da tela), com o HiPS `https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube` (cubo de 102 canais). O canal é escolhido por frequência (`setFrequency`), porque o `setSliceNumber` do Aladin busca o arquivo errado neste cubo. **O Aladin Lite é GPL-3**: considerar isso na escolha da licença do repositório.
 - Parâmetros da URL (link compartilhável e `embed=1`): [04-api.md](04-api.md) §7.
 - Fixture de contrato do frontend: gerada pelo backend com `backend/scripts/gerar_fixture_frontend.py` (regerar se o formato do `field.json` mudar).
@@ -89,12 +91,12 @@ npm run build          # dist/ (com public/data copiado), pronto para o GitHub P
 
 | Pasta | Conteúdo |
 |---|---|
-| `pipeline/` | Ciência: `archive` (interface), `irsa` (adaptador), `cache`, `field` (`build_field`), `output` (`write_field`), `targets`, `build_static` |
+| `pipeline/` | Ciência: `archive` (interface), `irsa` (adaptador), `cache`, `field` (`build_field`), `spectrum` (`measure_spectrum`), `output` (`write_field`), `targets`, `build_static` |
 | `api/` | HTTP: `app` (`create_app`), `jobs` (processamento assíncrono), `coords`, `simbad`, `main` (produção) |
 | `tests/` | Testes por fronteira; `fixtures/irsa/` com respostas reais gravadas; `science/` com a validação científica |
-| `../schemas/` | JSON Schema de `field.json` e `manifest.json` (contrato com o frontend) |
-| `../frontend/src/core/` | Lógica pura do site (testada): quadros, contraste, diferença, renderização, WCS, épocas, estado na URL, fonte dos dados |
-| `../frontend/src/` | Interface: `main.ts` (controlador), `data.ts` (carregamento e cache), `ui/marks.ts` (marcas de lápis), `style.css` |
+| `../schemas/` | JSON Schema de `field.json`, `manifest.json` e `spectrum.json` (contrato com o frontend) |
+| `../frontend/src/core/` | Lógica pura do site (testada): quadros, contraste (e contraste no alvo), diferença, soma, falsa cor, WCS, épocas, coordenadas, movimento próprio, espectro, estado na URL, fonte dos dados |
+| `../frontend/src/` | Interface: `main.ts` (controlador), `data.ts` (carregamento e cache), `ui/marks.ts` (marcas de lápis), `ui/skymap.ts` (mapa e catálogos), `ui/spectrum.ts` (gráfico do espectro), `style.css` |
 
 ## 8. Fluxo de trabalho
 

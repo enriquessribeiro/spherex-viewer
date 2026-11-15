@@ -1,0 +1,84 @@
+@startuml atividade-visao-geral
+' SPHEREx Viewer — diagrama de atividade, visão geral.
+' Fonte editável. O PNG ao lado (atividade-visao-geral.png) é desenhado por
+' visao-geral.py no mesmo layout, porque o projeto não depende de Java.
+' Para renderizar com o PlantUML: plantuml docs/diagramas/atividade-visao-geral.puml
+
+title SPHEREx Viewer — visão geral
+
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam ActivityBorderColor #333333
+skinparam ActivityBackgroundColor #FFFFFF
+skinparam ActivityDiamondBackgroundColor #FFFFFF
+skinparam SwimlaneTitleFontStyle bold
+
+|#EAF3FB|Visitante|
+start
+:Abre o site ou um link compartilhado;
+
+|#F1ECF8|Site (navegador)|
+:Lê o estado da URL
+(alvo, coordenada, detector, modo);
+
+if (Alvo pré-processado?) then (sim)
+  :Carrega o campo publicado
+  (GitHub Pages, sem fila);
+else (não)
+  repeat
+    |#FDF2E6|API (Render)|
+    :Recebe GET /api/v1/field
+    e valida a coordenada;
+  backward:Mostra "servidor ocupado"
+  e espera o Retry-After;
+  repeat while (Servidor ocupado (429)?) is (sim) not (não)
+
+  :Cria o trabalho
+  (202 + progresso a cada 2 s);
+
+  |#EAF6EE|IRSA (NASA)|
+  :Lista as exposições (TAP ou SIA)
+  e entrega os recortes;
+
+  |API (Render)|
+  if (IRSA respondeu?) then (não)
+    |Site (navegador)|
+    :Mostra aviso de
+    instabilidade (502);
+    stop
+  else (sim)
+    |API (Render)|
+    :Alinha, descarta flags,
+    soma por época e grava o campo;
+  endif
+endif
+
+|Site (navegador)|
+:Decodifica os quadros e ajusta
+o contraste no alvo;
+
+|Visitante|
+:Anima, pisca, subtrai ou soma
+as épocas; troca o detector;
+
+if (Quer o espectro?) then (sim)
+  |Site (navegador)|
+  :Desenha o espectro de 0,75 a 5 µm
+  e avisa sobre estrelas vizinhas;
+else (não)
+endif
+
+|Visitante|
+:Copia o link para
+compartilhar o estado;
+stop
+
+legend bottom left
+  <b>Também pode acontecer:</b> coordenada inválida (400) · nenhuma exposição cobre o ponto (404) ·
+  o trabalho passa de 30 min (502) · uma exposição falha e vira lacuna declarada no campo ·
+  busca por nome passa pelo SIMBAD antes da API.
+  Veja o fluxo detalhado em <b>fluxo-do-sistema.drawio</b> (consulta ao vivo e atualização agendada).
+endlegend
+
+@enduml
