@@ -3,6 +3,20 @@
 > Formato recomendado pelo mentor: **o primeiro minuto é o problema**, os dois seguintes são **como o SPHEREx Viewer resolve**, com o site aberto.
 > Ritmo de referência: ~130 palavras por minuto falando com calma. O texto de cada bloco cabe no tempo com folga para as pausas da demonstração.
 
+## 0. Slides da demonstração (envio)
+
+Os 7 slides em inglês exigidos pelo campo *Project Demonstration* do Space Apps estão em [`apresentacao/slides.pdf`](apresentacao/slides.pdf) (prévia de cada slide em [`apresentacao/previa/`](apresentacao/previa/)). A fonte é `apresentacao/slides.html`, com capturas do site publicado em `apresentacao/img/`; para gerar de novo: `node docs/apresentacao/gerar-pdf.mjs`.
+
+| Slide | Conteúdo |
+|---|---|
+| 1 | Título: *SPHEREx Viewer — a movie of the changing infrared sky* |
+| 2 | O problema: os dados são públicos, compará-los não é (Tombaugh, 258 exposições) |
+| 3 | A solução: tela principal e os três passos |
+| 4 | WISE 0855 andando: D6 em duas épocas, D1 e Diferença |
+| 5 | Espectro e mapa do céu com Gaia DR3 |
+| 6 | Validação científica dos 5 alvos e o portão de publicação |
+| 7 | Link, QR code, custo zero e próximos passos |
+
 ## 1. Visão geral
 
 | Tempo | Bloco | Na tela |

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SPHEREx Viewer — project demo</title>
+<!-- Fonte dos 7 slides da demonstração (Space Apps). PDF gerado por gerar-pdf.mjs. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-latin-wdth-normal.woff2") format("woff2");
+  font-weight: 100 900; font-stretch: 62% 125%;
+}
+:root {
+  --glass: #f2efe7; --glass-deep: #e7e2d5; --glass-bright: #fbf9f4; --sleeve: #ddd6c4;
+  --ink: #141414; --ink-soft: #3d3a34; --ink-muted: #5e584c;
+  --pencil: #c4302b; --ink-blue: #2b4c9c; --manila: #9c8f74; --rule: #bdb39b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #777; }
+body { font-family: "Archivo", system-ui, sans-serif; color: var(--ink); }
+@page { size: 1920px 1080px; margin: 0; }
+
+.slide {
+  position: relative; width: 1920px; height: 1080px; overflow: hidden;
+  background: var(--glass); padding: 88px 104px 80px;
+  display: flex; flex-direction: column;
+  page-break-after: always; break-after: page;
+}
+.slide + .slide { margin-top: 0; }
+.kicker {
+  font-size: 22px; font-weight: 700; font-stretch: 80%; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-muted); margin: 0 0 18px;
+}
+h1, h2 { margin: 0; font-weight: 800; font-stretch: 115%; letter-spacing: -0.025em; line-height: 1.02; }
+h2 { font-size: 76px; max-width: 1500px; }
+p { margin: 0; }
+.lede { font-size: 32px; line-height: 1.4; color: var(--ink-soft); }
+.pencil { color: var(--pencil); }
+.foot {
+  position: absolute; left: 104px; right: 104px; bottom: 40px;
+  display: flex; justify-content: space-between; font-size: 20px; color: var(--ink-muted);
+  border-top: 1px solid var(--rule); padding-top: 14px;
+}
+.num { font-weight: 800; font-stretch: 112%; }
+figure { margin: 0; }
+img.plate { display: block; width: 100%; border: 2px solid var(--ink); box-shadow: 0 18px 40px -22px rgb(20 20 20 / .55); }
+figcaption { font-size: 24px; line-height: 1.35; color: var(--ink-soft); margin-top: 16px; }
+figcaption b { color: var(--ink); }
+
+/* 1 — título */
+.s1 { flex-direction: row; gap: 96px; align-items: center; padding-top: 72px; }
+.s1 .text { flex: 1; }
+.s1 h1 { font-size: 150px; letter-spacing: -0.035em; }
+.s1 .sub { font-size: 50px; font-weight: 700; font-stretch: 105%; margin-top: 26px; line-height: 1.15; }
+.s1 .lede { margin-top: 40px; max-width: 900px; }
+.s1 .meta { margin-top: 56px; font-size: 26px; color: var(--ink-muted); line-height: 1.6; }
+.s1 .meta b { color: var(--ink); }
+.s1 figure { width: 700px; flex: none; }
+
+/* 2 — problema */
+.s2 .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 88px; margin-top: 56px; flex: 1; }
+.s2 ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 34px; }
+.s2 li { font-size: 31px; line-height: 1.38; color: var(--ink-soft); padding-left: 44px; position: relative; }
+.s2 li::before { content: ""; position: absolute; left: 0; top: 16px; width: 22px; height: 4px; background: var(--manila); }
+.s2 li b { color: var(--ink); }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-content: start; }
+.tile { background: var(--glass-bright); border: 1px solid var(--rule); border-top: 4px solid var(--manila); padding: 26px 30px 28px; }
+.tile .num { font-size: 92px; line-height: 1; display: block; }
+.tile span { font-size: 24px; color: var(--ink-soft); line-height: 1.3; display: block; margin-top: 10px; }
+.tile.hot { border-top-color: var(--pencil); }
+.tile.hot .num { color: var(--pencil); }
+
+/* 3 — solução */
+.s3 .shot { margin-top: 44px; display: grid; grid-template-columns: 1fr 470px; gap: 56px; align-items: start; }
+.s3 .shot img { max-width: 100%; max-height: 640px; width: auto; justify-self: start; border: 2px solid var(--ink); box-shadow: 0 18px 40px -22px rgb(20 20 20 / .5); display: block; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 26px; counter-reset: s; }
+.steps li { counter-increment: s; position: relative; padding-left: 74px; font-size: 24px; line-height: 1.38; color: var(--ink-soft); }
+.steps li::before {
+  content: counter(s); position: absolute; left: 0; top: -2px; width: 52px; height: 52px; border-radius: 50%;
+  background: var(--ink); color: var(--glass); display: grid; place-items: center; font-weight: 800; font-size: 26px;
+}
+.steps b { color: var(--ink); display: block; font-size: 30px; margin-bottom: 4px; }
+
+/* 4 — ver o movimento */
+.s4 .row { margin-top: 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px; }
+.s4 figcaption { font-size: 23px; }
+.tag { display: inline-block; font-size: 20px; font-weight: 700; font-stretch: 88%; letter-spacing: .04em;
+  background: var(--sleeve); border-top: 2px solid var(--manila); padding: 5px 10px; margin-bottom: 10px; color: var(--ink-soft); }
+.tag.hot { background: var(--pencil); color: var(--glass); border-top-color: var(--pencil); }
+
+/* 5 — mais que imagens */
+.s5 .row { margin-top: 44px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+.s5 .row img { width: 100%; display: block; border: 1px solid var(--rule); background: var(--glass-bright); box-shadow: 0 16px 36px -22px rgb(20 20 20 / .5); }
+.s5 .row img.map { height: 470px; object-fit: cover; object-position: 50% 50%; }
+.s5 .chips { margin-top: 26px; }
+.chips { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+.chip { font-size: 21px; font-weight: 600; padding: 8px 16px; border: 1.5px solid var(--ink-soft); background: var(--glass-bright); }
+
+/* 6 — ciência */
+.s6 .cols { margin-top: 44px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; }
+table { border-collapse: collapse; width: 100%; font-size: 25px; }
+th { text-align: left; font-size: 19px; font-weight: 700; font-stretch: 80%; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted);
+  border-bottom: 2px solid var(--ink); padding: 0 14px 12px 0; }
+td { padding: 16px 14px 16px 0; border-bottom: 1px solid var(--rule); line-height: 1.3; vertical-align: top; color: var(--ink-soft); }
+td:first-child { font-weight: 700; color: var(--ink); white-space: nowrap; }
+td .num { color: var(--ink); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.pair figcaption { font-size: 20px; margin-top: 8px; }
+.gate { margin-top: 30px; display: flex; align-items: center; gap: 12px; font-size: 22px; font-weight: 600; flex-wrap: wrap; }
+.gate span { background: var(--glass-bright); border: 1.5px solid var(--ink-soft); padding: 9px 14px; }
+.gate span.hot { border-color: var(--pencil); color: var(--pencil); }
+.gate i { font-style: normal; color: var(--ink-muted); }
+
+/* 7 — experimente */
+.s7 { justify-content: center; }
+.s7 .cols { display: grid; grid-template-columns: 1fr 360px; gap: 96px; align-items: center; margin-top: 40px; }
+.s7 .url { font-size: 54px; font-weight: 800; font-stretch: 105%; letter-spacing: -0.01em; margin-top: 18px; }
+.s7 .repo { font-size: 30px; color: var(--ink-soft); margin-top: 14px; }
+.s7 .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 56px; }
+.s7 .next { margin-top: 44px; font-size: 27px; color: var(--ink-soft); line-height: 1.45; }
+.s7 .next b { color: var(--ink); }
+.s7 .close { margin-top: 48px; font-size: 40px; font-weight: 700; font-stretch: 105%; line-height: 1.25; }
+#qr { background: white; padding: 22px; border: 2px solid var(--ink); }
+#qr img, #qr canvas { display: block; width: 316px !important; height: 316px !important; image-rendering: pixelated; }
+.qrcap { text-align: center; font-size: 22px; color: var(--ink-muted); margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="slide s1">
+  <div class="text">
+    <p class="kicker">NASA Space Apps Challenge 2026 · Planet X and SPHEREx</p>
+    <h1>SPHEREx Viewer</h1>
+    <p class="sub">A movie of the <span class="pencil">changing</span> infrared sky</p>
+    <p class="lede">Real SPHEREx images of any patch of sky, epoch by epoch, so anyone can see what moved or changed brightness.</p>
+    <p class="meta"><b>enriquessribeiro.github.io/spherex-viewer</b><br>Free · open source · English and Portuguese</p>
+  </div>
+  <figure>
+    <img class="plate" src="img/wise-d6-e4.png" alt="WISE 0855 in the SPHEREx Viewer">
+    <figcaption><b>WISE 0855</b>, the coldest brown dwarf known, inside the circle that marks where it should be.</figcaption>
+  </figure>
+</section>
+
+<!-- 2 -->
+<section class="slide s2">
+  <p class="kicker">The problem</p>
+  <h2>The data is public. <span class="pencil">Comparing it isn't.</span></h2>
+  <div class="cols">
+    <ul>
+      <li>In 1930, <b>Clyde Tombaugh found Pluto</b> by comparing two photos of the same sky and spotting a dot that moved.</li>
+      <li>NASA's <b>SPHEREx</b> photographs the whole sky in infrared every six months, and its archive is public.</li>
+      <li>But one spot, brown dwarf WISE 0855, has <b>258 raw exposures</b>, each in a different wavelength, rotated, with bad pixels and zodiacal light on top.</li>
+      <li>Seeing what moved means querying the archive and aligning every image pixel by pixel. <b>Today only astronomers can do it</b>, and there is far more sky than astronomers.</li>
+    </ul>
+    <div class="tiles">
+      <div class="tile hot"><span class="num">258</span><span>exposures of a single target, May 2025 – May 2026</span></div>
+      <div class="tile"><span class="num">102</span><span>infrared bands, 0.75 – 5 µm, in 6 detectors</span></div>
+      <div class="tile"><span class="num">6 mo</span><span>between two full-sky maps</span></div>
+      <div class="tile"><span class="num">6.15″</span><span>per pixel: nearby stars move about one pixel a year</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>SPHEREx Viewer</span><span>2 / 7</span></div>
+</section>
+
+<!-- 3 -->
+<section class="slide s3">
+  <p class="kicker">The solution</p>
+  <h2>Pick a target or type a coordinate. <span class="pencil">Watch the epochs go by.</span></h2>
+  <div class="shot">
+    <img src="img/site-overview.png" alt="SPHEREx Viewer main screen">
+    <ol class="steps">
+      <li><b>Pick a target</b>The five challenge targets open instantly, each with a plain-language description. Any coordinate or object name works too.</li>
+      <li><b>Watch the epochs</b>Every frame is the same patch of sky on a different date, aligned on one grid. A fixed crosshair and a predicted-position circle guide the eye.</li>
+      <li><b>Compare</b>Blink, like Tombaugh's comparator. Difference erases the static sky. Sum stacks every epoch for depth.</li>
+    </ol>
+  </div>
+  <div class="foot"><span>SPHEREx Viewer</span><span>3 / 7</span></div>
+</section>
+
+<!-- 4 -->
+<section class="slide s4">
+  <p class="kicker">See it move · WISE 0855, the coldest brown dwarf known</p>
+  <h2>Six months apart, the dot <span class="pencil">walks</span>. The stars don't.</h2>
+  <div class="row">
+    <figure>
+      <span class="tag">D6 · 4.4–5.0 µm · OCT 2025</span>
+      <img class="plate" src="img/wise-d6-e2.png" alt="">
+      <figcaption>In the longest infrared the brown dwarf <b>glows</b>, right inside the predicted circle.</figcaption>
+    </figure>
+    <figure>
+      <span class="tag">D6 · 4.4–5.0 µm · APR 2026</span>
+      <img class="plate" src="img/wise-d6-e4.png" alt="">
+      <figcaption>Six months later it has <b>moved west</b>, still where the catalog says it should be.</figcaption>
+    </figure>
+    <figure>
+      <span class="tag">D1 · 0.75–1.09 µm · APR 2026</span>
+      <img class="plate" src="img/wise-d1-e4.png" alt="">
+      <figcaption>In short infrared it <b>vanishes</b>: too cold. Only a background star shows, and it stays still.</figcaption>
+    </figure>
+    <figure>
+      <span class="tag hot">DIFFERENCE · APR − OCT</span>
+      <img class="plate" src="img/wise-diff.png" alt="">
+      <figcaption>The static sky <b>disappears</b>. Red: where it arrived. Dashed circle: where it was.</figcaption>
+    </figure>
+  </div>
+  <div class="foot"><span>Screenshots from the live site</span><span>4 / 7</span></div>
+</section>
+
+<!-- 5 -->
+<section class="slide s5">
+  <p class="kicker">More than pictures</p>
+  <h2>Every exposure is a color. Together they are a <span class="pencil">spectrum</span>.</h2>
+  <div class="row">
+    <figure>
+      <img src="img/wise-spectrum.png" alt="Spectrum of WISE 0855">
+      <figcaption><b>0.75 – 5 µm spectrum of WISE 0855</b>, one dot per exposure (241 of them): each one sees the target through a different part of SPHEREx's variable filter. The cold brown dwarf shines at 4–5 µm.</figcaption>
+      <div class="chips">
+        <span class="chip">False color</span>
+        <span class="chip">Stack all epochs</span>
+        <span class="chip">6′ and 10′ fields</span>
+        <span class="chip">Quality flags</span>
+        <span class="chip">Shareable links</span>
+        <span class="chip">English · Português</span>
+      </div>
+    </figure>
+    <figure>
+      <img class="map" src="img/skymap.png" alt="All-sky SPHEREx map with Gaia DR3">
+      <figcaption><b>The whole SPHEREx sky</b> with Gaia DR3 and AllWISE overlays: is this dot already known? The blue square is the open field; click anywhere to see its epochs.</figcaption>
+    </figure>
+  </div>
+  <div class="foot"><span>Screenshots from the live site</span><span>5 / 7</span></div>
+</section>
+
+<!-- 6 -->
+<section class="slide s6">
+  <p class="kicker">Science you can trust</p>
+  <h2>All five challenge targets pass an <span class="pencil">automated science test</span>.</h2>
+  <div class="cols">
+    <table>
+      <thead><tr><th>Target</th><th>What the tool measures (checked against SIMBAD and Gaia)</th></tr></thead>
+      <tbody>
+        <tr><td>WISE 0855</td><td>Appears only at 4–5 µm, at the predicted position (<span class="num">0.12–0.19 px</span>)</td></tr>
+        <tr><td>Barnard's Star</td><td>Moves <span class="num">~11″ north</span> in a year, measured to <span class="num">0.02 px</span></td></tr>
+        <tr><td>Epsilon Indi B</td><td>Detected at S/N 250–640; motion matches</td></tr>
+        <tr><td>RW Aurigae</td><td>Brightens <span class="num">1.35×</span> between epochs (12σ)</td></tr>
+        <tr><td>R Draconis</td><td>Fades to <span class="num">0.46×</span> between epochs (15σ)</td></tr>
+        <tr><td>Field stars</td><td>Stay put (0.02–0.04 px): alignment ~25× better than a pixel</td></tr>
+      </tbody>
+    </table>
+    <div>
+      <div class="pair">
+        <figure><img class="plate" src="img/barnard-first.png" alt=""><figcaption>Barnard's Star · Aug 2025</figcaption></figure>
+        <figure><img class="plate" src="img/barnard-last.png" alt=""><figcaption>Sep 2026: moved north of the crosshair</figcaption></figure>
+      </div>
+      <div class="gate">
+        <span>Every 3 days</span><i>→</i><span>NASA IRSA</span><i>→</i><span>pipeline</span><i>→</i><span class="hot">16 science tests</span><i>→</i><span>publish only if they pass</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>192 automated tests in total · results in docs/08-resultados.md</span><span>6 / 7</span></div>
+</section>
+
+<!-- 7 -->
+<section class="slide s7">
+  <p class="kicker">Try it</p>
+  <h2>Anyone can now do what <span class="pencil">Tombaugh</span> did, in seconds.</h2>
+  <div class="cols">
+    <div>
+      <p class="url">enriquessribeiro.github.io/spherex-viewer</p>
+      <p class="repo">Code: github.com/enriquessribeiro/spherex-viewer · GPL-3.0</p>
+      <div class="facts">
+        <div class="tile"><span class="num">$0</span><span>to run: GitHub Pages, Render free tier, GitHub Actions</span></div>
+        <div class="tile"><span class="num">Any</span><span>spot on the sky: 5 targets open instantly, others on demand</span></div>
+        <div class="tile hot"><span class="num">3 days</span><span>automatic refresh with new NASA data</span></div>
+      </div>
+      <p class="next"><b>Next:</b> single-exposure view to catch asteroids, spectra for any point, and a way for the public to flag candidates, as Backyard Worlds does.</p>
+    </div>
+    <div>
+      <div id="qr"></div>
+      <p class="qrcap">Open the live site</p>
+    </div>
+  </div>
+  <div class="foot"><span>Data: NASA/JPL-Caltech/IPAC SPHEREx (IRSA), SIMBAD, Gaia DR3, AllWISE · Map: Aladin Lite (CDS) · Not affiliated with or endorsed by NASA</span><span>7 / 7</span></div>
+</section>
+
+<script>
+  new QRCode(document.getElementById("qr"), {
+    text: "https://enriquessribeiro.github.io/spherex-viewer/?lang=en",
+    width: 632, height: 632, colorDark: "#141414", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M,
+  });
+</script>
+</body>
+</html>
