@@ -84,7 +84,7 @@ Branch: `fase-6/<extra>` (um branch por extra, pois são independentes). Em orde
 2. [x] Mapa do céu inteiro: Aladin Lite + HiPS do SPHEREx DR1, troca de detector, alvos marcados, clique abre o ponto na placa (PR #15), catálogos Gaia DR3 e AllWISE (PR #20)
 3. [x] Overlay de flags de contaminação na placa (PR #19)
 4. [x] Falsa cor com 3 detectores (D6, D3, D1) e modo Somar épocas (PR #19)
-5. [x] Campo de visão variável: 3′, 6′ e 10′ (PR #19)
+5. [x] Campo de visão variável: 6′ e 10′, os dois publicados para os alvos (PRs #19 e #28; o 3′ saiu por repetir o zoom 2×)
 6. [x] Modo embed (`embed=1`, PR #16)
 7. [ ] Roteiro do pitch (`docs/11-apresentacao.md`) com os resultados da validação científica
 

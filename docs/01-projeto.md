@@ -140,7 +140,7 @@ Também há acesso via SIA (`Irsa.query_sia(..., collection=['spherex_dr1','sphe
 ### 5.1 Fluxo do usuário
 
 1. Abre o site e digita RA/Dec (sexagesimal ou graus), um nome de objeto, ou clica num alvo pronto.
-2. Escolhe o campo de visão (ex.: 3′, 6′, 12′) e o detector / modo de cor.
+2. Escolhe o campo de visão (6′ ou 10′) e o detector / modo de cor.
 3. Vê a **animação** das épocas, com play/pause, velocidade e barra de tempo com datas.
 4. Alterna para **blink** (duas épocas) ou **diferença** (época B − época A).
 5. Clica num objeto e vê seu **espectro** e os flags daquele pixel.

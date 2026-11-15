@@ -23,7 +23,7 @@ Este relatório consolida o que foi construído até agora, como foi construído
 - **O backend está completo para o MVP.** Os dados de cada campo são gravados num formato formal (JSON Schema), os 5 alvos são gerados como dados estáticos (5 MB no total) e há uma API que processa qualquer coordenada sob demanda.
 - **O site está no ar** em <https://enriquessribeiro.github.io/spherex-viewer/>, com os 5 alvos do desafio: Animar, Piscar e Diferença, detectores D1–D6, régua do tempo, link compartilhável. A API está no Render.
 - **A publicação está completa.** O IRSA ficou fora do ar durante a primeira publicação (o site foi ao ar com um *snapshot* validado localmente); quando voltou, o workflow *Atualizar dados e publicar* passou a rodar com sucesso a cada merge, com a validação científica como portão.
-- **Fase 6 (extras) entregue**: espectro de 0,75 a 5 µm dos alvos, medido exposição por exposição; mapa do céu inteiro com catálogos Gaia DR3 e AllWISE; falsa cor; soma de épocas; flags de contaminação na placa; campo de 3′, 6′ ou 10′; coordenadas do desafio em sexagesimal e de outra época abrindo o alvo certo.
+- **Fase 6 (extras) entregue**: espectro de 0,75 a 5 µm dos alvos, medido exposição por exposição; mapa do céu inteiro com catálogos Gaia DR3 e AllWISE; falsa cor; soma de épocas; flags de contaminação na placa; campo de 6′ ou 10′, os dois publicados e abrindo na hora; coordenadas do desafio em sexagesimal e de outra época abrindo o alvo certo.
 - **Uma revisão de código independente foi feita** depois da fase 6 começar; os achados válidos foram corrigidos (PRs #16 e #17) e um achado foi refutado com observação no navegador.
 - Números: 22 PRs mergeados, 93 commits, 179 testes (88 rápidos do backend + 16 científicos + 8 de serviços reais + 67 do frontend), 11 documentos e 4 diagramas.
 
@@ -199,7 +199,7 @@ Erros padronizados: `400` (parâmetros), `404 NO_COVERAGE`, `429 BUSY` (+ `Retry
 | **Falsa cor** | D6, D3 e D1 nos canais vermelho, verde e azul (`color=1`) |
 | **Somar épocas** | Soma por 1/variância de todas as épocas: mais profundidade, sem movimento |
 | **Flags na placa** | Opcional: pinta em tom de papel os pixels saturados ou de baixa qualidade (flags suspeitas usadas por falta de alternativa limpa) e conta quantos são |
-| **Campo variável** | 3′, 6′ ou 10′; os alvos abrem no campo publicado, os outros tamanhos vão pela API |
+| **Campo variável** | 6′ ou 10′, os dois publicados para os alvos (troca instantânea). O 3′ saiu por repetir o zoom 2×; coordenadas fora da lista vão pela API |
 | **Coordenadas do desafio** | RA/Dec em graus ou sexagesimal; uma coordenada de outra época que cai a menos de 1′ do caminho de um alvo abre o alvo (a do WISE 0855 no texto do desafio abre o WISE 0855) |
 | **Contraste no alvo** | O contraste inicial é ajustado no pico do alvo, não no pixel mais brilhante do campo |
 
@@ -393,5 +393,5 @@ Achados com valor para a apresentação:
 Pendências, em ordem sugerida:
 
 1. Roteiro do pitch (`docs/11-apresentacao.md`) com os resultados da validação científica e o diagrama de [visão geral](diagramas/atividade-visao-geral.png).
-2. Licença de código aberto no repositório, compatível com a GPL-3 do Aladin Lite, e a página do projeto no site do evento.
+2. A página do projeto no site do evento. (Licença: GPL-3.0, compatível com o Aladin Lite.)
 3. Espectro também para campos novos pela API.

@@ -3,6 +3,7 @@ name = "spherex-viewer"
 version = "0.1.0"
 description = "Pipeline e API do SPHEREx Viewer (NASA Space Apps 2026 - Planet X and SPHEREx)"
 requires-python = ">=3.12"
+license = "GPL-3.0-or-later"
 dependencies = [
     "astropy>=7.0",
     "fastapi>=0.162.7",

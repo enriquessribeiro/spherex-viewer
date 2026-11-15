@@ -28,7 +28,7 @@ O SPHEREx Viewer faz essa comparação com dados reais da missão: você escolhe
 | **Espectro** | Brilho do alvo de 0,75 a 5 µm, medido em cada exposição, com aviso quando uma estrela vizinha entra na medida |
 | **Catálogos** | Gaia DR3 e AllWISE sobre o mapa do céu |
 | **Flags** | Mostra na placa os pixels saturados ou de baixa qualidade |
-| **Campo e coordenadas** | Campo de 3′, 6′ ou 10′; busca por nome, RA/Dec em graus ou sexagesimal. A coordenada do texto do desafio abre o WISE 0855 |
+| **Campo e coordenadas** | Campo de 6′ ou 10′, os dois abrindo na hora; busca por nome, RA/Dec em graus ou sexagesimal. A coordenada do texto do desafio abre o WISE 0855 |
 | **Link compartilhável** | Todo o estado fica na URL (`?target=wise0855&mode=diff`), com modo `embed=1` para iframe |
 
 ![Modo Diferença: o céu parado desaparece e sobra o WISE 0855](docs/img/marco2-wise0855-diferenca.png)
@@ -177,3 +177,7 @@ Dados: NASA/JPL-Caltech/IPAC, missão SPHEREx, obtidos pelo [IRSA](https://irsa.
 Mapa do céu: [Aladin Lite](https://aladin.cds.unistra.fr/AladinLite/) (CDS, Estrasburgo), distribuído sob a licença GPL-3.
 
 Este projeto não é afiliado à NASA nem endossado por ela.
+
+## Licença
+
+Código aberto sob a [GNU General Public License v3.0](LICENSE) (GPL-3.0-or-later), a mesma família de licença do Aladin Lite, que o site incorpora. Os dados do SPHEREx são públicos (NASA/IPAC) e seguem os termos do IRSA.
