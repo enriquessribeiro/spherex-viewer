@@ -16,6 +16,7 @@ export interface FieldHandle {
 }
 
 export interface Progress {
+  /** "busy": a API está processando outro campo (só um por vez no Render) e vamos tentar de novo. */
   stage: string;
   done: number;
   total: number;
@@ -76,6 +77,12 @@ export async function loadApiField(
       await sleep(body.poll_after_ms ?? 2000, signal);
       continue;
     }
+    if (response.status === 429) {
+      // Ocupada com o campo de outra pessoa: espera o que ela pede (Retry-After) e tenta de novo.
+      onProgress({ stage: "busy", done: 0, total: 0 });
+      await sleep(retryAfterMs(response), signal);
+      continue;
+    }
     if (!response.ok) throw new Error(body?.error?.message ?? `erro ${response.status}`);
     const doc = body as FieldDoc;
     return { doc, base: apiRoot + doc.base_url };
@@ -103,6 +110,12 @@ export function loadFrame(field: FieldHandle, epochIndex: number, det: Detector)
     frameCache.set(key, cached);
   }
   return cached;
+}
+
+/** Espera pedida pela API num 429 (cabeçalho Retry-After, em segundos), entre 5 s e 2 min. */
+export function retryAfterMs(response: Pick<Response, "headers">): number {
+  const seconds = Number(response.headers.get("Retry-After"));
+  return Math.min(120, Math.max(5, Number.isFinite(seconds) && seconds > 0 ? seconds : 30)) * 1000;
 }
 
 function sleep(ms: number, signal: AbortSignal): Promise<void> {
