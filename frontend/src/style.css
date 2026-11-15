@@ -181,6 +181,82 @@ h2 { margin: 0; }
 .segmented button:hover { background: var(--glass-deep); }
 .segmented button[aria-checked="true"] { background: var(--ink); color: var(--glass); }
 
+/* ---------------------------------------------------------------- introdução */
+
+.intro {
+  display: grid;
+  --plate: clamp(20rem, calc(100vh - 20.5rem), 62vw); /* mesmas colunas da bancada */
+  grid-template-columns: var(--plate) minmax(18rem, 27rem);
+  justify-content: center;
+  gap: 0.75rem var(--gap);
+  align-items: start;
+  max-width: 96rem;
+  margin: 0 auto;
+  padding: var(--gap) var(--gap) 0;
+}
+
+.intro-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1rem + 1.4vw, 2.3rem);
+  font-weight: 800;
+  font-stretch: 112%;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.intro-lede { margin: 0.55rem 0 0; max-width: 64ch; color: var(--ink-soft); }
+
+.intro-steps {
+  list-style: none;
+  counter-reset: passo;
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+  background: var(--glass-bright);
+  border: 1px solid var(--rule);
+  border-top: 2px solid var(--manila);
+  border-radius: var(--radius);
+}
+
+.intro-steps li {
+  counter-increment: passo;
+  position: relative;
+  padding-left: 2.1rem;
+  min-height: 1.5rem;
+}
+
+.intro-steps li::before {
+  content: counter(passo);
+  position: absolute;
+  left: 0;
+  top: -0.05rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-weight: 700;
+  font-size: var(--step--1);
+  color: var(--glass);
+  background: var(--ink);
+  border-radius: 50%;
+}
+
+.intro-steps strong { color: var(--ink); }
+
+body.embed .intro { display: none; }
+
+@media (max-width: 960px) {
+  .intro { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .intro { padding: 1rem 1rem 0; }
+}
+
 /* ---------------------------------------------------------------- bancada */
 
 .workbench {
@@ -533,9 +609,12 @@ input[type="range"] { width: 8rem; }
   border: 1px solid var(--ink-soft);
 }
 
-.target-text { display: grid; line-height: 1.25; }
+.target { align-items: flex-start; }
+.target-text { display: grid; gap: 0.2rem; line-height: 1.3; }
 .target-name { font-weight: 700; font-stretch: 105%; }
-.target-desc { font-size: var(--step--1); color: var(--ink-muted); }
+.target-desc { font-size: var(--step--1); color: var(--ink-soft); }
+.target-look { font-size: var(--step--1); color: var(--ink-muted); }
+.target-look strong { color: var(--ink-soft); font-weight: 650; }
 
 .mode-help, .det-help { margin: 0; font-size: var(--step--1); color: var(--ink-muted); max-width: 34ch; }
 

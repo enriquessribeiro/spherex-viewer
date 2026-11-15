@@ -446,7 +446,7 @@ function renderTargets() {
     button.className = "target";
     button.setAttribute("aria-pressed", String(currentTarget?.id === t.id));
     button.innerHTML = `<canvas class="thumb" width="64" height="64" aria-hidden="true"></canvas>
-      <span class="target-text"><span class="target-name">${t.name}</span><span class="target-desc">${t.description ?? ""}</span></span>`;
+      <span class="target-text"><span class="target-name">${t.name}</span><span class="target-desc">${t.description ?? ""}</span>${t.look_for ? `<span class="target-look"><strong>O que ver:</strong> ${t.look_for}</span>` : ""}</span>`;
     button.addEventListener("click", () => openTarget(t.id));
     li.append(button);
     list.append(li);
