@@ -15,7 +15,7 @@ FIELD_SCHEMA = json.loads((SCHEMAS / "field.schema.json").read_text())
 
 ALVOS = [
     Target(id="fria", name="Anã fria", ra=133.79513, dec=-7.24515, default_detector="D6",
-           description="Só aparece em D6"),
+           description="Só aparece em D6", look_for="Um ponto que anda"),
     Target(id="comum", name="Estrela comum", ra=269.452, dec=4.693),
 ]
 
@@ -57,6 +57,14 @@ def test_manifesto_lista_os_alvos_com_campos_validos(tmp_path):
         jsonschema.validate(campo, FIELD_SCHEMA)
         assert campo["target"]["id"] == entrada["id"]
         assert (tmp_path / entrada["thumbnail"]).exists()
+
+
+def test_manifesto_leva_os_textos_do_card_quando_existem(tmp_path):
+    doc = json.loads(build_static(ALVOS, _arquivo(), tmp_path).read_text())
+
+    fria, comum = doc["targets"]
+    assert (fria["description"], fria["look_for"]) == ("Só aparece em D6", "Um ponto que anda")
+    assert "description" not in comum and "look_for" not in comum
 
 
 def test_miniatura_usa_o_detector_padrao_do_alvo_na_ultima_epoca(tmp_path):

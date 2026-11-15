@@ -55,6 +55,8 @@ def build_static(targets: list[Target], archive: Archive, out: str | Path) -> Pa
         }
         if target.description:
             entry["description"] = target.description
+        if target.look_for:
+            entry["look_for"] = target.look_for
         entries.append(entry)
 
     manifest = {

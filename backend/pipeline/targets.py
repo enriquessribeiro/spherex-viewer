@@ -25,7 +25,8 @@ class Target:
     pm_dec_masyr: float = 0.0
     ref_mjd: float = 51544.5  # J2000
     fov_arcmin: float = 6.0
-    description: str = ""
+    description: str = ""  # o que o astro é, para quem não é astrônomo (card do site)
+    look_for: str = ""  # o que observar na placa
     default_detector: str = "D2"  # detector em que o site abre (anãs frias: D6)
 
     def field_center(self) -> tuple[float, float]:

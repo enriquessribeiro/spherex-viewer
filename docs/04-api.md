@@ -327,7 +327,8 @@ data/
     {
       "id": "wise0855",
       "name": "WISE 0855",
-      "description": "A anã marrom mais fria conhecida; move-se ~8″/ano",
+      "description": "A anã marrom mais fria que se conhece, com temperatura parecida com a de um dia frio aqui na Terra.",
+      "look_for": "Só aparece no infravermelho mais longo (detectores D5 e D6), andando dentro do círculo.",
       "ra": 133.79513, "dec": -7.24515, "fov_arcmin": 6,
       "field": "fields/133.7951-7.2451_6/a3f9c2/field.json",
       "latest_exposure_mjd": 61174.287,
@@ -336,6 +337,8 @@ data/
   ]
 }
 ```
+
+`description` (o que o astro é) e `look_for` (o que observar na placa) são opcionais, vêm do `targets.yaml` e aparecem nos cards dos alvos. São escritos para quem não é astrônomo, sem números.
 
 **Regra do frontend:** se o campo pedido corresponde a um alvo de `data/manifest.json`, carrega o estático (instantâneo). Senão, usa `GET /api/v1/field`.
 

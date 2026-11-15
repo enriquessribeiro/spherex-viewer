@@ -20,6 +20,7 @@
           "id": { "type": "string", "pattern": "^[a-z0-9_-]+$" },
           "name": { "type": "string" },
           "description": { "type": "string" },
+          "look_for": { "type": "string" },
           "ra": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
           "dec": { "type": "number", "minimum": -90, "maximum": 90 },
           "fov_arcmin": { "type": "number", "exclusiveMinimum": 0 },

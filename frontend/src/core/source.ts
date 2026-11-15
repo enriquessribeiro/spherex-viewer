@@ -6,6 +6,7 @@ export interface ManifestTarget {
   id: string;
   name: string;
   description?: string;
+  look_for?: string;
   ra: number;
   dec: number;
   fov_arcmin: number;
