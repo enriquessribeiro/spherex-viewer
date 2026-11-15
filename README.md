@@ -166,6 +166,7 @@ Os dados no ar são gerados pelo workflow *Atualizar dados e publicar*, que só 
 | [08-resultados](docs/08-resultados.md) | Resultados com dados reais |
 | [09-relatorio-progresso](docs/09-relatorio-progresso.md) | Relatório consolidado: decisões e problemas resolvidos |
 | [10-desenvolvimento](docs/10-desenvolvimento.md) | Como rodar e testar |
+| [11-apresentacao](docs/11-apresentacao.md) | Roteiro do pitch de 3 minutos |
 | [diagramas](docs/diagramas/README.md) | Visão geral (diagrama de atividade) e fluxo do sistema em diagramas de raia |
 | [PRODUCT.md](PRODUCT.md) · [DESIGN.md](DESIGN.md) | Registro do produto e do sistema visual |
 
