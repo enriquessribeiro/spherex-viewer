@@ -53,10 +53,9 @@ def build_static(targets: list[Target], archive: Archive, out: str | Path) -> Pa
             "latest_exposure_mjd": doc["latest_exposure_mjd"],
             "thumbnail": doc["base_url"] + _thumbnail(doc, target.default_detector),
         }
-        if target.description:
-            entry["description"] = target.description
-        if target.look_for:
-            entry["look_for"] = target.look_for
+        for key in ("description", "look_for", "description_en", "look_for_en"):
+            if getattr(target, key):
+                entry[key] = getattr(target, key)
         entries.append(entry)
 
     manifest = {

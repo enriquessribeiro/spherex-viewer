@@ -2,6 +2,7 @@
 // O Aladin (~2,4 MB, GPL-3) só é baixado quando o mapa chega perto da tela.
 import { fieldCorners } from "../core/sky";
 import type { ManifestTarget } from "../core/source";
+import { t } from "../i18n";
 
 export const SPHEREX_HIPS = "https://irsa.ipac.caltech.edu/data/hips/SPHEREx/spherex_allsky_cube";
 
@@ -95,7 +96,7 @@ export class SkyMap {
 
   load(): Promise<void> {
     this.loading ??= (async () => {
-      this.status.textContent = "Carregando o mapa do céu…";
+      this.status.textContent = t("sky.loading");
       try {
         const mod: any = await import("aladin-lite");
         this.A = mod.default;
@@ -128,7 +129,7 @@ export class SkyMap {
         if (import.meta.env.DEV) (window as any).__skymap = this; // inspeção nos testes de navegador
         this.drawTargets();
         this.aladin.on("click", (p: { ra: number; dec: number; isDragging: boolean }) => {
-          if (!p.isDragging) this.status.textContent = `Ponto: RA ${p.ra.toFixed(4)}°, Dec ${p.dec.toFixed(4)}°`;
+          if (!p.isDragging) this.status.textContent = t("sky.point", { ra: p.ra.toFixed(4), dec: p.dec.toFixed(4) });
         });
         // Catálogos acompanham a vista: ao arrastar ou aproximar, busca de novo em volta do centro.
         const later = () => {
@@ -137,10 +138,10 @@ export class SkyMap {
         };
         this.aladin.on("positionChanged", later);
         this.aladin.on("zoomChanged", later);
-        this.status.textContent = "Arraste para girar o céu; role para aproximar. Clique num alvo para ver as épocas.";
+        this.status.textContent = t("sky.hint");
         if (this.pending) this.showField(this.pending.ra, this.pending.dec, this.pending.fov, false); // já abriu nele
       } catch (err) {
-        this.status.textContent = `O mapa do céu não carregou (${(err as Error).message}). O resto do site funciona normalmente.`;
+        this.status.textContent = t("sky.fail", { msg: (err as Error).message });
         this.loading = null;
       }
     })();
@@ -159,7 +160,7 @@ export class SkyMap {
     // Mapa já carregado (ex.: o campo da API chegou depois): gira o céu até o campo, mantendo o zoom.
     if (recenter) this.aladin.gotoRaDec(ra, dec);
     if (!this.fieldOverlay) {
-      this.fieldOverlay = this.A.graphicOverlay({ color: INK_BLUE, lineWidth: 2, name: "Campo aberto" });
+      this.fieldOverlay = this.A.graphicOverlay({ color: INK_BLUE, lineWidth: 2, name: t("sky.openField") });
       this.aladin.addOverlay(this.fieldOverlay);
     }
     this.fieldOverlay.removeAll();
@@ -191,12 +192,12 @@ export class SkyMap {
     if (this.catalogs.size === 0) return;
     const fov = this.aladin.getFov()[0];
     if (fov > CATALOG_MAX_FOV_DEG) {
-      this.status.textContent = "Aproxime o mapa (campo menor que 1°) para ver as estrelas do Gaia e do AllWISE.";
+      this.status.textContent = t("sky.zoomIn");
       return;
     }
     const [ra, dec] = this.aladin.getRaDec();
-    const names = [...this.catalogs].map((k) => CATALOGS[k].name).join(" e ");
-    this.status.textContent = `Buscando ${names} no VizieR…`;
+    const names = [...this.catalogs].map((k) => CATALOGS[k].name).join(t("sky.and"));
+    this.status.textContent = t("sky.searching", { names });
     const generation = ++this.catalogGeneration;
     for (const key of this.catalogs) this.loadCatalog(key, ra, dec, catalogRadiusDeg(fov), names, generation, 0);
   }
@@ -209,14 +210,14 @@ export class SkyMap {
       name: c.name, color: c.color, shape: c.shape, sourceSize: 10, onClick: "showPopup",
     }, () => {
       if (generation === this.catalogGeneration) {
-        this.status.textContent = `${names}: estrelas já catalogadas. Clique numa para ver os dados.`;
+        this.status.textContent = t("sky.found", { names });
       }
     }, () => {
       if (generation !== this.catalogGeneration) return;
       this.aladin.removeLayer(layer);
       this.catalogLayers = this.catalogLayers.filter((l) => l !== layer);
       if (mirror + 1 < VIZIER_MIRRORS.length) this.loadCatalog(key, ra, dec, radius, names, generation, mirror + 1);
-      else this.status.textContent = `O VizieR não respondeu (${c.name}). Tente de novo em alguns minutos.`;
+      else this.status.textContent = t("sky.vizierFail", { name: c.name });
     }, false);
     this.aladin.addCatalog(layer);
     this.catalogLayers.push(layer);
@@ -227,6 +228,11 @@ export class SkyMap {
     if (!this.aladin || !this.pending) return;
     this.aladin.gotoRaDec(this.pending.ra, this.pending.dec);
     this.aladin.setFoV(Math.max(0.25, (this.pending.fov / 60) * 6)); // abaixo de 1°: os catálogos aparecem
+  }
+
+  /** Idioma trocado: a mensagem de ajuda do mapa volta no idioma novo. */
+  relabel(): void {
+    this.status.textContent = this.aladin ? t("sky.hint") : this.status.textContent && t("sky.loading");
   }
 
   /** Centro atual do mapa (para "ver épocas aqui"). */
@@ -242,7 +248,7 @@ export class SkyMap {
   private drawTargets(): void {
     if (!this.aladin || this.targets.length === 0) return;
     const cat = this.A.catalog({
-      name: "Alvos do desafio",
+      name: t("sky.targets"),
       color: PENCIL,
       sourceSize: 18,
       shape: "circle",

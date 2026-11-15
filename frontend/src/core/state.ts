@@ -19,7 +19,12 @@ export interface ViewState {
   embed: boolean;
   /** Falsa cor: D6, D3 e D1 nos canais R, G e B. */
   color: boolean;
+  /** Idioma escolhido no botão; sem ele, vale a preferência do navegador. */
+  lang?: Lang;
 }
+
+export type Lang = "pt" | "en";
+export const LANGS: Lang[] = ["pt", "en"];
 
 export const DEFAULT_STATE: ViewState = { fov: 6, mode: "play", fps: 2, stretch: "asinh", embed: false, color: false };
 export const FOV_MIN = 1;
@@ -79,6 +84,8 @@ export function parseState(search: string): { state: ViewState; warnings: string
   state.stretch = choice("stretch", STRETCHES) ?? DEFAULT_STATE.stretch;
   state.embed = p.get("embed") === "1";
   state.color = p.get("color") === "1";
+  const lang = choice("lang", LANGS);
+  if (lang) state.lang = lang;
   return { state, warnings };
 }
 
@@ -100,5 +107,6 @@ export function serializeState(state: ViewState): string {
   if (state.stretch !== DEFAULT_STATE.stretch) p.set("stretch", state.stretch);
   if (state.embed) p.set("embed", "1");
   if (state.color) p.set("color", "1");
+  if (state.lang) p.set("lang", state.lang);
   return p.toString();
 }

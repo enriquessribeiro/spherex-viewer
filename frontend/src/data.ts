@@ -1,5 +1,6 @@
 // Carregamento dos dados: índice de alvos, campos (estáticos ou API) e quadros, com cache em memória.
 import { decodeF32, decodeMask, type Grid, type MaskGrid } from "./core/frames";
+import { t } from "./i18n";
 import type { Manifest } from "./core/source";
 import type { Detector, FieldDoc } from "./core/types";
 
@@ -34,7 +35,7 @@ export async function loadManifest(url = "data/manifest.json"): Promise<Manifest
 /** Campo estático: field.json fica dentro da pasta base do campo. */
 export async function loadStaticField(fieldUrl: string): Promise<FieldHandle> {
   const response = await fetch(fieldUrl);
-  if (!response.ok) throw new Error(`não foi possível carregar o campo (${response.status})`);
+  if (!response.ok) throw new Error(t("err.field", { status: response.status }));
   const doc = (await response.json()) as FieldDoc;
   return { doc, base: fieldUrl.slice(0, fieldUrl.lastIndexOf("/") + 1) };
 }
@@ -46,8 +47,8 @@ async function readJson(response: Response): Promise<any> {
     return JSON.parse(text);
   } catch {
     throw new Error(response.ok
-      ? "o servidor respondeu algo que não é JSON"
-      : `servidor indisponível (${response.status}); a API pode estar acordando, tente em 1 minuto`);
+      ? t("err.notJson")
+      : t("err.down", { status: response.status }));
   }
 }
 
@@ -69,7 +70,7 @@ export async function loadApiField(
   const apiRoot = fieldUrl.slice(0, fieldUrl.indexOf("/api/v1/") + "/api/v1/".length);
   const giveUpAt = Date.now() + MAX_FIELD_WAIT_MS;
   for (;;) {
-    if (Date.now() > giveUpAt) throw new Error("o processamento passou de 35 minutos");
+    if (Date.now() > giveUpAt) throw new Error(t("err.timeout"));
     const response = await fetch(fieldUrl, { signal });
     const body = await readJson(response);
     if (response.status === 202) {

@@ -27,6 +27,8 @@ class Target:
     fov_arcmin: float = 6.0
     description: str = ""  # o que o astro é, para quem não é astrônomo (card do site)
     look_for: str = ""  # o que observar na placa
+    description_en: str = ""  # os mesmos textos em inglês (botão de idioma do site)
+    look_for_en: str = ""
     default_detector: str = "D2"  # detector em que o site abre (anãs frias: D6)
 
     def field_center(self) -> tuple[float, float]:

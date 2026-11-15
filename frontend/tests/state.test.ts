@@ -17,6 +17,15 @@ describe("estado na URL", () => {
     expect(state.target).toBeUndefined();
   });
 
+  it("idioma escolhido vai para a URL; sem escolha, fica de fora", () => {
+    expect(parseState("?target=barnard&lang=en").state.lang).toBe("en");
+    expect(serializeState({ ...DEFAULT_STATE, target: "barnard", lang: "en" })).toBe("target=barnard&lang=en");
+    expect(parseState("?target=barnard").state.lang).toBeUndefined();
+    const { state, warnings } = parseState("?lang=fr");
+    expect(state.lang).toBeUndefined();
+    expect(warnings).toHaveLength(1);
+  });
+
   it("valores padrão ficam fora da URL", () => {
     expect(serializeState({ ...DEFAULT_STATE, target: "barnard" })).toBe("target=barnard");
   });

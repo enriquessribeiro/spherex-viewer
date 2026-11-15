@@ -10,6 +10,8 @@ targets:
     name: "Barnard's Star"
     description: "Uma das estrelas mais próximas do Sol. É uma anã vermelha: menor, mais fria e bem mais fraca que o Sol, invisível a olho nu."
     look_for: "É a estrela que mais rápido muda de lugar no nosso céu. Veja o ponto subir de uma época para a outra."
+    description_en: "One of the closest stars to the Sun. It is a red dwarf: smaller, cooler and much fainter than the Sun, invisible to the naked eye."
+    look_for_en: "It is the star that changes position fastest in our sky. Watch the dot move up from one epoch to the next."
     ra: 269.4520769586187
     dec: 4.693364966576667
     pm_ra_masyr: -801.551
@@ -20,6 +22,8 @@ targets:
     name: "Epsilon Indi B"
     description: "Duas anãs marrons que giram uma em volta da outra e acompanham a estrela Epsilon Indi. Anãs marrons são grandes demais para ser planetas e pequenas demais para brilhar como estrelas."
     look_for: "O par aparece como um só ponto, que muda de lugar entre as épocas."
+    description_en: "Two brown dwarfs orbiting each other and traveling with the star Epsilon Indi. Brown dwarfs are too big to be planets and too small to shine like stars."
+    look_for_en: "The pair shows up as a single dot that changes position between epochs."
     ra: 331.04414658852124
     dec: -56.782844195116105
     pm_ra_masyr: 3981.977
@@ -30,6 +34,8 @@ targets:
     name: "WISE 0855-0714"
     description: "A anã marrom mais fria que se conhece, com temperatura parecida com a de um dia frio aqui na Terra. Não emite luz visível e é um dos vizinhos mais próximos do Sol."
     look_for: "Só aparece no infravermelho mais longo (detectores D5 e D6), andando dentro do círculo."
+    description_en: "The coldest brown dwarf known, about as cold as a chilly day here on Earth. It gives off no visible light and is one of the Sun's closest neighbors."
+    look_for_en: "It only shows up in the longest infrared (detectors D5 and D6), moving inside the circle."
     ra: 133.81890825
     dec: -7.247048
     pm_ra_masyr: -8123.7
@@ -41,6 +47,8 @@ targets:
     name: "RW Aurigae"
     description: "Uma estrela muito jovem, ainda cercada pelo disco de gás e poeira onde planetas podem estar se formando. O disco às vezes encobre parte da luz dela."
     look_for: "Ela fica parada, mas o brilho muda de uma época para a outra. Experimente o modo Diferença."
+    description_en: "A very young star, still surrounded by the disk of gas and dust where planets may be forming. The disk sometimes blocks part of its light."
+    look_for_en: "It stays in place, but its brightness changes from one epoch to the next. Try the Difference mode."
     ra: 76.95652603458333
     dec: 30.401438173888888
     pm_ra_masyr: 7.23
@@ -51,6 +59,8 @@ targets:
     name: "R Draconis"
     description: "Uma estrela gigante e velha, perto do fim da vida, que incha e encolhe em ciclos de alguns meses, como se respirasse."
     look_for: "O brilho muda bastante de uma época para a outra; a posição não muda."
+    description_en: "An old giant star near the end of its life that swells and shrinks in cycles of a few months, as if it were breathing."
+    look_for_en: "Its brightness changes a lot from one epoch to the next; its position does not."
     ra: 248.16761083295
     dec: 66.75497941722
     pm_ra_masyr: -20.643
