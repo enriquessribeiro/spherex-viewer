@@ -187,6 +187,7 @@ h2 { margin: 0; }
   display: grid;
   --plate: clamp(20rem, calc(100vh - 20.5rem), 62vw); /* mesmas colunas da bancada */
   grid-template-columns: var(--plate) minmax(18rem, 27rem);
+  grid-template-areas: "text steps";
   justify-content: center;
   gap: 0.75rem var(--gap);
   align-items: start;
@@ -250,7 +251,7 @@ h2 { margin: 0; }
 body.embed .intro { display: none; }
 
 @media (max-width: 960px) {
-  .intro { grid-template-columns: minmax(0, 1fr); }
+  .intro { grid-template-columns: minmax(0, 1fr); grid-template-areas: "text" "steps"; }
 }
 
 @media (max-width: 640px) {
@@ -263,6 +264,7 @@ body.embed .intro { display: none; }
   --plate: clamp(20rem, calc(100vh - 20.5rem), 62vw);
   display: grid;
   grid-template-columns: var(--plate) minmax(18rem, 27rem);
+  grid-template-areas: "plate controls" "targets targets";
   justify-content: center;
   gap: var(--gap);
   padding: var(--gap);
@@ -286,6 +288,26 @@ body.embed .intro { display: none; }
   text-transform: none;
   color: var(--ink-muted);
   margin-left: 0.4rem;
+}
+
+.intro-text { grid-area: text; }
+.intro-steps { grid-area: steps; }
+.plate-area { grid-area: plate; }
+.targets-area { grid-area: targets; align-content: start; }
+/* Coluna estreita (tela larga) tem os cards um embaixo do outro; nas outras, em grade. */
+.targets-area .targets { grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+.controls { grid-area: controls; }
+
+/* Tela larga: alvos | placa | controles, para as três colunas terminarem juntas. */
+@media (min-width: 1280px) {
+  .intro,
+  .workbench {
+    --plate: clamp(20rem, min(100vh - 20.5rem, 100vw - 54rem), 62vw);
+    grid-template-columns: minmax(16rem, 21rem) var(--plate) minmax(18rem, 25rem);
+  }
+  .intro { grid-template-areas: "text text steps"; }
+  .workbench { grid-template-areas: "targets plate controls"; }
+  .targets-area .targets { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------------------------------------------------------------- a placa */
@@ -744,9 +766,13 @@ body.embed .skymap-area { display: none; }
 /* ---------------------------------------------------------------- responsivo */
 
 @media (max-width: 960px) {
-  .workbench { grid-template-columns: minmax(0, 1fr); }
-  .controls .compare { order: -1; } /* Piscar (o método do desafio) antes da lista de alvos */
-  .targets { grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  /* Uma coluna: placa, Comparar (Piscar é o método do desafio), alvos e o resto dos controles. */
+  .workbench { grid-template-columns: minmax(0, 1fr); grid-template-areas: none; }
+  .controls { display: contents; }
+  .plate-area, .targets-area, .controls > * { grid-area: auto; }
+  .controls > * { order: 3; }
+  .controls > .compare { order: 1; }
+  .targets-area { order: 2; }
 }
 
 @media (max-width: 640px) {
@@ -764,10 +790,11 @@ body.embed .skymap-area { display: none; }
 
 body.embed .masthead,
 body.embed .controls,
+body.embed .targets-area,
 body.embed .transport,
 body.embed .ruler-wrap { display: none; }
 
-body.embed .workbench { grid-template-columns: 1fr; padding: 0.75rem; }
+body.embed .workbench { grid-template-columns: 1fr; grid-template-areas: "plate"; padding: 0.75rem; }
 body.embed .plate-frame,
 body.embed .plate-label { width: 100%; }
 
