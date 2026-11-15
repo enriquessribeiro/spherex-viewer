@@ -1,7 +1,7 @@
 // Fronteira 5 — estado compartilhável na URL e escolha da fonte de dados (docs/04-api.md §7).
 import { describe, expect, it } from "vitest";
 import { DEFAULT_STATE, parseState, serializeState, type ViewState } from "../src/core/state";
-import { chooseSource, type Manifest } from "../src/core/source";
+import { chooseSource, staticFovs, type Manifest } from "../src/core/source";
 
 describe("estado na URL", () => {
   it("ida e volta sem perder nada", () => {
@@ -56,6 +56,27 @@ describe("fonte dos dados", () => {
     expect(chooseSource({ ...DEFAULT_STATE, target: "wise0855" }, manifest, API)).toEqual({
       kind: "static", fieldUrl: "data/fields/133.7600-7.2422_6/abc/field.json", targetId: "wise0855",
     });
+  });
+
+  it("alvo em outro tamanho de campo publicado → estático; tamanho sem arquivo → o padrão", () => {
+    const comExtra: Manifest = {
+      ...manifest,
+      targets: [{ ...manifest.targets[0], alt_fields: [{ fov_arcmin: 10, field: "fields/133.7600-7.2422_10/def/field.json" }] }],
+    };
+    expect(chooseSource({ ...DEFAULT_STATE, target: "wise0855", fov: 10 }, comExtra, API)).toEqual({
+      kind: "static", fieldUrl: "data/fields/133.7600-7.2422_10/def/field.json", targetId: "wise0855",
+    });
+    expect(chooseSource({ ...DEFAULT_STATE, ra: 133.76002, dec: -7.24221, fov: 10 }, comExtra, API)).toMatchObject({
+      kind: "static", fieldUrl: "data/fields/133.7600-7.2422_10/def/field.json",
+    });
+    expect(chooseSource({ ...DEFAULT_STATE, target: "wise0855", fov: 3 }, comExtra, API)).toMatchObject({
+      kind: "static", fieldUrl: "data/fields/133.7600-7.2422_6/abc/field.json",
+    });
+  });
+
+  it("tamanhos de campo do alvo: o padrão e os publicados ao lado", () => {
+    expect(staticFovs({ ...manifest.targets[0], alt_fields: [{ fov_arcmin: 10, field: "x/field.json" }] })).toEqual([6, 10]);
+    expect(staticFovs(manifest.targets[0])).toEqual([6]);
   });
 
   it("coordenada igual ao centro de um alvo (< 1″) → estático", () => {

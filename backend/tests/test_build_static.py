@@ -60,6 +60,26 @@ def test_manifesto_lista_os_alvos_com_campos_validos(tmp_path):
         assert (tmp_path / entrada["thumbnail"]).exists()
 
 
+def test_alvo_tambem_sai_num_campo_maior_publicado_ao_lado(tmp_path):
+    doc = json.loads(build_static(ALVOS[:1], _arquivo(), tmp_path, extra_fovs=(10,)).read_text())
+
+    jsonschema.validate(doc, MANIFEST_SCHEMA)
+    (fria,) = doc["targets"]
+    assert fria["fov_arcmin"] == 6  # o campo padrão continua o principal
+    (extra,) = fria["alt_fields"]
+    assert extra["fov_arcmin"] == 10
+    campo = json.loads((tmp_path / extra["field"]).read_text())
+    jsonschema.validate(campo, FIELD_SCHEMA)
+    assert campo["fov_arcmin"] == 10 and campo["target"]["id"] == "fria"
+    assert campo["spectrum"] == "spectrum.json"
+    assert (tmp_path / extra["field"]).parent.joinpath("spectrum.json").exists()
+
+
+def test_sem_campos_extras_nao_ha_alt_fields(tmp_path):
+    doc = json.loads(build_static(ALVOS[:1], _arquivo(), tmp_path, extra_fovs=()).read_text())
+    assert "alt_fields" not in doc["targets"][0]
+
+
 def test_manifesto_leva_os_textos_do_card_quando_existem(tmp_path):
     doc = json.loads(build_static(ALVOS, _arquivo(), tmp_path).read_text())
 

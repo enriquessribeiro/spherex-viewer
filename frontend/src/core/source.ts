@@ -16,6 +16,8 @@ export interface ManifestTarget {
   field: string;
   latest_exposure_mjd: number;
   thumbnail: string;
+  /** O mesmo alvo publicado em outros tamanhos de campo. */
+  alt_fields?: { fov_arcmin: number; field: string }[];
 }
 
 export interface Manifest {
@@ -36,9 +38,19 @@ export type UnavailableReason = "coords-without-api" | "name-without-api" | "no-
 export const DATA_ROOT = "data/";
 const SAME_POSITION_DEG = 1 / 3600; // 1″
 
+/** Tamanhos de campo do alvo que abrem na hora (arquivos estáticos), do padrão para os extras. */
+export function staticFovs(t: ManifestTarget): number[] {
+  return [t.fov_arcmin, ...(t.alt_fields ?? []).map((a) => a.fov_arcmin)];
+}
+
+/** Arquivo do alvo no tamanho pedido; sem esse tamanho publicado, o do campo padrão. */
+function fieldFor(t: ManifestTarget, fov: number): string {
+  return t.alt_fields?.find((a) => a.fov_arcmin === fov)?.field ?? t.field;
+}
+
 export function chooseSource(state: ViewState, manifest: Manifest | null, apiBase: string | null): Source {
   const targets = manifest?.targets ?? [];
-  const asStatic = (t: ManifestTarget): Source => ({ kind: "static", fieldUrl: DATA_ROOT + t.field, targetId: t.id });
+  const asStatic = (t: ManifestTarget): Source => ({ kind: "static", fieldUrl: DATA_ROOT + fieldFor(t, state.fov), targetId: t.id });
 
   if (state.target) {
     const t = targets.find((x) => x.id === state.target);
@@ -46,7 +58,7 @@ export function chooseSource(state: ViewState, manifest: Manifest | null, apiBas
   }
   if (state.ra !== undefined && state.dec !== undefined) {
     const t = targets.find(
-      (x) => x.fov_arcmin === state.fov &&
+      (x) => staticFovs(x).includes(state.fov) &&
         Math.abs(x.dec - state.dec!) < SAME_POSITION_DEG &&
         Math.abs(x.ra - state.ra!) * Math.cos((x.dec * Math.PI) / 180) < SAME_POSITION_DEG,
     );

@@ -7,7 +7,7 @@ import { defaultDiffPair } from "./core/epochs";
 import { overlayFlags, renderDiff, renderGray, renderRgb, type ColorChannel } from "./core/render";
 import { sumFrames } from "./core/combine";
 import type { MaskGrid } from "./core/frames";
-import { chooseSource, type Manifest, type ManifestTarget } from "./core/source";
+import { chooseSource, staticFovs, type Manifest, type ManifestTarget } from "./core/source";
 import { DEFAULT_STATE, parseState, serializeState, type Mode, type ViewState } from "./core/state";
 import { DETECTORS, type Detector, type EpochDoc } from "./core/types";
 import { worldToPixel } from "./core/wcs";
@@ -117,11 +117,12 @@ async function openFromState() {
     const near = nearbyTarget({ ra: state.ra, dec: state.dec }, await movingTargets());
     if (signal.aborted) return;
     const hit = near && manifest.targets.find((x) => x.id === near.id);
-    if (hit && hit.fov_arcmin === state.fov && near.distanceDeg * 3600 > 1) {
+    const published = !!hit && staticFovs(hit).includes(state.fov);
+    if (hit && published && near.distanceDeg * 3600 > 1) {
       notice = t("status.near", { dist: fmtNum(near.distanceDeg * 60, 1), name: hit.name });
     }
-    // Só troca pelo pré-processado no mesmo tamanho de campo; outro tamanho em volta do alvo vem da API.
-    if (hit && hit.fov_arcmin === state.fov) state = { ...state, target: hit.id, ra: undefined, dec: undefined, fov: hit.fov_arcmin };
+    // Só troca pelo pré-processado num tamanho publicado; outro tamanho em volta do alvo vem da API.
+    if (hit && published) state = { ...state, target: hit.id, ra: undefined, dec: undefined };
     updateUrl();
   }
 
@@ -659,10 +660,11 @@ function renderFovs() {
   for (const b of document.querySelectorAll<HTMLButtonElement>("[data-fov]")) {
     const fov = Number(b.dataset.fov);
     b.setAttribute("aria-checked", String(fov === shown));
-    // Sem API, só existe o tamanho pré-processado.
-    b.disabled = fov !== shown && !API_BASE;
+    // Sem API, só existem os tamanhos pré-processados do alvo.
+    b.disabled = fov !== shown && !API_BASE && !(currentTarget && staticFovs(currentTarget).includes(fov));
   }
-  $("fov-help").textContent = API_BASE ? t("fov.api") : t("fov.noApi");
+  const instant = currentTarget ? staticFovs(currentTarget) : [];
+  $("fov-help").textContent = instant.length > 1 ? t("fov.instant") : API_BASE ? t("fov.api") : t("fov.noApi");
 }
 
 function renderZoom() {
@@ -822,8 +824,8 @@ function wire() {
     b.addEventListener("click", () => {
       const fov = Number(b.dataset.fov);
       if (!field || fov === field.doc.fov_arcmin || b.disabled) return;
-      // Um alvo em outro tamanho de campo vem da API, centrado onde o campo pré-processado está.
-      const t = currentTarget && fov === currentTarget.fov_arcmin ? currentTarget : null;
+      // Tamanho publicado do alvo abre na hora; outro tamanho vem da API, centrado onde o campo está.
+      const t = currentTarget && staticFovs(currentTarget).includes(fov) ? currentTarget : null;
       const { ra, dec } = field.doc.center;
       state = t
         ? { ...state, target: t.id, ra: undefined, dec: undefined, fov, a: undefined, b: undefined }
