@@ -114,6 +114,7 @@ export const TEXTS = {
   "ruler.missingN": { pt: "Marcas claras: {n} épocas sem imagens em {det}.", en: "Light marks: {n} epochs without images in {det}." },
   "ruler.jul": { pt: "jul", en: "Jul" },
   "fov.api": { pt: "Campo maior pega objetos mais rápidos, mas é processado na hora pela API (alguns minutos).", en: "A larger field catches faster objects, but the API processes it on the spot (a few minutes)." },
+  "fov.instant": { pt: "Campo de 10′: mais céu em volta do alvo, bom para objetos que andam rápido.", en: "10′ field: more sky around the target, good for fast-moving objects." },
   "fov.noApi": { pt: "Outros tamanhos de campo precisam da API, que não está configurada neste site.", en: "Other field sizes need the API, which is not configured on this site." },
   "play.pause": { pt: "Pausar", en: "Pause" },
   "play.play": { pt: "Animar", en: "Play" },

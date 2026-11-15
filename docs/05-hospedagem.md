@@ -206,6 +206,8 @@ Para atualizar o snapshot: gerar os dados, rodar a validação científica e reg
 | Recorrente (cache cheio) | Consulta TAP + exposições novas | ~1–3 min |
 | Validação científica | Nada (usa o cache) | ~2,5 min |
 
+Cada alvo também é publicado num campo de 10′ (`EXTRA_FOVS` em `build_static.py`), para a troca de tamanho no site ser instantânea. O recorte maior tem outra chave no cache, então a primeira execução depois dessa mudança baixa de novo um recorte por exposição (mais ~1.950, ~60 min); depois disso volta ao tempo recorrente.
+
 O download é lento porque o serviço de recortes do IRSA sempre inclui a extensão PSF (~4 MB), descartada depois. Rodar a primeira execução **cedo**, para o cache já estar cheio na avaliação.
 
 ### 6.7 Como responde ao desafio

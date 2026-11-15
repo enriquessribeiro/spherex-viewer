@@ -340,6 +340,8 @@ data/
 
 `description` (o que o astro é) e `look_for` (o que observar na placa) são opcionais, vêm do `targets.yaml` e aparecem nos cards dos alvos. São escritos para quem não é astrônomo, sem números. `description_en` e `look_for_en` são os mesmos textos em inglês, usados quando o site está em inglês.
 
+`alt_fields` (opcional) lista o mesmo alvo publicado em outros tamanhos de campo, hoje 10′: `[{"fov_arcmin": 10, "field": "fields/…_10/…/field.json"}]`. Com `target=…&fov=10`, o site abre esse arquivo na hora em vez de pedir o campo à API. O espectro é o mesmo do campo padrão.
+
 **Regra do frontend:** se o campo pedido corresponde a um alvo de `data/manifest.json`, carrega o estático (instantâneo). Senão, usa `GET /api/v1/field`.
 
 ## 7. URL do site (estado compartilhável)
@@ -351,7 +353,7 @@ Não é API do backend, mas é o "contrato público" para links e embed. Todo o 
 | `ra`, `dec` | `ra=133.79513&dec=-7.24515` | Centro (graus) |
 | `target` | `target=wise0855` | Alternativa a ra/dec: alvo da lista |
 | `name` | `name=Barnard's%20star` | Alternativa: resolve via `/resolve` |
-| `fov` | `fov=6` | Campo em arcmin |
+| `fov` | `fov=10` | Campo em arcmin. Os alvos têm 6′ (padrão) e 10′ publicados; outros tamanhos vêm da API |
 | `det` | `det=D6` | Detector |
 | `color` | `color=1` | Falsa cor: D6, D3 e D1 nos canais R, G e B |
 | `mode` | `play`, `blink`, `diff`, `sum` | Modo: animar, piscar, diferença em σ ou soma de todas as épocas |

@@ -23,6 +23,19 @@
           "look_for": { "type": "string" },
           "description_en": { "type": "string" },
           "look_for_en": { "type": "string" },
+          "alt_fields": {
+            "description": "O mesmo alvo publicado em outros tamanhos de campo (troca instantânea no site).",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["fov_arcmin", "field"],
+              "additionalProperties": false,
+              "properties": {
+                "fov_arcmin": { "type": "number", "exclusiveMinimum": 0 },
+                "field": { "type": "string", "pattern": "^fields/.+/field\\.json$" }
+              }
+            }
+          },
           "ra": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
           "dec": { "type": "number", "minimum": -90, "maximum": 90 },
           "fov_arcmin": { "type": "number", "exclusiveMinimum": 0 },

@@ -23,8 +23,13 @@ from pipeline.targets import Target, load_targets
 
 log = logging.getLogger("build_static")
 
+# Tamanhos de campo (arcmin) publicados além do padrão de cada alvo: trocar para eles no site é
+# instantâneo, em vez de minutos de processamento na API. O 10′ dá contexto e segura objetos rápidos.
+EXTRA_FOVS: tuple[float, ...] = (10,)
 
-def build_static(targets: list[Target], archive: Archive, out: str | Path) -> Path:
+
+def build_static(targets: list[Target], archive: Archive, out: str | Path,
+                 extra_fovs: tuple[float, ...] = EXTRA_FOVS) -> Path:
     """Processa cada alvo, grava seu campo e o índice manifest.json. Devolve o caminho do índice."""
     out = Path(out)
     entries = []
@@ -56,6 +61,17 @@ def build_static(targets: list[Target], archive: Archive, out: str | Path) -> Pa
         for key in ("description", "look_for", "description_en", "look_for_en"):
             if getattr(target, key):
                 entry[key] = getattr(target, key)
+        alt_fields = []
+        for fov in extra_fovs:
+            if fov == target.fov_arcmin:
+                continue
+            log.info("%s: campo extra de %s′", target.id, fov)
+            # Mesmo alvo, mesmas medidas: o espectro do campo padrão vale para o maior.
+            extra_json = write_field(build_field(ra, dec, fov, archive), out, target=target, spectrum=spectrum)
+            extra = json.loads(extra_json.read_text())
+            alt_fields.append({"fov_arcmin": fov, "field": extra["base_url"] + "field.json"})
+        if alt_fields:
+            entry["alt_fields"] = alt_fields
         entries.append(entry)
 
     manifest = {
