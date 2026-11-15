@@ -17,6 +17,11 @@ Os 7 slides em inglês exigidos pelo campo *Project Demonstration* do Space Apps
 | 6 | Validação científica dos 5 alvos e o portão de publicação |
 | 7 | Link, QR code, custo zero e próximos passos |
 
+### Slides do pitch (português) e vídeo de reserva
+
+- [`apresentacao/pitch-pt.pdf`](apresentacao/pitch-pt.pdf): 4 slides para o palco. Slides 1 e 2 no primeiro minuto (abertura e problema); depois troca para o site ao vivo; slide 3 em "por que dá para confiar" e slide 4 no fechamento. Fonte: `apresentacao/pitch-pt.html`; gerar de novo com `node docs/apresentacao/gerar-pdf.mjs pitch-pt`.
+- [`apresentacao/demo-pitch.webm`](apresentacao/demo-pitch.webm): vídeo de 60 s, sem som, da demonstração na ordem do roteiro (WISE 0855 animando → D1 → Diferença → espectro → Barnard's Star), com legenda em cada passo. É o **plano B** se a internet cair: abrir no Chrome em tela cheia e narrar por cima. Gravado no site publicado com `node docs/apresentacao/gravar-video.mjs`.
+
 ## 1. Visão geral
 
 | Tempo | Bloco | Na tela |
@@ -77,7 +82,7 @@ A ideia que amarra tudo: **Plutão foi achado comparando duas fotos. O SPHEREx t
 - Clicar uma vez em D1, Diferença e Animar em cada aba, para os quadros já estarem baixados.
 - **Não usar busca por nome nem coordenada nova ao vivo**: isso passa pela API no Render, que dorme no plano gratuito e leva minutos para processar um campo novo.
 - Zoom do navegador em 110–125% se o projetor for pequeno. O círculo vermelho precisa ser visível do fundo da sala.
-- **Plano B sem internet**: gravar antes um vídeo de 60 s da demonstração (mesma sequência) e ter as capturas de `docs/img/` num slide. Se a rede cair, troca para o vídeo sem comentar.
+- **Plano B sem internet**: o vídeo `apresentacao/demo-pitch.webm` (seção 0), salvo no computador da apresentação antes de subir. Se a rede cair, troca para o vídeo sem comentar.
 - Cronometrar dois ensaios completos. Se passar de 3:00, cortar primeiro a linha opcional (Barnard's Star) e depois a frase do D1. O aviso de estrela vizinha no espectro fica para as perguntas (seção 5).
 
 ## 4. Números para ter na ponta da língua
